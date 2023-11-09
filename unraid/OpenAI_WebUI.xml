@@ -2,13 +2,13 @@
 <Container version="2">
   <Name>OpenAIWebUI</Name>
   <Repository>infotrend/openai_webui-unraid:latest</Repository>
-  <Registry/>
+  <Registry>https://hub.docker.com/r/infotrend/openai_webui-unraid/</Registry>
   <Network>bridge</Network>
   <MyIP/>
   <Shell>bash</Shell>
   <Privileged>false</Privileged>
-  <Support/>
-  <Project/>
+  <Support>https://forums.unraid.net/topic/147675-support-infotrendopenai_webui/</Support>
+  <Project>https://github.com/Infotrend-Inc/OpenAI_WebUI</Project>
   <Overview>&#xD;
 Unraid compatible OpenAI WebUI.&#xD;
 Requires your valid OpenAI API key.&#xD;
@@ -20,7 +20,7 @@ Requires your valid OpenAI API key.&#xD;
   <ExtraParams/>
   <PostArgs/>
   <CPUset/>
-  <DateInstalled>1676698846</DateInstalled>
+  <DateInstalled/>
   <DonateText/>
   <DonateLink/>
   <Requires/>

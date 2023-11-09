@@ -19,7 +19,7 @@
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-WebUI ([streamlit](streamlit.io)-based) to ChatGPT and Dall-E's API (requires an OpenAI API key).
+WebUI ([streamlit](https://streamlit.io/)-based) to ChatGPT and Dall-E's API (requires an OpenAI API key).
 
 The tool's purpose is to enable a company to install a self-hosted version of a WebUI to access the capabilities of OpenAI's ChatGPT and DallE and share access to the tool's capabilities while consolidating billing through an OpenAI API key.
 

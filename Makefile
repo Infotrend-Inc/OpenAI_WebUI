@@ -57,9 +57,17 @@ delete_images:
 ##
 
 docker_push:
+	@echo "Creating docker hub tags -- Press Ctl+c within 5 seconds to cancel -- will only work for maintainers"
+	@for i in 5 4 3 2 1; do echo -n "$$i "; sleep 1; done; echo ""
 	@make build_main
+	@docker tag ${OAI_BUILD} infotrend/${OAI_BUILD}
 	@docker tag ${OAI_BUILD_LATEST} infotrend/${OAI_BUILD_LATEST}
 	@make build_unraid
+	@docker tag ${OAI_UNRAID_BUILD} infotrend/${OAI_UNRAID_BUILD}
 	@docker tag ${OAI_UNRAID_BUILD_LATEST} infotrend/${OAI_UNRAID_BUILD_LATEST}
-	@echo docker push infotrend/${OAI_BUILD_LATEST}
-	@echo docker push infotrend/${OAI_UNRAID_BUILD_LATEST}
+	@echo "hub.docker.com upload -- Press Ctl+c within 5 seconds to cancel -- will only work for maintainers"
+	@for i in 5 4 3 2 1; do echo -n "$$i "; sleep 1; done; echo ""
+	@docker push infotrend/${OAI_BUILD}
+	@docker push infotrend/${OAI_BUILD_LATEST}
+	@docker push infotrend/${OAI_UNRAID_BUILD}
+	@docker push infotrend/${OAI_UNRAID_BUILD_LATEST}

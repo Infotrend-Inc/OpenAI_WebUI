@@ -75,7 +75,7 @@ def main():
         username = st.session_state['username']
     
     if cf.isBlank(username):
-        st.image("./assets/Infotrend_Logo.png", width=600)
+        st.image("./assets/Infotrend_Logo.png", width=600, caption="More details, see https://infotrend.com/")
         username = st.text_input("Enter a username (unauthorized characters will be replaced by _)")
         if st.button("Save username"):
             # replace non alphanumeric by _
