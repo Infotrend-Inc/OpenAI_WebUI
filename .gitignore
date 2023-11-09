@@ -1,0 +1,8 @@
+__off
+__pycache__
+venv
+.env
+savedir
+.env.docker
+*.svg
+

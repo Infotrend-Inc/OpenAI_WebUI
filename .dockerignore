@@ -1,0 +1,11 @@
+**/__pycache__
+**/__off
+**/.gitignore
+**/venv
+**/savedir
+**/unraid
+**/.env
+**/.env.example
+**/.gitlab-ci.xml
+**/Makefile
+**/*.md
