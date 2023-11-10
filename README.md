@@ -23,6 +23,8 @@ WebUI ([streamlit](https://streamlit.io/)-based) to ChatGPT and Dall-E's API (re
 
 The tool's purpose is to enable a company to install a self-hosted version of a WebUI to access the capabilities of OpenAI's ChatGPT and DallE and share access to the tool's capabilities while consolidating billing through an OpenAI API key.
 
+A pre-built container is available from our Docker account at https://hub.docker.com/r/infotrend/openai_webui
+
 Note: this tool was initially developed in February 2023 and released to help end-users.
 
 ##  1. <a name='Description'></a>Description
