@@ -16,7 +16,7 @@ Requires your valid OpenAI API key.&#xD;
   <Category>Productivity:</Category>
   <WebUI>http://[IP]:[PORT:8501]</WebUI>
   <TemplateURL/>
-  <Icon>https://openai.com/content/images/2022/05/openai-avatar.png</Icon>
+  <Icon>https://github.com/Infotrend-Inc/OpenAI_WebUI/blob/main/assets/Infotrend_LogoOnly.png?raw=true</Icon>
   <ExtraParams/>
   <PostArgs/>
   <CPUset/>
