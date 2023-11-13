@@ -23,7 +23,11 @@ WebUI ([streamlit](https://streamlit.io/)-based) to ChatGPT and Dall-E's API (re
 
 The tool's purpose is to enable a company to install a self-hosted version of a WebUI to access the capabilities of OpenAI's ChatGPT and DallE and share access to the tool's capabilities while consolidating billing through an OpenAI API key.
 
+Please see https://github.com/Infotrend-Inc/OpenAI_WebUI/blob/main/.env.example for details of possible values for the environment variables. Even if a feature is not used, its environment variable should be set.
+
 A pre-built container is available from our Docker account at https://hub.docker.com/r/infotrend/openai_webui
+
+An [Unraid](https://unraid.net/)-ready version is available directly from Unraid's `Community Applications``.
 
 Note: this tool was initially developed in February 2023 and released to help end-users.
 
@@ -131,7 +135,9 @@ $ make delete_main
 
 ###  2.3. <a name='Unraid'></a>Unraid
 
-For [Unraid](https://unraid.net/) users, a special build mode is available to get a container using unraid's preferred `uid`/`gid`. 
+For [Unraid](https://unraid.net/) users, a special build mode is available to get a container using unraid's preferred `uid`/`gid`, use `make build_unraid` to build it.
+
+The pre-built container has been added to Unraid's Community Applications.
 
 ##  3. <a name='Misc'></a>Misc
 

@@ -12,6 +12,8 @@
   <Overview>&#xD;
 Unraid compatible OpenAI WebUI.&#xD;
 Requires your valid OpenAI API key.&#xD;
+&#xD;
+Please see https://github.com/Infotrend-Inc/OpenAI_WebUI/blob/main/.env.example for details of possible values for the environment variables. Even if a feature is not used, its environment variable should be set.
   </Overview>
   <Category>Productivity:</Category>
   <WebUI>http://[IP]:[PORT:8501]</WebUI>
