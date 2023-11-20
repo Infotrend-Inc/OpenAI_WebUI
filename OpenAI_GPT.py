@@ -105,12 +105,14 @@ class OAI_GPT:
             }
         }
 
-        s_models_list = models_list.split(",")  
-        for model in s_models_list:
+        s_models_list = models_list.split(",")
+        known_models = list(all.keys())
+        for t_model in s_models_list:
+            model = t_model.strip()
             if model in all:
                 models[model] = all[model]
             else:
-                st.error(f"Unknown model: {model} | Known models: {all.keys()}")
+                st.error(f"Unknown model: {model} | Known models: {known_models}")
                 cf.error_exit(f"Unknown model {model}")
 
         model_help = ""
