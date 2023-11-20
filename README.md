@@ -31,6 +31,12 @@ An [Unraid](https://unraid.net/)-ready version is available directly from Unraid
 
 Note: this tool was initially developed in February 2023 and released to help end-users.
 
+## Changes
+
+- v0.9.1 (20231119): Print more `streamlit` errors in case of errors + Addition of `gpt-3.5-turbo-1106 into supported models (added in openai python package 1.3.0)
+- v0.9.0 (20231108): Initial release
+
+
 ##  1. <a name='Description'></a>Description
 
 The tool provides a WebUI to ChatGPT and Dall-E (that later one can be disabled).
