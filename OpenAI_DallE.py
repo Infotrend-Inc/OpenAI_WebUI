@@ -59,7 +59,7 @@ class OAI_DallE:
         self.set_parameters(models_list)
 
         self.dalle_modes = {
-            "Image": "The image generations endpoint allows you to create an original image given a text prompt. Generated images can have a size of 256x256, 512x512, or 1024x1024 pixels. Smaller sizes are faster to generate. You can request 1-10 images at a time using the n parameter."
+            "Image": "The image generations endpoint allows you to create an original image given a text prompt. Generated images and maximum number of requested images depends on the model selected. Smaller sizes are faster to generate."
         }
         self.dalle_help = ""
         for key in self.dalle_modes:
