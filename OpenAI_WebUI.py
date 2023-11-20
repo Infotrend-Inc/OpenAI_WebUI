@@ -67,6 +67,14 @@ def main():
         st.error(f"OAIWUI_DALLE_MODELS environment variable is empty")
         cf.error_exit("OAIWUI_DALLE_MODELS environment variable is empty")
 
+    username = ""
+    if 'OAIWUI_USERNAME' in os.environ:
+        username = os.environ.get('OAIWUI_USERNAME')
+        if cf.isBlank(username):
+            st.warning(f"OAIWUI_USERNAME provided but empty, will ask for username")
+        else:
+            st.session_state['username'] = username
+
     # Store the initial value of widgets in session state
     if "visibility" not in st.session_state:
         st.session_state.visibility = "visible"
@@ -77,12 +85,13 @@ def main():
 
     st.empty()
 
+    # Grab a session-specific value for username
     username = ""
     if 'username' in st.session_state:
         username = st.session_state['username']
     
     if cf.isBlank(username):
-        st.image("./assets/Infotrend_Logo.png", width=600, caption="More details, see https://infotrend.com/")
+        st.image("./assets/Infotrend_Logo.png", width=600)
         username = st.text_input("Enter a username (unauthorized characters will be replaced by _)")
         if st.button("Save username"):
             # replace non alphanumeric by _
