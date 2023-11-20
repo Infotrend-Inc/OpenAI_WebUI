@@ -90,6 +90,7 @@ class OAI_DallE:
             if model in all:
                 models[model] = all[model]
             else:
+                st.error(f"Unknown model: {model} | Known models: {all.keys()}")
                 cf.error_exit(f"Unknown model {model}")
 
         model_help = ""
@@ -112,6 +113,7 @@ class OAI_DallE:
     def dalle_it(self, model, prompt, img_size, img_count, dest_dir, **kwargs):
         err = cf.check_existing_dir_w(dest_dir)
         if cf.isNotBlank(err):
+            st.error(f"While checking {dest_dir}: {err}")
             cf.error_exit(err)
 
         err, response = dalle_call(self.apikey, model, prompt, img_size, img_count, **kwargs)
