@@ -79,6 +79,12 @@ class OAI_GPT:
                 "max_token": 16000,
                 "data": "Up to Sep 2021 (as of 20231108)"
             },
+            "gpt-3.5-turbo-1106":
+            {
+                "label": "The latest GPT-3.5 Turbo model with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Returns a maximum of 4,096 output tokens.",
+                "max_token": 4000,
+                "data": "Up to Sep 2021 (as of 20231118)"
+            },
             "gpt-4":
             {
                 "label": "More capable than any GPT-3.5 model, able to do more complex tasks, and optimized for chat.",
@@ -104,6 +110,7 @@ class OAI_GPT:
             if model in all:
                 models[model] = all[model]
             else:
+                st.error(f"Unknown model: {model} | Known models: {all.keys()}")
                 cf.error_exit(f"Unknown model {model}")
 
         model_help = ""
@@ -192,6 +199,7 @@ class OAI_GPT:
     def chatgpt_it(self, model_engine, prompt, max_tokens, temperature, dest_dir, clear_chat, role, **kwargs):
         err = cf.check_existing_dir_w(dest_dir)
         if cf.isNotBlank(err):
+            st.error(f"While checking {dest_dir}: {err}")
             cf.error_exit(err)
 
         messages = []
