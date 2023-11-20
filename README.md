@@ -10,7 +10,7 @@
 	* 2.3. [Unraid](#Unraid)
 * 3. [Misc](#Misc)
 	* 3.1. [Warning](#Warning)
-	* 3.2. [Version information](#Versioninformation)
+	* 3.2. [Version information/Changelog](#VersioninformationChangelog)
 	* 3.3. [Acknowledgements](#Acknowledgements)
 
 <!-- vscode-markdown-toc-config
@@ -23,7 +23,10 @@ WebUI ([streamlit](https://streamlit.io/)-based) to ChatGPT and Dall-E's API (re
 
 The tool's purpose is to enable a company to install a self-hosted version of a WebUI to access the capabilities of OpenAI's ChatGPT and DallE and share access to the tool's capabilities while consolidating billing through an OpenAI API key.
 
-Please see https://github.com/Infotrend-Inc/OpenAI_WebUI/blob/main/.env.example for details of possible values for the environment variables. Even if a feature is not used, its environment variable should be set.
+Click on the links to see a screenshot of the [GPT WebUI](./assets/Screenshot-OAI_WebUI_GPT.jpg) and the [DallE WebUI](./assets/Screenshot-OAI_WebUI_DallE.jpg).
+
+Please see https://github.com/Infotrend-Inc/OpenAI_WebUI/blob/main/.env.example for details of possible values for the environment variables. 
+Unless specified, even if a feature is not used, its environment variable should be set.
 
 A pre-built container is available from our Docker account at https://hub.docker.com/r/infotrend/openai_webui
 
@@ -54,6 +57,7 @@ The `.env.example` file contains the parameters needed to pass to the running to
 - `OAIWUI_SAVEDIR`, the location to save content (make sure the directory exists)
 - `OAIWUI_GPT_ONLY`, to request only to show the GPT tab otherwise, shows both GPT and DallE (authorized value: `True` or `False`)
 - `OAIWUI_MODELS` is the list of GPT models your API key is authorized to use. See https://platform.openai.com/docs/api-reference/making-requests for more information.
+- `OAIWUI_USERNAME` (optional) specifies a `username` and avoids being prompted at each re-run. The default mode is to run in multi-user settings so this is not enabled by default.
 
 Those values can be passed by making a `.env` file containing the expected values or using environment variables.
 
@@ -145,9 +149,10 @@ The pre-built container has been added to Unraid's Community Applications.
 
 Sometimes, you will run into an error when starting the tool. Clear the `streamlit` cache (right side menu) or deleting cookies should solve this.
 
-###  3.2. <a name='Versioninformation'></a>Version information
+###  3.2. <a name='VersioninformationChangelog'></a>Version information/Changelog
 
-- Nov 8th, 2023: incorporating modifications brought by the latest OpenAI Python package (tested against 1.2.0)
+- v0.9.1 (20231120): Print `streamlit` errors in case of errors with environment variables + Addition of `gpt-3.5-turbo-1106` in the list of supported models (added in openai python package 1.3.0) + added optional `OAIWUI_USERNAME` environment variable
+- v0.9.0 (20231108): Initial release -- incorporating modifications brought by the latest OpenAI Python package (tested against 1.2.0)
 - Oct 2023: Preparation for public release
 - Feb 2023: Initial version
 

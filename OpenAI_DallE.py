@@ -59,7 +59,7 @@ class OAI_DallE:
         self.set_parameters(models_list)
 
         self.dalle_modes = {
-            "Image": "The image generations endpoint allows you to create an original image given a text prompt. Generated images can have a size of 256x256, 512x512, or 1024x1024 pixels. Smaller sizes are faster to generate. You can request 1-10 images at a time using the n parameter."
+            "Image": "The image generations endpoint allows you to create an original image given a text prompt. Generated images and maximum number of requested images depends on the model selected. Smaller sizes are faster to generate."
         }
         self.dalle_help = ""
         for key in self.dalle_modes:
@@ -85,11 +85,14 @@ class OAI_DallE:
             }
         }
 
-        s_models_list = models_list.split(",")  
-        for model in s_models_list:
+        s_models_list = models_list.split(",")
+        known_models = list(all.keys())
+        for t_model in s_models_list:
+            model = t_model.strip()
             if model in all:
                 models[model] = all[model]
             else:
+                st.error(f"Unknown model: [{model}] | Known models: {known_models}")
                 cf.error_exit(f"Unknown model {model}")
 
         model_help = ""
@@ -112,6 +115,7 @@ class OAI_DallE:
     def dalle_it(self, model, prompt, img_size, img_count, dest_dir, **kwargs):
         err = cf.check_existing_dir_w(dest_dir)
         if cf.isNotBlank(err):
+            st.error(f"While checking {dest_dir}: {err}")
             cf.error_exit(err)
 
         err, response = dalle_call(self.apikey, model, prompt, img_size, img_count, **kwargs)
@@ -188,9 +192,8 @@ class OAI_DallE:
         prompt = st.empty().text_area(prompt_value, "", placeholder="Enter your prompt", key="dalle_input")
 
         if st.button("Submit Request", key="dalle_request_answer"):
-            dalle_placeholder = st.empty()
             if cf.isBlank(prompt) or len(prompt) < 10:
-                dalle_placeholder.error("Please provide a prompt of at least 10 characters before requesting an answer", icon="✋")
+                st.error("Please provide a prompt of at least 10 characters before requesting an answer", icon="✋")
                 return ()
 
             dalle_dest_dir = self.get_dest_dir()
@@ -202,7 +205,7 @@ class OAI_DallE:
                     st.error(err)
                 if cf.isNotBlank(run_file):
                     st.session_state['last_dalle_query'] = run_file
-                    dalle_placeholder.info("Done")
+                    st.toast("Done")
 
         if self.last_dalle_query in st.session_state:
             run_file = st.session_state[self.last_dalle_query]

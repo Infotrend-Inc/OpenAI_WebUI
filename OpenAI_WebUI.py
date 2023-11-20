@@ -18,8 +18,8 @@ from dotenv import load_dotenv
 from datetime import datetime
 
 #####
-iti_version="0.9.0"
-st.set_page_config(page_title=f"OpenAI API WebUI ({iti_version})", page_icon="🫥", layout="wide", initial_sidebar_state="expanded")
+iti_version="0.9.1"
+st.set_page_config(page_title=f"OpenAI API WebUI ({iti_version})", page_icon="🫥", layout="wide", initial_sidebar_state="expanded", menu_items={'Get Help': 'https://github.com/Infotrend-Inc/OpenAI_WebUI', 'About': f"# OpenAI WebUI ({iti_version})\n Brought to you by [Infotrend Inc.](https://www.infotrend.com/)"})
 
 
 #####
@@ -33,32 +33,47 @@ def main():
     if 'OPENAI_API_KEY' in os.environ:
        apikey = os.environ.get('OPENAI_API_KEY')
     if cf.isBlank(apikey):
+        st.error(f"Could not find the OPENAI_API_KEY environment variable")
         cf.error_exit(f"Could not find the OPENAI_API_KEY environment variable")
     
     save_location = ""
     if 'OAIWUI_SAVEDIR' in os.environ:
         save_location = os.environ.get('OAIWUI_SAVEDIR')
     if cf.isBlank(save_location):
+        st.error(f"Could not find the OAIWUI_SAVEDIR environment variable")
         cf.error_exit("Could not find the OAIWUI_SAVEDIR environment variable")
     err = cf.check_existing_dir_w(save_location, "OAIWUI_SAVEDIR directory")
     if cf.isNotBlank(err):
+        st.error(f"While ching OAIWUI_SAVEDIR: {err}")
         cf.error_exit(f"{err}")
 
     gpt_models = ""
     if 'OAIWUI_GPT_MODELS' in os.environ:
         gpt_models = os.environ.get('OAIWUI_GPT_MODELS')
     else:
+        st.error(f"Could not find the OAIWUI_GPT_MODELS environment variable")
         cf.error_exit("Could not find the OAIWUI_GPT_MODELS environment variable")
     if cf.isBlank(gpt_models):
+        st.error(f"OAIWUI_GPT_MODELS environment variable is empty")
         cf.error_exit("OAIWUI_GPT_MODELS environment variable is empty")
 
     dalle_models = ""
     if 'OAIWUI_DALLE_MODELS' in os.environ:
         dalle_models = os.environ.get('OAIWUI_DALLE_MODELS')
     else:
+        st.error(f"Could not find the OAIWUI_DALLE_MODELS environment variable")
         cf.error_exit("Could not find the OAIWUI_DALLE_MODELS environment variable")
     if cf.isBlank(dalle_models):
+        st.error(f"OAIWUI_DALLE_MODELS environment variable is empty")
         cf.error_exit("OAIWUI_DALLE_MODELS environment variable is empty")
+
+    username = ""
+    if 'OAIWUI_USERNAME' in os.environ:
+        username = os.environ.get('OAIWUI_USERNAME')
+        if cf.isBlank(username):
+            st.warning(f"OAIWUI_USERNAME provided but empty, will ask for username")
+        else:
+            st.session_state['username'] = username
 
     # Store the initial value of widgets in session state
     if "visibility" not in st.session_state:
@@ -70,12 +85,13 @@ def main():
 
     st.empty()
 
+    # Grab a session-specific value for username
     username = ""
     if 'username' in st.session_state:
         username = st.session_state['username']
     
     if cf.isBlank(username):
-        st.image("./assets/Infotrend_Logo.png", width=600, caption="More details, see https://infotrend.com/")
+        st.image("./assets/Infotrend_Logo.png", width=600)
         username = st.text_input("Enter a username (unauthorized characters will be replaced by _)")
         if st.button("Save username"):
             # replace non alphanumeric by _
@@ -107,6 +123,7 @@ def set_ui(long_save_location, apikey, gpt_models, dalle_models):
         elif tmp == "False":
             oai_dalle = OAI_DallE(apikey, long_save_location, dalle_models)
         else:
+            st.error(f"OAIWUI_GPT_ONLY environment variable must be set to 'True' or 'False'")
             cf.error_exit("OAIWUI_GPT_ONLY environment variable must be set to 'True' or 'False'")
 
     if oai_dalle is None:
