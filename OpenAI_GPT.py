@@ -293,7 +293,7 @@ class OAI_GPT:
                         st.error(err)
                     if cf.isNotBlank(run_file):
                         st.session_state['last_gpt_query'] = run_file
-                        st.info("Done")
+                        st.toast("Done")
 
 
         if self.last_gpt_query in st.session_state:

@@ -192,9 +192,8 @@ class OAI_DallE:
         prompt = st.empty().text_area(prompt_value, "", placeholder="Enter your prompt", key="dalle_input")
 
         if st.button("Submit Request", key="dalle_request_answer"):
-            dalle_placeholder = st.empty()
             if cf.isBlank(prompt) or len(prompt) < 10:
-                dalle_placeholder.error("Please provide a prompt of at least 10 characters before requesting an answer", icon="✋")
+                st.error("Please provide a prompt of at least 10 characters before requesting an answer", icon="✋")
                 return ()
 
             dalle_dest_dir = self.get_dest_dir()
@@ -206,7 +205,7 @@ class OAI_DallE:
                     st.error(err)
                 if cf.isNotBlank(run_file):
                     st.session_state['last_dalle_query'] = run_file
-                    dalle_placeholder.info("Done")
+                    st.toast("Done")
 
         if self.last_dalle_query in st.session_state:
             run_file = st.session_state[self.last_dalle_query]
