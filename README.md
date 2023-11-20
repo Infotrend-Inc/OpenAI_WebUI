@@ -2,8 +2,9 @@
 
 <!-- vscode-markdown-toc -->
 * 1. [Description](#Description)
-	* 1.1. [.env](#env)
-	* 1.2. [savedir](#savedir)
+	* 1.1. [Changelog](#Changelog)
+	* 1.2. [.env](#env)
+	* 1.3. [savedir](#savedir)
 * 2. [Setup](#Setup)
 	* 2.1. [Python virtualenv](#Pythonvirtualenv)
 	* 2.2. [Docker/Podman](#DockerPodman)
@@ -31,12 +32,6 @@ An [Unraid](https://unraid.net/)-ready version is available directly from Unraid
 
 Note: this tool was initially developed in February 2023 and released to help end-users.
 
-## Changes
-
-- v0.9.1 (20231119): Print more `streamlit` errors in case of errors + Addition of `gpt-3.5-turbo-1106 into supported models (added in openai python package 1.3.0)
-- v0.9.0 (20231108): Initial release
-
-
 ##  1. <a name='Description'></a>Description
 
 The tool provides a WebUI to ChatGPT and Dall-E (that later one can be disabled).
@@ -53,7 +48,12 @@ The GPT WebUI allows the user to select the `model` to use, the `role` of the as
 
 The Dall-E WebUI allows the user to specify the `image size` and `number of images` to generate. 
 
-###  1.1. <a name='env'></a>.env
+###  1.1. <a name='Changelog'></a>Changelog
+
+- v0.9.1 (20231119): Print more `streamlit` errors in case of errors + Addition of `gpt-3.5-turbo-1106 into supported models (added in openai python package 1.3.0)
+- v0.9.0 (20231108): Initial release
+
+###  1.2. <a name='env'></a>.env
 
 The `.env.example` file contains the parameters needed to pass to the running tool:
 - `OPENAI_API_KEY` as obtained from https://platform.openai.com/account/api-keys
@@ -65,7 +65,7 @@ Those values can be passed by making a `.env` file containing the expected value
 
 The `.env` file is not copied into the `docker` or `unraid` setup. Environment variables should be used in this case. 
 
-###  1.2. <a name='savedir'></a>savedir
+###  1.3. <a name='savedir'></a>savedir
 
 The `OAIWUI_SAVEDIR` variable specifies the location where persistent files will be created from run to run.
 
