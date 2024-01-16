@@ -46,9 +46,25 @@ Depending on your deployment solution (*python virtualenv*, *docker image*, or *
 Once started, the WebUI will prompt the end user with a `username`. 
 This username is here to make finding past conversations/images easier if you seek those; no authentication is associated with it.
 
-The GPT WebUI allows the user to select the `model` to use, the `role` of the assistant, the `max tokens`, and the `temperature` of the response. Each parameter has a help text to provide details within the UI.
+**Features**
 
-The Dall-E WebUI allows the user to specify the `image size` and `number of images` to generate. 
+**ChatGPT (Text Generation)**
+
+**Model Selection**: Choose between different ChatGPT models, such as GPT-3, GPT-4, or Turbo.
+
+**Assistant Role**: Define the role of the assistant for tailored responses.
+
+**Max Tokens**: Control the length of generated text with a maximum token setting.
+
+**Temperature**: Adjust the "surprisingness" of the generated text.
+
+**DALL-E (Image Generation)**
+
+**Image Size**: Specify the dimensions of the images to be generated.
+
+**Quality**: Fine-tune image quality to meet your requirements.
+
+**Style** : Choose it to be natural or vivid
 
 ###  1.1. <a name='env'></a>.env
 
