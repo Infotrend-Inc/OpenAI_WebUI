@@ -9,7 +9,7 @@ OAI_NOCACHE=
 OAI_BASE="python:3.12-slim-bookworm"
 
 # Version infomation and container name
-OAI_VERSION="0.9.1"
+OAI_VERSION="0.9.2"
 OAI_CONTAINER_NAME="openai_webui"
 
 # Default build tag
