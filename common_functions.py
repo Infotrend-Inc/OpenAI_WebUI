@@ -2,6 +2,7 @@ import os
 import os.path
 import pathlib
 import sys
+import shutil
 
 import streamlit as st
 
@@ -121,7 +122,7 @@ def get_dirlist(dir, text="checked directory"):
 ##########
 
 def get_timeUTC():
-    return(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"))
+    return(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
 
 #####
 
@@ -148,3 +149,19 @@ def get_run_file(run_file):
 def error_exit(txt):
     print("[ERROR] " + txt)
     sys.exit(1)
+
+##########
+    
+def directory_rmtree(dir):
+    if os.path.isdir(dir) is False:
+        return("")
+    try:
+        shutil.rmtree(dir, ignore_errors=True)
+    except OSError as e:
+        x = str(e)
+        return(f"Problem deleting directory {dir}: {x}")
+
+    return("")
+
+def get_dirname(path):
+    return(os.path.dirname(path))
