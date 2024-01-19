@@ -3,7 +3,6 @@ from openai import OpenAI
 
 import streamlit as st
 import extra_streamlit_components as stx
-from streamlit_toggle import st_toggle_switch
 from streamlit_extras.stoggle import stoggle
 from streamlit_image_select import image_select
 
@@ -13,6 +12,7 @@ import requests
 
 import os.path
 import pathlib
+import fnmatch
 
 import common_functions as cf
 
@@ -107,8 +107,7 @@ class OAI_DallE:
 
 #####
     def get_dest_dir(self):
-        request_time = datetime.today().isoformat()
-        return os.path.join(self.save_location, "dalle", request_time)
+        return os.path.join(self.save_location, "dalle", cf.get_timeUTC())
 
 
 #####
@@ -158,10 +157,35 @@ class OAI_DallE:
 
 
 #####
+    def get_history(self):
+        hist = {}
+        search_dir = os.path.join(self.save_location, "dalle")
+        err, listing = cf.get_dirlist(search_dir, "dalle save location")
+        if cf.isNotBlank(err):
+            st.error(f"While getting directory listing from {self.save_location}: {err}, history will be incomplete")
+            return hist
+        for entry in listing:
+            entry_dir = os.path.join(search_dir, entry)
+            err = cf.check_existing_dir_w(entry_dir)
+            if cf.isNotBlank(err):
+                st.error(f"While checking {entry_dir}: {err}, history will be incomplete")
+                continue
+            for file in os.listdir(entry_dir):
+                if fnmatch.fnmatch(file, 'run---*.json'):
+                    run_file = os.path.join(entry_dir, file)
+                    run_json = cf.get_run_file(run_file)
+                    if 'prompt' in run_json:
+                        prompt = run_json['prompt']
+                        hist[entry] = [prompt, run_file]
+                    break
+        return hist
+    
+
+#####
     def set_ui(self):
         st.sidebar.empty()
         with st.sidebar:
-            st.text("Please check the ? for help")
+            st.text("Check the various ? for help", help=f"[Run Details]\n\nRunID: {cf.get_runid()}\n\nSave location: {self.save_location}\n\nUTC time: {cf.get_timeUTC()}\n")
             mode = st.selectbox("mode", options=list(self.dalle_modes.keys()), index=0, key="dalle_mode", help=self.dalle_help)
             model = st.selectbox("model", options=list(self.models.keys()), index=0, key="model", help=self.model_help)
             model_image_size = self.models[model]["image_size"]
@@ -180,7 +204,11 @@ class OAI_DallE:
                 style = st.selectbox("style", options=["vivid", "natural"], index=0, key="dalle_style", help="The style of the generated images. Vivid causes the model to lean towards generating hyper-real and dramatic images. Natural causes the model to produce more natural, less hyper-real looking images.")
                 kwargs = {"quality": quality, "style": style}
 
-            show_tooltip = st_toggle_switch(label="Show Tips", key="show_tips", default_value=True, label_after=False)
+            show_tooltip = st.toggle(label="Show Tips", value=True, key="dalle_show_tooltip", help="Show tips on how to use this tool")
+            show_history = st.toggle(label='Show Prompt History', value=False, help="Show a list of prompts that you have used in the past (most recent first). Loading a selected prompt does not load the parameters used for the generation.", key="dalle_show_history")
+            if show_history:
+                allow_history_deletion = st.toggle('Allow Prompt History Deletion', value=False, help="This will allow you to delete a prompt from the history. This will delete the prompt and all its associated files. This cannot be undone.", key="dalle_allow_history_deletion")
+
 
         if show_tooltip:
             stoggle(
@@ -188,8 +216,36 @@ class OAI_DallE:
                 'DALL·E is an AI system that creates realistic images and art from a description in natural language.<br>- The more detailed the description, the more likely you are to get the result that you or your end user want'
             )
 
+        if show_history:
+            hist = self.get_history()
+            hk = [x for x in hist.keys() if cf.isNotBlank(x)]
+            hk = sorted(hk, reverse=True)
+            hk_opt = [hist[x][0] for x in hk]
+            hk_q = {hist[x][0]: hist[x][1] for x in hk}
+            prev = st.selectbox("Prompt History (most recent first)", options=hk_opt, index=0, key="history")
+            if st.button("Load Selected Prompt", key="load_history"):
+                st.session_state['dalle_last_prompt'] = prev
+                st.session_state[self.last_dalle_query] = hk_q[prev]
+            if allow_history_deletion:
+                if st.button("Delete Selected Prompt", key="delete_history"):
+                    if cf.isNotBlank(prev):
+                        dir = os.path.dirname(hk_q[prev])
+                        err = cf.directory_rmtree(dir)
+                        if cf.isNotBlank(err):
+                            st.error(f"While deleting {dir}: {err}")
+                        else:
+                            if os.path.exists(dir):
+                                st.error(f"Directory {dir} still exists")
+                            else:
+                                st.success(f"Deleted")
+                    else:
+                        st.error("Please select a prompt to delete")
+
+        if 'dalle_last_prompt' not in st.session_state:
+            st.session_state['dalle_last_prompt'] = ""
         prompt_value=f"DallE {model} Input [image size: {img_size} | image count: {img_count} | Extra: {kwargs}]"
-        prompt = st.empty().text_area(prompt_value, "", placeholder="Enter your prompt", key="dalle_input")
+        prompt = st.empty().text_area(prompt_value, st.session_state["dalle_last_prompt"], placeholder="Enter your prompt", key="dalle_input")
+        st.session_state['dalle_last_prompt'] = prompt
 
         if st.button("Submit Request", key="dalle_request_answer"):
             if cf.isBlank(prompt) or len(prompt) < 10:
@@ -204,7 +260,7 @@ class OAI_DallE:
                 if cf.isNotBlank(err):
                     st.error(err)
                 if cf.isNotBlank(run_file):
-                    st.session_state['last_dalle_query'] = run_file
+                    st.session_state[self.last_dalle_query] = run_file
                     st.toast("Done")
 
         if self.last_dalle_query in st.session_state:
