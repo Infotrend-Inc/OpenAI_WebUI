@@ -5,11 +5,17 @@ SHELL := /bin/bash
 #OAI_NOCACHE="--no-cache"
 OAI_NOCACHE=
 
+# docker/podman selection
+# does not matter for unraid builds
+# when using docker_push, docker must be used
+DOCKER_CMD=docker
+#DOCKER_CMD=podman
+
 # Base python image base on Debian
 OAI_BASE="python:3.12-slim-bookworm"
 
 # Version infomation and container name
-OAI_VERSION="0.9.1"
+OAI_VERSION="0.9.2"
 OAI_CONTAINER_NAME="openai_webui"
 
 # Default build tag
@@ -31,12 +37,12 @@ all:
 	@echo "  delete_main:   will delete the main latest images"
 
 build_main:
-	docker build --build-arg OAI_BASE=${OAI_BASE} ${OAI_NOCACHE} -t ${OAI_BUILD} -f Dockerfile .
-	docker tag ${OAI_BUILD} ${OAI_BUILD_LATEST}
+	@${DOCKER_CMD} build --build-arg OAI_BASE=${OAI_BASE} ${OAI_NOCACHE} -t ${OAI_BUILD} -f Dockerfile .
+	@${DOCKER_CMD} tag ${OAI_BUILD} ${OAI_BUILD_LATEST}
 
 build_unraid:
-	docker build --build-arg OAI_BUILD=${OAI_BUILD} ${OAI_NOCACHE} -t ${OAI_UNRAID_BUILD} -f unraid/Dockerfile .
-	docker tag ${OAI_UNRAID_BUILD} ${OAI_UNRAID_BUILD_LATEST}
+	@docker build --build-arg OAI_BUILD=${OAI_BUILD} ${OAI_NOCACHE} -t ${OAI_UNRAID_BUILD} -f unraid/Dockerfile .
+	@docker tag ${OAI_UNRAID_BUILD} ${OAI_UNRAID_BUILD_LATEST}
 
 build:
 	@make build_main
@@ -47,8 +53,8 @@ delete_unraid:
 	@docker rmi ${OAI_UNRAID_BUILD}
 
 delete_main:
-	@docker rmi ${OAI_BUILD_LATEST}
-	@docker rmi ${OAI_BUILD}
+	@${DOCKER_CMD} rmi ${OAI_BUILD_LATEST}
+	@${DOCKER_CMD} rmi ${OAI_BUILD}
 
 delete_images:
 	@make delete_unraid

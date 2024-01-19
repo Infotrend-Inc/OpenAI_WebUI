@@ -19,7 +19,7 @@ RUN wget -q -O /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py \
   && rm /tmp/get-pip.py
 
 COPY requirements.txt /tmp/requirements.txt
-RUN pip3 install -r /tmp/requirements.txt \
+RUN pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r /tmp/requirements.txt \
   && rm -rf /root/.cache/pip /tmp/requirements.txt
 
 RUN mkdir /app /app/.streamlit /app/assets /iti

@@ -3,7 +3,6 @@ from openai import OpenAI
 
 import streamlit as st
 import extra_streamlit_components as stx
-from streamlit_toggle import st_toggle_switch
 from streamlit_extras.stoggle import stoggle
 
 import json
@@ -18,7 +17,6 @@ def gpt_call(apikey, messages, model_engine, max_tokens, temperature, **kwargs):
     client = OpenAI(api_key=apikey)
 
     # Generate a response (20231108: Fixed for new API version)
-    # https://platform.openai.com/docs/guides/error-codes/python-library-error-types
     try:
         completion = client.chat.completions.create(
             model=model_engine,
@@ -29,20 +27,15 @@ def gpt_call(apikey, messages, model_engine, max_tokens, temperature, **kwargs):
             temperature=temperature,
             **kwargs
         )
-    except openai.APIError as e:
-        return(f"OpenAI API returned an API Error: {e}", "")
-    except openai.Timeout as e:
-        return(f"OpenAI API request timed out: {e}", "")
+    # using list from venv/lib/python3.11/site-packages/openai/_exceptions.py
     except openai.APIConnectionError as e:
         return(f"OpenAI API request failed to connect: {e}", "")
-    except openai.InvalidRequestError as e:
-        return(f"OpenAI API request was invalid: {e}", "")
     except openai.AuthenticationError as e:
         return(f"OpenAI API request was not authorized: {e}", "")
-    except openai.PermissionError as e:
-        return(f"OpenAI API request was not permitted: {e}", "")
     except openai.RateLimitError as e:
         return(f"OpenAI API request exceeded rate limit: {e}", "")
+    except openai.APIError as e:
+        return(f"OpenAI API returned an API Error: {e}", "")
     except openai.OpenAIError as e:
         return(f"OpenAI API request failed: {e}", "")
 
@@ -188,6 +181,9 @@ class OAI_GPT:
             txt = self.format_rpr(role, prompt, response)
             last_run_file = run_json['last_run_file']
             if cf.isNotBlank(last_run_file):
+                err = cf.check_file_r(last_run_file)
+                if cf.isNotBlank(err):
+                    return(f"A previous run file does not exist {last_run_file}, it might have been deleted, truncating chat history\n\n" + txt)
                 tmp = self.get_chat_history(last_run_file)
                 return (self.get_chat_history(last_run_file) + txt)
             else:
@@ -245,26 +241,43 @@ class OAI_GPT:
 
 
 #####
+    def get_history(self):
+        search_dir = os.path.join(self.save_location, "gpt")
+        return cf.get_history(search_dir)
+
+#####
     def set_ui(self):
         st.sidebar.empty()
         with st.sidebar:
-            st.text("Please check the ? for help")
+            st.text("Check the various ? for help", help=f"[Run Details]\n\nRunID: {cf.get_runid()}\n\nSave location: {self.save_location}\n\nUTC time: {cf.get_timeUTC()}\n")
             model = st.selectbox("model", options=list(self.models.keys()), index=0, key="model", help=self.model_help)
             m_token = self.models[model]['max_token']
             role = st.selectbox("Role", options=self.gpt_roles, index=0, key="input_role", help = "Role of the input text\n\n" + self.gpt_roles_help)
-            clear_chat = st_toggle_switch(label="Clear chat history for next query", default_value=False, label_after=False, key="clear_chat")
+            clear_chat = st.toggle(label="Clear next query's chat history", value=False, help="This will clear the chat history for the next query. This is useful when you want to start a new chat with a fresh context.")
             max_tokens = st.slider('max_tokens', 0, m_token, 1000, 100, "%i", "max_tokens", "The maximum number of tokens to generate in the completion. The token count of your prompt plus max_tokens cannot exceed the model\'s context length.")
             temperature = st.slider('temperature', 0.0, 1.0, 0.5, 0.01, "%0.2f", "temperature", "The temperature of the model. Higher temperature results in more surprising text.")
             presets = st.selectbox("Preset", options=list(self.gpt_presets.keys()), index=0, key="presets", help=self.gpt_presets_help)
-            show_tooltip = st_toggle_switch(label="Show Tips", key="show_tips", default_value=True, label_after=False)
+            gpt_show_tooltip = st.toggle(label="Show Tips", value=True, help="Show some tips on how to use the tool", key="gpt_show_tooltip")
+            gpt_show_history = st.toggle(label='Show Prompt History', value=False, help="Show a list of prompts that you have used in the past (most recent first). Loading a selected prompt does not load the parameters used for the generation.", key="gpt_show_history")
+            if gpt_show_history:
+                gpt_allow_history_deletion = st.toggle('Allow Prompt History Deletion', value=False, help="This will allow you to delete a prompt from the history. This will delete the prompt and all its associated files. This cannot be undone.", key="gpt_allow_history_deletion")
 
-        if show_tooltip:
+
+        if gpt_show_tooltip:
             stoggle('Tips', 'GPT provides a simple but powerful interface to any models. You input some text as a prompt, and the model will generate a text completion that attempts to match whatever context or pattern you gave it:<br>- The tool works on text to: answer questions, provide definitions, translate, summarize, and analyze sentiments.<br>- Keep your prompts clear and specific. The tool works best when it has a clear understanding of what you\'re asking it, so try to avoid vague or open-ended prompts.<br>- Use complete sentences and provide context or background information as needed.<br>- Some presets are available in the sidebar, check their details for more information.<br>A few example prompts (to use with "None" preset):<br>- Create a list of 8 questions for a data science interview<br>- Generate an outline for a blog post on MFT<br>- Translate "bonjour comment allez vous" in 1. English 2. German 3. Japanese<br>- write python code to display with an image selector from a local directory using OpenCV<br>- Write a creative ad and find a name  for a container to run machine learning and computer vision algorithms by providing access to many common ML frameworks<br>- some models support "Chat" conversations. If you see the "Clear Chat" button, this will be one such model. They also support different max tokens, so adapt accordingly. The "Clear Chat" is here to allow you to start a new "Chat". Chat models can be given writing styles using the "system" "role"<br>More examples and hints can be found at https://platform.openai.com/examples')
 
-        prompt_value=f"GPT ({model}) Input"
-        prompt_value += f" (role: {role})"
-        prompt_value += f" [max_tokens: {max_tokens} | temperature: {temperature} | preset: {presets}]"
-        prompt = st.empty().text_area(prompt_value, "", placeholder="Enter your prompt", key="input")
+        if gpt_show_history:
+            hist = self.get_history()
+            if len(hist) == 0:
+                st.warning("No prompt history found")
+            else:
+                cf.show_history(hist, gpt_allow_history_deletion, 'gpt_last_prompt', self.last_gpt_query)
+
+        if 'gpt_last_prompt' not in st.session_state:
+            st.session_state['gpt_last_prompt'] = ''
+        prompt_value=f"GPT ({model}) Input (role: {role}) [max_tokens: {max_tokens} | temperature: {temperature} | preset: {presets}]"
+        prompt = st.empty().text_area(prompt_value, st.session_state['gpt_last_prompt'], placeholder="Enter your prompt", key="input")
+        st.session_state['gpt_last_prompt'] = prompt
 
         if st.button("Request Answer", key="request_answer"):
             if cf.isBlank(prompt) or len(prompt) < 10:
@@ -292,9 +305,8 @@ class OAI_GPT:
                     if cf.isNotBlank(err):
                         st.error(err)
                     if cf.isNotBlank(run_file):
-                        st.session_state['last_gpt_query'] = run_file
+                        st.session_state[self.last_gpt_query] = run_file
                         st.toast("Done")
-
 
         if self.last_gpt_query in st.session_state:
             run_file = st.session_state[self.last_gpt_query]

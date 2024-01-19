@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 
 #####
-iti_version="0.9.1"
+iti_version="0.9.2"
 st.set_page_config(page_title=f"OpenAI API WebUI ({iti_version})", page_icon="🫥", layout="wide", initial_sidebar_state="expanded", menu_items={'Get Help': 'https://github.com/Infotrend-Inc/OpenAI_WebUI', 'About': f"# OpenAI WebUI ({iti_version})\n Brought to you by [Infotrend Inc.](https://www.infotrend.com/)"})
 
 
@@ -31,7 +31,7 @@ def main():
 
     apikey = ''
     if 'OPENAI_API_KEY' in os.environ:
-       apikey = os.environ.get('OPENAI_API_KEY')
+        apikey = os.environ.get('OPENAI_API_KEY')
     if cf.isBlank(apikey):
         st.error(f"Could not find the OPENAI_API_KEY environment variable")
         cf.error_exit(f"Could not find the OPENAI_API_KEY environment variable")
