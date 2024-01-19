@@ -8,7 +8,6 @@ from streamlit_extras.stoggle import stoggle
 import json
 
 import os.path
-import fnmatch
 
 import common_functions as cf
 
@@ -249,28 +248,8 @@ class OAI_GPT:
 
 #####
     def get_history(self):
-        hist = {}
         search_dir = os.path.join(self.save_location, "gpt")
-        err, listing = cf.get_dirlist(search_dir, "gpt save location")
-        if cf.isNotBlank(err):
-            st.error(f"While getting directory listing from {self.save_location}: {err}, history will be incomplete")
-            return hist
-        for entry in listing:
-            entry_dir = os.path.join(search_dir, entry)
-            err = cf.check_existing_dir_w(entry_dir)
-            if cf.isNotBlank(err):
-                st.error(f"While checking {entry_dir}: {err}, history will be incomplete")
-                continue
-            for file in os.listdir(entry_dir):
-                if fnmatch.fnmatch(file, 'run---*.json'):
-                    run_file = os.path.join(entry_dir, file)
-                    run_json = cf.get_run_file(run_file)
-                    if 'prompt' in run_json:
-                        prompt = run_json['prompt']
-                        hist[entry] = [prompt, run_file]
-                    break
-        return hist
-
+        return cf.get_history(search_dir)
 
 #####
     def set_ui(self):
@@ -295,28 +274,10 @@ class OAI_GPT:
 
         if show_history:
             hist = self.get_history()
-            hk = [x for x in hist.keys() if cf.isNotBlank(x)]
-            hk = sorted(hk, reverse=True)
-            hk_opt = [hist[x][0] for x in hk]
-            hk_q = {hist[x][0]: hist[x][1] for x in hk}
-            prev = st.selectbox("Prompt History (most recent first)", options=hk_opt, index=0, key="history")
-            if st.button("Load Selected Prompt", key="load_history"):
-                st.session_state['gpt_last_prompt'] = prev
-                st.session_state[self.last_gpt_query] = hk_q[prev]
-            if allow_history_deletion:
-                if st.button("Delete Selected Prompt", key="delete_history"):
-                    if cf.isNotBlank(prev):
-                        dir = os.path.dirname(hk_q[prev])
-                        err = cf.directory_rmtree(dir)
-                        if cf.isNotBlank(err):
-                            st.error(f"While deleting {dir}: {err}")
-                        else:
-                            if os.path.exists(dir):
-                                st.error(f"Directory {dir} still exists")
-                            else:
-                                st.success(f"Deleted")
-                    else:
-                        st.error("Please select a prompt to delete")
+            if len(hist) == 0:
+                st.warning("No prompt history found")
+            else:
+                cf.show_history(hist, allow_history_deletion, 'gpt_last_prompt', self.last_gpt_query)
 
         if 'gpt_last_prompt' not in st.session_state:
             st.session_state['gpt_last_prompt'] = ''
