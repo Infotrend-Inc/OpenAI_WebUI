@@ -263,21 +263,21 @@ class OAI_GPT:
             max_tokens = st.slider('max_tokens', 0, m_token, 1000, 100, "%i", "max_tokens", "The maximum number of tokens to generate in the completion. The token count of your prompt plus max_tokens cannot exceed the model\'s context length.")
             temperature = st.slider('temperature', 0.0, 1.0, 0.5, 0.01, "%0.2f", "temperature", "The temperature of the model. Higher temperature results in more surprising text.")
             presets = st.selectbox("Preset", options=list(self.gpt_presets.keys()), index=0, key="presets", help=self.gpt_presets_help)
-            show_tooltip = st.toggle(label="Show Tips", value=True, help="Show some tips on how to use the tool", key="gpt_show_tooltip")
-            show_history = st.toggle(label='Show Prompt History', value=False, help="Show a list of prompts that you have used in the past (most recent first). Loading a selected prompt does not load the parameters used for the generation.", key="gpt_show_history")
-            if show_history:
-                allow_history_deletion = st.toggle('Allow Prompt History Deletion', value=False, help="This will allow you to delete a prompt from the history. This will delete the prompt and all its associated files. This cannot be undone.", key="gpt_allow_history_deletion")
+            gpt_show_tooltip = st.toggle(label="Show Tips", value=True, help="Show some tips on how to use the tool", key="gpt_show_tooltip")
+            gpt_show_history = st.toggle(label='Show Prompt History', value=False, help="Show a list of prompts that you have used in the past (most recent first). Loading a selected prompt does not load the parameters used for the generation.", key="gpt_show_history")
+            if gpt_show_history:
+                gpt_allow_history_deletion = st.toggle('Allow Prompt History Deletion', value=False, help="This will allow you to delete a prompt from the history. This will delete the prompt and all its associated files. This cannot be undone.", key="gpt_allow_history_deletion")
 
 
-        if show_tooltip:
+        if gpt_show_tooltip:
             stoggle('Tips', 'GPT provides a simple but powerful interface to any models. You input some text as a prompt, and the model will generate a text completion that attempts to match whatever context or pattern you gave it:<br>- The tool works on text to: answer questions, provide definitions, translate, summarize, and analyze sentiments.<br>- Keep your prompts clear and specific. The tool works best when it has a clear understanding of what you\'re asking it, so try to avoid vague or open-ended prompts.<br>- Use complete sentences and provide context or background information as needed.<br>- Some presets are available in the sidebar, check their details for more information.<br>A few example prompts (to use with "None" preset):<br>- Create a list of 8 questions for a data science interview<br>- Generate an outline for a blog post on MFT<br>- Translate "bonjour comment allez vous" in 1. English 2. German 3. Japanese<br>- write python code to display with an image selector from a local directory using OpenCV<br>- Write a creative ad and find a name  for a container to run machine learning and computer vision algorithms by providing access to many common ML frameworks<br>- some models support "Chat" conversations. If you see the "Clear Chat" button, this will be one such model. They also support different max tokens, so adapt accordingly. The "Clear Chat" is here to allow you to start a new "Chat". Chat models can be given writing styles using the "system" "role"<br>More examples and hints can be found at https://platform.openai.com/examples')
 
-        if show_history:
+        if gpt_show_history:
             hist = self.get_history()
             if len(hist) == 0:
                 st.warning("No prompt history found")
             else:
-                cf.show_history(hist, allow_history_deletion, 'gpt_last_prompt', self.last_gpt_query)
+                cf.show_history(hist, gpt_allow_history_deletion, 'gpt_last_prompt', self.last_gpt_query)
 
         if 'gpt_last_prompt' not in st.session_state:
             st.session_state['gpt_last_prompt'] = ''

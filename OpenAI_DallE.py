@@ -184,24 +184,24 @@ class OAI_DallE:
                 style = st.selectbox("style", options=["vivid", "natural"], index=0, key="dalle_style", help="The style of the generated images. Vivid causes the model to lean towards generating hyper-real and dramatic images. Natural causes the model to produce more natural, less hyper-real looking images.")
                 kwargs = {"quality": quality, "style": style}
 
-            show_tooltip = st.toggle(label="Show Tips", value=True, key="dalle_show_tooltip", help="Show tips on how to use this tool")
-            show_history = st.toggle(label='Show Prompt History', value=False, help="Show a list of prompts that you have used in the past (most recent first). Loading a selected prompt does not load the parameters used for the generation.", key="dalle_show_history")
-            if show_history:
-                allow_history_deletion = st.toggle('Allow Prompt History Deletion', value=False, help="This will allow you to delete a prompt from the history. This will delete the prompt and all its associated files. This cannot be undone.", key="dalle_allow_history_deletion")
+            dalle_show_tooltip = st.toggle(label="Show Tips", value=True, key="dalle_show_tooltip", help="Show tips on how to use this tool")
+            dalle_show_history = st.toggle(label='Show Prompt History', value=False, help="Show a list of prompts that you have used in the past (most recent first). Loading a selected prompt does not load the parameters used for the generation.", key="dalle_show_history")
+            if dalle_show_history:
+                dalle_allow_history_deletion = st.toggle('Allow Prompt History Deletion', value=False, help="This will allow you to delete a prompt from the history. This will delete the prompt and all its associated files. This cannot be undone.", key="dalle_allow_history_deletion")
 
 
-        if show_tooltip:
+        if dalle_show_tooltip:
             stoggle(
                 'Tips',
                 'DALL·E is an AI system that creates realistic images and art from a description in natural language.<br>- The more detailed the description, the more likely you are to get the result that you or your end user want'
             )
 
-        if show_history:
+        if dalle_show_history:
             hist = self.get_history()
             if len(hist) == 0:
                 st.warning("No prompt history found")
             else:
-                cf.show_history(hist, allow_history_deletion, 'dalle_last_prompt', self.last_dalle_query)
+                cf.show_history(hist, dalle_allow_history_deletion, 'dalle_last_prompt', self.last_dalle_query)
 
         if 'dalle_last_prompt' not in st.session_state:
             st.session_state['dalle_last_prompt'] = ""
