@@ -250,20 +250,17 @@ class OAI_GPT:
 #####
     def get_history(self):
         hist = {}
-        # get directory listing from self.save_location
         search_dir = os.path.join(self.save_location, "gpt")
         err, listing = cf.get_dirlist(search_dir, "gpt save location")
         if cf.isNotBlank(err):
             st.error(f"While getting directory listing from {self.save_location}: {err}, history will be incomplete")
             return hist
         for entry in listing:
-            # check if directory
             entry_dir = os.path.join(search_dir, entry)
             err = cf.check_existing_dir_w(entry_dir)
             if cf.isNotBlank(err):
                 st.error(f"While checking {entry_dir}: {err}, history will be incomplete")
                 continue
-            # check if run---*.json
             for file in os.listdir(entry_dir):
                 if fnmatch.fnmatch(file, 'run---*.json'):
                     run_file = os.path.join(entry_dir, file)
@@ -287,10 +284,10 @@ class OAI_GPT:
             max_tokens = st.slider('max_tokens', 0, m_token, 1000, 100, "%i", "max_tokens", "The maximum number of tokens to generate in the completion. The token count of your prompt plus max_tokens cannot exceed the model\'s context length.")
             temperature = st.slider('temperature', 0.0, 1.0, 0.5, 0.01, "%0.2f", "temperature", "The temperature of the model. Higher temperature results in more surprising text.")
             presets = st.selectbox("Preset", options=list(self.gpt_presets.keys()), index=0, key="presets", help=self.gpt_presets_help)
-            show_tooltip = st.toggle(label="Show Tips", value=True, help="Show some tips on how to use the tool")
-            show_history = st.toggle(label='Show Prompt History', value=False, help="Show a list of prompts that you have used in the past (most recent first)")
+            show_tooltip = st.toggle(label="Show Tips", value=True, help="Show some tips on how to use the tool", key="gpt_show_tooltip")
+            show_history = st.toggle(label='Show Prompt History', value=False, help="Show a list of prompts that you have used in the past (most recent first). Loading a selected prompt does not load the parameters used for the generation.", key="gpt_show_history")
             if show_history:
-                allow_history_deletion = st.toggle('Allow Prompt History Deletion', value=False, help="This will allow you to delete a prompt from the history. This will delete the prompt and all its associated files. This cannot be undone.")
+                allow_history_deletion = st.toggle('Allow Prompt History Deletion', value=False, help="This will allow you to delete a prompt from the history. This will delete the prompt and all its associated files. This cannot be undone.", key="gpt_allow_history_deletion")
 
 
         if show_tooltip:
@@ -303,11 +300,11 @@ class OAI_GPT:
             hk_opt = [hist[x][0] for x in hk]
             hk_q = {hist[x][0]: hist[x][1] for x in hk}
             prev = st.selectbox("Prompt History (most recent first)", options=hk_opt, index=0, key="history")
-            if st.button("Load History", key="load_history"):
+            if st.button("Load Selected Prompt", key="load_history"):
                 st.session_state['gpt_last_prompt'] = prev
                 st.session_state[self.last_gpt_query] = hk_q[prev]
             if allow_history_deletion:
-                if st.button("Delete Selected History", key="delete_history"):
+                if st.button("Delete Selected Prompt", key="delete_history"):
                     if cf.isNotBlank(prev):
                         dir = os.path.dirname(hk_q[prev])
                         err = cf.directory_rmtree(dir)
