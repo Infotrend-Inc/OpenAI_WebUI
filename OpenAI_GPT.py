@@ -3,12 +3,12 @@ from openai import OpenAI
 
 import streamlit as st
 import extra_streamlit_components as stx
-from streamlit_toggle import st_toggle_switch
 from streamlit_extras.stoggle import stoggle
 
 import json
 
 import os.path
+import fnmatch
 
 import common_functions as cf
 
@@ -188,6 +188,9 @@ class OAI_GPT:
             txt = self.format_rpr(role, prompt, response)
             last_run_file = run_json['last_run_file']
             if cf.isNotBlank(last_run_file):
+                err = cf.check_file_r(last_run_file)
+                if cf.isNotBlank(err):
+                    return(f"A previous run file does not exist {last_run_file}, it might have been deleted, truncating chat history\n\n" + txt)
                 tmp = self.get_chat_history(last_run_file)
                 return (self.get_chat_history(last_run_file) + txt)
             else:
@@ -245,26 +248,84 @@ class OAI_GPT:
 
 
 #####
+    def get_history(self):
+        hist = {}
+        # get directory listing from self.save_location
+        search_dir = os.path.join(self.save_location, "gpt")
+        err, listing = cf.get_dirlist(search_dir, "gpt save location")
+        if cf.isNotBlank(err):
+            st.error(f"While getting directory listing from {self.save_location}: {err}, history will be incomplete")
+            return hist
+        for entry in listing:
+            # check if directory
+            entry_dir = os.path.join(search_dir, entry)
+            err = cf.check_existing_dir_w(entry_dir)
+            if cf.isNotBlank(err):
+                st.error(f"While checking {entry_dir}: {err}, history will be incomplete")
+                continue
+            # check if run---*.json
+            for file in os.listdir(entry_dir):
+                if fnmatch.fnmatch(file, 'run---*.json'):
+                    run_file = os.path.join(entry_dir, file)
+                    run_json = cf.get_run_file(run_file)
+                    if 'prompt' in run_json:
+                        prompt = run_json['prompt']
+                        hist[entry] = [prompt, run_file]
+                    break
+        return hist
+
+
+#####
     def set_ui(self):
         st.sidebar.empty()
         with st.sidebar:
-            st.text("Please check the ? for help")
+            st.text("Check the various ? for help", help=f"[Run Details]\n\nRunID: {cf.get_runid()}\n\nSave location: {self.save_location}\n\nUTC time: {cf.get_timeUTC()}\n")
             model = st.selectbox("model", options=list(self.models.keys()), index=0, key="model", help=self.model_help)
             m_token = self.models[model]['max_token']
             role = st.selectbox("Role", options=self.gpt_roles, index=0, key="input_role", help = "Role of the input text\n\n" + self.gpt_roles_help)
-            clear_chat = st_toggle_switch(label="Clear chat history for next query", default_value=False, label_after=False, key="clear_chat")
+            clear_chat = st.toggle(label="Clear next query's chat history", value=False, help="This will clear the chat history for the next query. This is useful when you want to start a new chat with a fresh context.")
             max_tokens = st.slider('max_tokens', 0, m_token, 1000, 100, "%i", "max_tokens", "The maximum number of tokens to generate in the completion. The token count of your prompt plus max_tokens cannot exceed the model\'s context length.")
             temperature = st.slider('temperature', 0.0, 1.0, 0.5, 0.01, "%0.2f", "temperature", "The temperature of the model. Higher temperature results in more surprising text.")
             presets = st.selectbox("Preset", options=list(self.gpt_presets.keys()), index=0, key="presets", help=self.gpt_presets_help)
-            show_tooltip = st_toggle_switch(label="Show Tips", key="show_tips", default_value=True, label_after=False)
+            show_tooltip = st.toggle(label="Show Tips", value=True, help="Show some tips on how to use the tool")
+            show_history = st.toggle(label='Show Prompt History', value=False, help="Show a list of prompts that you have used in the past (most recent first)")
+            if show_history:
+                allow_history_deletion = st.toggle('Allow Prompt History Deletion', value=False, help="This will allow you to delete a prompt from the history. This will delete the prompt and all its associated files. This cannot be undone.")
+
 
         if show_tooltip:
             stoggle('Tips', 'GPT provides a simple but powerful interface to any models. You input some text as a prompt, and the model will generate a text completion that attempts to match whatever context or pattern you gave it:<br>- The tool works on text to: answer questions, provide definitions, translate, summarize, and analyze sentiments.<br>- Keep your prompts clear and specific. The tool works best when it has a clear understanding of what you\'re asking it, so try to avoid vague or open-ended prompts.<br>- Use complete sentences and provide context or background information as needed.<br>- Some presets are available in the sidebar, check their details for more information.<br>A few example prompts (to use with "None" preset):<br>- Create a list of 8 questions for a data science interview<br>- Generate an outline for a blog post on MFT<br>- Translate "bonjour comment allez vous" in 1. English 2. German 3. Japanese<br>- write python code to display with an image selector from a local directory using OpenCV<br>- Write a creative ad and find a name  for a container to run machine learning and computer vision algorithms by providing access to many common ML frameworks<br>- some models support "Chat" conversations. If you see the "Clear Chat" button, this will be one such model. They also support different max tokens, so adapt accordingly. The "Clear Chat" is here to allow you to start a new "Chat". Chat models can be given writing styles using the "system" "role"<br>More examples and hints can be found at https://platform.openai.com/examples')
 
-        prompt_value=f"GPT ({model}) Input"
-        prompt_value += f" (role: {role})"
-        prompt_value += f" [max_tokens: {max_tokens} | temperature: {temperature} | preset: {presets}]"
-        prompt = st.empty().text_area(prompt_value, "", placeholder="Enter your prompt", key="input")
+        if show_history:
+            hist = self.get_history()
+            hk = [x for x in hist.keys() if cf.isNotBlank(x)]
+            hk = sorted(hk, reverse=True)
+            hk_opt = [hist[x][0] for x in hk]
+            hk_q = {hist[x][0]: hist[x][1] for x in hk}
+            prev = st.selectbox("Prompt History (most recent first)", options=hk_opt, index=0, key="history")
+            if st.button("Load History", key="load_history"):
+                st.session_state['gpt_last_prompt'] = prev
+                st.session_state[self.last_gpt_query] = hk_q[prev]
+            if allow_history_deletion:
+                if st.button("Delete Selected History", key="delete_history"):
+                    if cf.isNotBlank(prev):
+                        dir = os.path.dirname(hk_q[prev])
+                        err = cf.directory_rmtree(dir)
+                        if cf.isNotBlank(err):
+                            st.error(f"While deleting {dir}: {err}")
+                        else:
+                            if os.path.exists(dir):
+                                st.error(f"Directory {dir} still exists")
+                            else:
+                                st.success(f"Deleted")
+                    else:
+                        st.error("Please select a prompt to delete")
+
+        if 'gpt_last_prompt' not in st.session_state:
+            st.session_state['gpt_last_prompt'] = ''
+        prompt_value=f"GPT ({model}) Input (role: {role}) [max_tokens: {max_tokens} | temperature: {temperature} | preset: {presets}]"
+        prompt = st.empty().text_area(prompt_value, st.session_state['gpt_last_prompt'], placeholder="Enter your prompt", key="input")
+        st.session_state['gpt_last_prompt'] = prompt
 
         if st.button("Request Answer", key="request_answer"):
             if cf.isBlank(prompt) or len(prompt) < 10:
@@ -292,9 +353,8 @@ class OAI_GPT:
                     if cf.isNotBlank(err):
                         st.error(err)
                     if cf.isNotBlank(run_file):
-                        st.session_state['last_gpt_query'] = run_file
+                        st.session_state[self.last_gpt_query] = run_file
                         st.toast("Done")
-
 
         if self.last_gpt_query in st.session_state:
             run_file = st.session_state[self.last_gpt_query]
