@@ -46,25 +46,19 @@ Depending on your deployment solution (*python virtualenv*, *docker image*, or *
 Once started, the WebUI will prompt the end user with a `username`. 
 This username is here to make finding past conversations/images easier if you seek those; no authentication is associated with it.
 
-**Features**
+ChatGPT (Text Generation) sidebar options (see "?" mark for specific details):
+- model: choose between the different ChatGPT models that are enabled.
+- role (user, system, assistant): define the role of the input text for tailored responses.
+- max tokens: controls the length of generated text with a maximum token setting (dependent on the model)
+- temperature: adjust the "surprisingness" of the generated text.
 
-**ChatGPT (Text Generation)**
-
-**Model Selection**: Choose between different ChatGPT models, such as GPT-3, GPT-4, or Turbo.
-
-**Assistant Role**: Define the role of the assistant for tailored responses.
-
-**Max Tokens**: Control the length of generated text with a maximum token setting.
-
-**Temperature**: Adjust the "surprisingness" of the generated text.
-
-**DALL-E (Image Generation)**
-
-**Image Size**: Specify the dimensions of the images to be generated.
-
-**Quality**: Fine-tune image quality to meet your requirements.
-
-**Style** : Choose it to be natural or vivid
+DALL-E (Image Generation) sidebar options (see "?" for specific details):
+- mode: "image" for the time being.
+- model: choose between the different DallE models that are enabled.
+- image Size: specify the dimensions of the images to be generated.
+- number of images (model dependent): number of images to generate
+- quality (model dependent): fine-tune image quality to meet your requirements.
+- style  (model dependent): style of the generated images.
 
 ###  1.1. <a name='env'></a>.env
 
@@ -87,7 +81,7 @@ Its structure is: `savedir`/`version`/`username`/`mode`/`UTCtime`/`<CONTENT>`, w
 - `username` being the self-specified user name prompted when starting the WebUI
 - `version` the tool's version, making it easier to debug
 - `mode` on of `gpt` or `dalle`
-- the `UTCtime`, a `YYYYY-MM-DD T HH:MM:SS.microseconds Z` UTC-time of the request (the directory's content will be time ordered)
+- the `UTCtime`, a `YYYYY-MM-DD T HH:MM:SS Z` UTC-time of the request (the directory's content will be time ordered)
 - `<CONTENT>` is often a `json` file containing the details of the run for `gpt`, but also the different `png` images generated for `dalle`
 
 We do not check the directories for size. It is left to the end user to clean up space if required.
@@ -167,6 +161,7 @@ Sometimes, you will run into an error when starting the tool. Clear the `streaml
 
 ###  3.2. <a name='VersioninformationChangelog'></a>Version information/Changelog
 
+- v0.9.2 (20241218): keep prompt history for a given session + allow user to review/delete past prompts + updated openai python package: 1.8.0
 - v0.9.1 (20231120): Print `streamlit` errors in case of errors with environment variables + Addition of `gpt-3.5-turbo-1106` in the list of supported models (added in openai python package 1.3.0) + added optional `OAIWUI_USERNAME` environment variable
 - v0.9.0 (20231108): Initial release -- incorporating modifications brought by the latest OpenAI Python package (tested against 1.2.0)
 - Oct 2023: Preparation for public release
