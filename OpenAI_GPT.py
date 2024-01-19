@@ -17,7 +17,6 @@ def gpt_call(apikey, messages, model_engine, max_tokens, temperature, **kwargs):
     client = OpenAI(api_key=apikey)
 
     # Generate a response (20231108: Fixed for new API version)
-    # https://platform.openai.com/docs/guides/error-codes/python-library-error-types
     try:
         completion = client.chat.completions.create(
             model=model_engine,
@@ -28,20 +27,15 @@ def gpt_call(apikey, messages, model_engine, max_tokens, temperature, **kwargs):
             temperature=temperature,
             **kwargs
         )
-    except openai.APIError as e:
-        return(f"OpenAI API returned an API Error: {e}", "")
-    except openai.Timeout as e:
-        return(f"OpenAI API request timed out: {e}", "")
+    # using list from venv/lib/python3.11/site-packages/openai/_exceptions.py
     except openai.APIConnectionError as e:
         return(f"OpenAI API request failed to connect: {e}", "")
-    except openai.InvalidRequestError as e:
-        return(f"OpenAI API request was invalid: {e}", "")
     except openai.AuthenticationError as e:
         return(f"OpenAI API request was not authorized: {e}", "")
-    except openai.PermissionError as e:
-        return(f"OpenAI API request was not permitted: {e}", "")
     except openai.RateLimitError as e:
         return(f"OpenAI API request exceeded rate limit: {e}", "")
+    except openai.APIError as e:
+        return(f"OpenAI API returned an API Error: {e}", "")
     except openai.OpenAIError as e:
         return(f"OpenAI API request failed: {e}", "")
 

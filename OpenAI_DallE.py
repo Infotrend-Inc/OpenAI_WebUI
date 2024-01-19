@@ -32,14 +32,15 @@ def dalle_call(apikey, model, prompt, img_size, img_count, **kwargs):
             n=img_count,
             **kwargs
         )
-    except openai.APIError as e:
-        return(f"OpenAI API returned an API Error: {e}", "")
+    # using list from venv/lib/python3.11/site-packages/openai/_exceptions.py
     except openai.APIConnectionError as e:
         return(f"OpenAI API request failed to connect: {e}", "")
     except openai.AuthenticationError as e:
         return(f"OpenAI API request was not authorized: {e}", "")
     except openai.RateLimitError as e:
         return(f"OpenAI API request exceeded rate limit: {e}", "")
+    except openai.APIError as e:
+        return(f"OpenAI API returned an API Error: {e}", "")
     except openai.OpenAIError as e:
         return(f"OpenAI API request failed: {e}", "")
 
