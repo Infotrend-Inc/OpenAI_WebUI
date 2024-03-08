@@ -101,7 +101,6 @@ class OAI_DallE:
                 per_model_help += " NOTE: " + models[key]["status_details"]
             self.per_model_help[key] = per_model_help
             model_help += f"{per_model_help}\n\n"
-        model_help += "For list of available supported models, see https://github.com/Infotrend-Inc/OpenAI_WebUI\n\n"
 
         active_models = [x for x in av_models_list if av_models_list[x]["status"] == "active"]
         active_models_txt = ",".join(active_models)
@@ -110,7 +109,8 @@ class OAI_DallE:
             st.error(f"No models retained, unable to continue. Active models: {active_models_txt}")
             cf.error_exit(f"No models retained, unable to continue.\nActive models: {active_models_txt}")
 
-        model_help += f"List of active models: {active_models_txt}\n\n"
+        model_help += "For a list of available supported models, see https://github.com/Infotrend-Inc/OpenAI_WebUI\n\n"
+        model_help += f"List of active models supported by this release: {active_models_txt}\n\n"
 
         self.models = models
         self.models_status = models_status
