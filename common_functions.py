@@ -216,3 +216,13 @@ def show_history(hist, allow_history_deletion, last_prompt_key, last_query_key):
                         st.success(f"Deleted")
             else:
                 st.error("Please select a prompt to delete")
+
+def read_json(file, txt=''):
+    err = check_file_r(file)
+    if err != "":
+        error_exit(f"Problem with input {txt} Json file ({file}): {err}")
+
+    with open(file) as simple_file:
+        file_contents = simple_file.read()
+        parsed_json = json.loads(file_contents)
+        return parsed_json

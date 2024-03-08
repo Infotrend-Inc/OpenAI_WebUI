@@ -49,14 +49,18 @@ def dalle_call(apikey, model, prompt, img_size, img_count, **kwargs):
 
 ##########
 class OAI_DallE:
-    def __init__(self, apikey, save_location, models_list):
+    def __init__(self, apikey, save_location, models_list, av_models_list):
         self.last_dalle_query = 'last_dalle_query'
 
         self.apikey = apikey
         self.save_location = save_location
 
-        self.models_supported = models_list
-        self.set_parameters(models_list)
+        self.models = {}
+        self.models_status = {}
+        self.model_help = ""
+        self.per_model_help = {}
+
+        self.set_parameters(models_list, av_models_list)
 
         self.dalle_modes = {
             "Image": "The image generations endpoint allows you to create an original image given a text prompt. Generated images and maximum number of requested images depends on the model selected. Smaller sizes are faster to generate."
@@ -68,40 +72,47 @@ class OAI_DallE:
 
 
 #####
-    def set_parameters(self, models_list):
+    def set_parameters(self, models_list, av_models_list):
         models = {}
+        models_status = {}
         model_help = ""
 
-        all = {
-            "dall-e-2":
-            {
-                "label": "The previous DALL·E model released in Nov 2022. The maximum prompt length is 1000 characters.",
-                "image_size": ["256x256", "512x512", "1024x1024"]
-            },
-            "dall-e-3":
-            {
-                "label": "The latest DALL·E model released in Nov 2023. The maximum prompt length is 4000 characters.",
-                "image_size": ["1024x1024", "1024x1792", "1792x1024"]        
-            }
-        }
-
-        s_models_list = models_list.split(",")
-        known_models = list(all.keys())
+        s_models_list = models_list.replace(",", " ").split()
+        known_models = list(av_models_list.keys())
         for t_model in s_models_list:
             model = t_model.strip()
-            if model in all:
-                models[model] = all[model]
+            if model in av_models_list:
+                if av_models_list[model]["status"] == "retired":
+                    st.warning(f"Model [{model}] is retired (" + av_models_list[model]['status_details'] + "), discarding it")
+                else:
+                    models[model] = dict(av_models_list[model])
+                    if cf.isNotBlank(models[model]["status_details"]):
+                        models_status[model] = av_models_list[model]["status"] + " (" + av_models_list[model]["status_details"] + ")"
             else:
                 st.error(f"Unknown model: [{model}] | Known models: {known_models}")
                 cf.error_exit(f"Unknown model {model}")
 
         model_help = ""
         for key in models:
-            model_help += key + ":\n"
-            model_help += models[key]["label"] + "\n"
-            model_help += "image_size: " + str(models[key]["image_size"]) + "\n"
+            per_model_help = f"{key} (" + av_models_list[key]["status"] + "):\n"
+            per_model_help += av_models_list[key]["label"] + "\n"
+            per_model_help += "image_size: " + str(av_models_list[key]["image_size"])
+            if cf.isNotBlank(models[key]["status_details"]):
+                per_model_help += " NOTE: " + models[key]["status_details"]
+            self.per_model_help[key] = per_model_help
+            model_help += f"{per_model_help}\n\n"
+
+        active_models = [x for x in av_models_list if av_models_list[x]["status"] == "active"]
+        active_models_txt = ",".join(active_models)
+
+        if len(models) == 0:
+            st.error(f"No models retained, unable to continue. Active models: {active_models_txt}")
+            cf.error_exit(f"No models retained, unable to continue.\nActive models: {active_models_txt}")
+
+        model_help += f"List of active models: {active_models_txt}\n\n"
 
         self.models = models
+        self.models_status = models_status
         self.model_help = model_help
 
 
@@ -167,8 +178,12 @@ class OAI_DallE:
         st.sidebar.empty()
         with st.sidebar:
             st.text("Check the various ? for help", help=f"[Run Details]\n\nRunID: {cf.get_runid()}\n\nSave location: {self.save_location}\n\nUTC time: {cf.get_timeUTC()}\n")
-            mode = st.selectbox("mode", options=list(self.dalle_modes.keys()), index=0, key="dalle_mode", help=self.dalle_help)
+            mode = list(self.dalle_modes.keys())[0]
+            if len(self.dalle_modes.keys()) > 1:
+                mode = st.selectbox("mode", options=list(self.dalle_modes.keys()), index=0, key="dalle_mode", help=self.dalle_help)
             model = st.selectbox("model", options=list(self.models.keys()), index=0, key="model", help=self.model_help)
+            if model in self.models_status:
+                st.info(f"{model}: {self.models_status[model]}")
             model_image_size = self.models[model]["image_size"]
             img_size = st.selectbox("image size", options=model_image_size, index=0, key="dalle_image_size",
                                     help="Smaller sizes are faster to generate.")
@@ -207,14 +222,18 @@ class OAI_DallE:
         if 'dalle_last_prompt' not in st.session_state:
             st.session_state['dalle_last_prompt'] = ""
         prompt_value=f"DallE {model} Input [image size: {img_size} | image count: {img_count} | Extra: {kwargs}]"
-        prompt = st.empty().text_area(prompt_value, st.session_state["dalle_last_prompt"], placeholder="Enter your prompt", key="dalle_input")
+        help_text = self.per_model_help[model] if model in self.per_model_help else "No help available for this model"
+        prompt = st.empty().text_area(prompt_value, st.session_state["dalle_last_prompt"], placeholder="Enter your prompt", key="dalle_input", help=help_text)
         st.session_state['dalle_last_prompt'] = prompt
 
         if st.button("Submit Request", key="dalle_request_answer"):
             if cf.isBlank(prompt) or len(prompt) < 10:
                 st.error("Please provide a prompt of at least 10 characters before requesting an answer", icon="✋")
                 return ()
-
+            if len(prompt) > self.models[model]["max_prompt_length"]:
+                st.error(f"Your prompt is {len(prompt)} characters long, which is more than the maximum of {self.models[model]['max_prompt_length']} for this model")
+                return ()
+            
             dalle_dest_dir = self.get_dest_dir()
             
             cf.make_wdir_error(dalle_dest_dir)

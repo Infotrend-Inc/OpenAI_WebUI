@@ -21,9 +21,35 @@ from datetime import datetime
 iti_version="0.9.2"
 st.set_page_config(page_title=f"OpenAI API WebUI ({iti_version})", page_icon="🫥", layout="wide", initial_sidebar_state="expanded", menu_items={'Get Help': 'https://github.com/Infotrend-Inc/OpenAI_WebUI', 'About': f"# OpenAI WebUI ({iti_version})\n Brought to you by [Infotrend Inc.](https://www.infotrend.com/)"})
 
+#####
+def load_models():
+    err = cf.check_file_r("models.json", "models.json")
+    if cf.isNotBlank(err):
+        st.error(f"While checking models.json: {err}")
+        cf.error_exit(f"While checking models.json: {err}")
+    all_models = cf.read_json("models.json")
+    if all_models is None:
+        st.error(f"Could not read models.json")
+        cf.error_exit(f"Could not read models.json")
+    gpt_models = {}
+    if 'GPT' in all_models:
+        gpt_models = all_models['GPT']
+    else:
+        st.error(f"Could not find GPT in models.json")
+        cf.error_exit(f"Could not find GPT in models.json")
+    dalle_models = {}
+    if 'DallE' in all_models:
+        dalle_models = all_models['DallE']
+    else:
+        st.error(f"Could not find DallE in models.json")
+        cf.error_exit(f"Could not find DallE in models.json")
+    return gpt_models, dalle_models
 
 #####
 def main():
+    # Load all supported models (need the status field to decide or prompt if we can use that model or not)
+    av_gpt_models, av_dalle_models = load_models()    
+
     err = cf.check_file_r(".env", "Environment file")
     if cf.isBlank(err):
         load_dotenv()
@@ -44,7 +70,7 @@ def main():
         cf.error_exit("Could not find the OAIWUI_SAVEDIR environment variable")
     err = cf.check_existing_dir_w(save_location, "OAIWUI_SAVEDIR directory")
     if cf.isNotBlank(err):
-        st.error(f"While ching OAIWUI_SAVEDIR: {err}")
+        st.error(f"While checking OAIWUI_SAVEDIR: {err}")
         cf.error_exit(f"{err}")
 
     gpt_models = ""
@@ -109,19 +135,19 @@ def main():
         cf.make_wdir_error(os.path.join(long_save_location, "dalle"))
         cf.make_wdir_error(os.path.join(long_save_location, "gpt"))
 
-        set_ui(long_save_location, apikey, gpt_models, dalle_models)
+        set_ui(long_save_location, apikey, gpt_models, av_gpt_models, dalle_models, av_dalle_models)
 
 
 #####
-def set_ui(long_save_location, apikey, gpt_models, dalle_models):
-    oai_gpt = OAI_GPT(apikey, long_save_location, gpt_models)
+def set_ui(long_save_location, apikey, gpt_models, av_gpt_models, dalle_models, av_dalle_models):
+    oai_gpt = OAI_GPT(apikey, long_save_location, gpt_models, av_gpt_models)
     oai_dalle = None
     if 'OAIWUI_GPT_ONLY' in os.environ:
         tmp = os.environ.get('OAIWUI_GPT_ONLY')
         if tmp == "True":
             oai_dalle = None
         elif tmp == "False":
-            oai_dalle = OAI_DallE(apikey, long_save_location, dalle_models)
+            oai_dalle = OAI_DallE(apikey, long_save_location, dalle_models, av_dalle_models)
         else:
             st.error(f"OAIWUI_GPT_ONLY environment variable must be set to 'True' or 'False'")
             cf.error_exit("OAIWUI_GPT_ONLY environment variable must be set to 'True' or 'False'")
