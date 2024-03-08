@@ -117,15 +117,6 @@
             "data": "Up to Sep 2021 (as of 20231108)",
             "status": "active",
             "status_details": ""
-        },
-        "text-davinci-003":
-        {
-            "label": "Older GPT-3 model served via the completions endpoint. Shut down as of January 04, 2024.",
-            "max_token": 1024,
-            "context_token": 1024,
-            "data": "N/A",
-            "status": "retired",
-            "status_details": "Shut down as of January 04, 2024."
         }
     },
     "DallE":
