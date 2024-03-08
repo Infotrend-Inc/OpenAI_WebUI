@@ -62,6 +62,13 @@ delete_images:
 
 ##
 
+build_docker_amd64:
+	@docker buildx build --platform linux/amd64 --build-arg OAI_BASE=${OAI_BASE} ${OAI_NOCACHE} -t ${OAI_BUILD} -f Dockerfile .
+	@docker tag ${OAI_BUILD} ${OAI_BUILD_LATEST}
+	@docker buildx build --platform linux/amd64 --build-arg OAI_BUILD=${OAI_BUILD} ${OAI_NOCACHE} -t ${OAI_UNRAID_BUILD} -f unraid/Dockerfile .
+	@docker tag ${OAI_UNRAID_BUILD} ${OAI_UNRAID_BUILD_LATEST}
+
+
 docker_push:
 	@echo "Creating docker hub tags -- Press Ctl+c within 5 seconds to cancel -- will only work for maintainers"
 	@for i in 5 4 3 2 1; do echo -n "$$i "; sleep 1; done; echo ""
