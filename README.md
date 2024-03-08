@@ -1,27 +1,23 @@
-# OpenAI WebUI
+<h1>OpenAI WebUI</h1>
 
-<!-- vscode-markdown-toc -->
-* 1. [Description](#Description)
-	* 1.1. [.env](#env)
-	* 1.2. [savedir](#savedir)
-* 2. [Setup](#Setup)
-	* 2.1. [Python virtualenv](#Pythonvirtualenv)
-	* 2.2. [Docker/Podman](#DockerPodman)
-	* 2.3. [Unraid](#Unraid)
-* 3. [Misc](#Misc)
-	* 3.1. [Warning](#Warning)
-	* 3.2. [Version information/Changelog](#VersioninformationChangelog)
-	* 3.3. [Acknowledgements](#Acknowledgements)
+Latest version: 0.9.3
 
-<!-- vscode-markdown-toc-config
-	numbering=true
-	autoSave=true
-	/vscode-markdown-toc-config -->
-<!-- /vscode-markdown-toc -->
+- [1. Description](#1-description)
+  - [1.1. Supported models](#11-supported-models)
+  - [1.2. .env](#12-env)
+  - [1.3. savedir](#13-savedir)
+- [2. Setup](#2-setup)
+  - [2.1. Python virtualenv](#21-python-virtualenv)
+  - [2.2. Docker/Podman](#22-dockerpodman)
+  - [2.3. Unraid](#23-unraid)
+- [3. Misc](#3-misc)
+  - [3.1. Notes](#31-notes)
+  - [3.2. Version information/Changelog](#32-version-informationchangelog)
+  - [3.3. Acknowledgments](#33-acknowledgments)
 
 WebUI ([streamlit](https://streamlit.io/)-based) to ChatGPT and Dall-E's API (requires an OpenAI API key).
 
-The tool's purpose is to enable a company to install a self-hosted version of a WebUI to access the capabilities of OpenAI's ChatGPT and DallE and share access to the tool's capabilities while consolidating billing through an OpenAI API key.
+The tool's purpose is to enable a company to install a self-hosted version of a WebUI to access the capabilities of OpenAI's ChatGPT and DallE and share access to the tool's capabilities while consolidating billing through the [OpenAI API](https://pypi.org/project/openai/) key. Access to [models](https://platform.openai.com/docs/models/) is limited to those enabled with your API key.
 
 Click on the links to see a screenshot of the [GPT WebUI](./assets/Screenshot-OAI_WebUI_GPT.jpg) and the [DallE WebUI](./assets/Screenshot-OAI_WebUI_DallE.jpg).
 
@@ -34,7 +30,7 @@ An [Unraid](https://unraid.net/)-ready version is available directly from Unraid
 
 Note: this tool was initially developed in February 2023 and released to help end-users.
 
-##  1. <a name='Description'></a>Description
+#  1. Description
 
 The tool provides a WebUI to ChatGPT and Dall-E (that later one can be disabled).
 
@@ -60,20 +56,53 @@ DALL-E (Image Generation) sidebar options (see "?" for specific details):
 - quality (model dependent): fine-tune image quality to meet your requirements.
 - style  (model dependent): style of the generated images.
 
-###  1.1. <a name='env'></a>.env
+## 1.1. Supported models
+
+We have added means to inform the end-user when a model is `retired`, `legacy` or `current`.
+- `retired` models are not available for use anymore.
+- `legacy` models will be retired at a specified date.
+- `current` models are available.
+
+The tool will automatically discard known (per the release) `retired` models and inform the end user. 
+Similarly, the tool will note when a model is `legacy`.
+Please update your model selection accordingly.
+
+The [models.json](models.json) file contains the list of models supported by each release (as introduced in v0.9.3).
+
+The following table shows the current [model](https://platform.openai.com/docs/models/) list recognized by the current release:
+| Mode | Model | Status | Notes |
+| --- | --- | --- | --- |
+| DallE | dalle-e-2 | active | |
+| DallE | dalle-e-3 | active | |
+| GPT | gpt-3.5-turbo | active | |
+| GPT | gpt-3.5-turbo-0125 | active | |
+| GPT | gpt-3.5-turbo-0613 | legacy |  Will be deprecated on June 13, 2024 |
+| GPT | gpt-3.5-turbo-1106 | active | |
+| GPT | gpt-3.5-turbo-16k | legacy |  Will be deprecated on June 13, 2024 |
+| GPT | gpt-3.5-turbo-16k-0613 | legacy |  Will be deprecated on June 13, 2024 |
+| GPT | gpt-4 | active | |
+| GPT | gpt-4-0125-preview | active | |
+| GPT | gpt-4-0613 | active | |
+| GPT | gpt-4-1106-preview | active | |
+| GPT | gpt-4-32k | active | |
+| GPT | gpt-4-32k-0613 | active | |
+| GPT | gpt-4-turbo-preview | active | |
+
+## 1.2. .env
 
 The `.env.example` file contains the parameters needed to pass to the running tool:
 - `OPENAI_API_KEY` as obtained from https://platform.openai.com/account/api-keys
 - `OAIWUI_SAVEDIR`, the location to save content (make sure the directory exists)
 - `OAIWUI_GPT_ONLY`, to request only to show the GPT tab otherwise, shows both GPT and DallE (authorized value: `True` or `False`)
-- `OAIWUI_MODELS` is the list of GPT models your API key is authorized to use. See https://platform.openai.com/docs/api-reference/making-requests for more information.
+- `OAIWUI_GPT_MODELS` is a comma-separated list of GPT model(s) your API key is authorized to use. See https://platform.openai.com/docs/api-reference/making-requests for more information.
+- `OAIWUI_DALLE_MODELS` is a comma-separated list of DallE model(s) your API key is authorized to use.
 - `OAIWUI_USERNAME` (optional) specifies a `username` and avoids being prompted at each re-run. The default mode is to run in multi-user settings so this is not enabled by default.
 
 Those values can be passed by making a `.env` file containing the expected values or using environment variables.
 
 The `.env` file is not copied into the `docker` or `unraid` setup. Environment variables should be used in this case. 
 
-###  1.2. <a name='savedir'></a>savedir
+## 1.3. savedir
 
 The `OAIWUI_SAVEDIR` variable specifies the location where persistent files will be created from run to run.
 
@@ -86,9 +115,9 @@ Its structure is: `savedir`/`version`/`username`/`mode`/`UTCtime`/`<CONTENT>`, w
 
 We do not check the directories for size. It is left to the end user to clean up space if required.
 
-##  2. <a name='Setup'></a>Setup
+#  2. Setup
 
-###  2.1. <a name='Pythonvirtualenv'></a>Python virtualenv
+##  2.1. Python virtualenv
 
 This mode is for use if you have `python3` installed and want to test the tool.
 
@@ -123,7 +152,7 @@ Do not distribute that file.
 
 1. You can now open your browser to http://127.0.0.1:8501 to test the WebUI.
 
-###  2.2. <a name='DockerPodman'></a>Docker/Podman
+## 2.2. Docker/Podman
 
 The container build is an excellent way to test in an isolated, easily redeployed environment.
 
@@ -138,7 +167,7 @@ This setup prefers the use of environment variable, using `docker run ... -e VAR
 1. Run the built container, here specifying your `OAIWUI_SAVEDIR` to be `/iti`, which will be mounted from the current working directory's `savedir` and mounted to `/iti` within the container:
 
     ```bash
-    $ docker run --rm -it -p 8501:8501 -v `pwd`/savedir:/iti -e OPENAI_API_KEY="Your_OpenAI_API_Key" -e OAIWUI_SAVEDIR=/iti -e OAIWUI_GPT_ONLY=False -e OAIWUI_GPT_MODELS="gpt-3.5-turbo,gpt-3.5-turbo-16k,gpt-4" -e OAIWUI_DALLE_MODELS="dall-e-2,dall-e-3" openai_webui:latest
+    $ docker run --rm -it -p 8501:8501 -v `pwd`/savedir:/iti -e OPENAI_API_KEY="Your_OpenAI_API_Key" -e OAIWUI_SAVEDIR=/iti -e OAIWUI_GPT_ONLY=False -e OAIWUI_GPT_MODELS="gpt-3.5-turbo,gpt-4" -e OAIWUI_DALLE_MODELS="dall-e-2,dall-e-3" openai_webui:latest
     ```
 
 You can have the `Makefile` delete locally built containers:
@@ -147,27 +176,28 @@ You can have the `Makefile` delete locally built containers:
 $ make delete_main
 ```
 
-###  2.3. <a name='Unraid'></a>Unraid
+## 2.3. Unraid
 
 For [Unraid](https://unraid.net/) users, a special build mode is available to get a container using unraid's preferred `uid`/`gid`, use `make build_unraid` to build it.
 
 The pre-built container has been added to Unraid's Community Applications.
 
-##  3. <a name='Misc'></a>Misc
+# 3. Misc
 
-###  3.1. <a name='Warning'></a>Warning
+##  3.1. Notes
 
-Sometimes, you will run into an error when starting the tool. Clear the `streamlit` cache (right side menu) or deleting cookies should solve this.
+- If you run into an error when starting the tool. Clear the `streamlit` cache (right side menu) or deleting cookies should solve this.
 
-###  3.2. <a name='VersioninformationChangelog'></a>Version information/Changelog
+##  3.2. Version information/Changelog
 
-- v0.9.2 (20241218): keep prompt history for a given session + allow user to review/delete past prompts + updated openai python package: 1.8.0
+- v0.9.3 (20240306): Simplifying integration of new models and handling/presentation of their status (active, legacy, retired) + Cleaner handling of max_tokens vs context window tokens + updated openai python package to 1.13.3
+- v0.9.2 (20241218): Keep prompt history for a given session + allow user to review/delete past prompts + updated openai python package: 1.8.0
 - v0.9.1 (20231120): Print `streamlit` errors in case of errors with environment variables + Addition of `gpt-3.5-turbo-1106` in the list of supported models (added in openai python package 1.3.0) + added optional `OAIWUI_USERNAME` environment variable
 - v0.9.0 (20231108): Initial release -- incorporating modifications brought by the latest OpenAI Python package (tested against 1.2.0)
 - Oct 2023: Preparation for public release
 - Feb 2023: Initial version
-
-###  3.3. <a name='Acknowledgements'></a>Acknowledgements
+  
+## 3.3. Acknowledgments
 
 This project includes contributions from [Yan Ding](https://www.linkedin.com/in/yan-ding-01a429108/) and [Muhammed Virk](https://www.linkedin.com/in/mhmmdvirk/) in March 2023.
 
