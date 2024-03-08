@@ -94,6 +94,7 @@ class OAI_GPT:
                 per_model_help += " NOTE: " + models[key]["status_details"]
             self.per_model_help[key] = per_model_help
             model_help += f"{per_model_help}\n\n"
+        model_help += "For list of available supported models, see https://github.com/Infotrend-Inc/OpenAI_WebUI\n\n"
 
         active_models = [x for x in av_models_list if av_models_list[x]["status"] == "active"]
         active_models_txt = ",".join(active_models)
