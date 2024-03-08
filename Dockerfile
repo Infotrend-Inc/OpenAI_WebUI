@@ -24,7 +24,7 @@ RUN pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -
 
 RUN mkdir /app /app/.streamlit /app/assets /iti
 WORKDIR /app
-COPY OpenAI_WebUI.py common_functions.py OpenAI_DallE.py OpenAI_GPT.py /app/
+COPY OpenAI_WebUI.py common_functions.py OpenAI_DallE.py OpenAI_GPT.py models.json /app/
 COPY assets/Infotrend_Logo.png /app/assets/
 
 EXPOSE 8501
