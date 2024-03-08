@@ -68,25 +68,28 @@ Similarly, the tool will note when a model is `legacy`.
 Please update your model selection accordingly.
 
 The [models.json](models.json) file contains the list of models supported by each release (as introduced in v0.9.3).
+The following table shows the [models](https://platform.openai.com/docs/models/) listed in this file as well as the release it was added to:
 
-The following table shows the current [model](https://platform.openai.com/docs/models/) list recognized by the current release:
-| Mode | Model | Status | Notes |
-| --- | --- | --- | --- |
-| DallE | dalle-e-2 | active | |
-| DallE | dalle-e-3 | active | |
-| GPT | gpt-3.5-turbo | active | |
-| GPT | gpt-3.5-turbo-0125 | active | |
-| GPT | gpt-3.5-turbo-0613 | legacy |  Will be deprecated on June 13, 2024 |
-| GPT | gpt-3.5-turbo-1106 | active | |
-| GPT | gpt-3.5-turbo-16k | legacy |  Will be deprecated on June 13, 2024 |
-| GPT | gpt-3.5-turbo-16k-0613 | legacy |  Will be deprecated on June 13, 2024 |
-| GPT | gpt-4 | active | |
-| GPT | gpt-4-0125-preview | active | |
-| GPT | gpt-4-0613 | active | |
-| GPT | gpt-4-1106-preview | active | |
-| GPT | gpt-4-32k | active | |
-| GPT | gpt-4-32k-0613 | active | |
-| GPT | gpt-4-turbo-preview | active | |
+| Mode | Model | Status | Notes | From |
+| --- | --- | --- | --- | --- |
+| DallE | dalle-e-2 | active | | 0.9.3 |
+| DallE | dalle-e-3 | active | | 0.9.3 |
+| GPT | gpt-3.5-turbo | active | | 0.9.3 |
+| GPT | gpt-3.5-turbo-0125 | active | | 0.9.3 |
+| GPT | gpt-3.5-turbo-0613 | legacy |  Will be deprecated on June 13, 2024 | 0.9.3 |
+| GPT | gpt-3.5-turbo-1106 | active | | 0.9.3 |
+| GPT | gpt-3.5-turbo-16k | legacy |  Will be deprecated on June 13, 2024 | 0.9.3 |
+| GPT | gpt-3.5-turbo-16k-0613 | legacy |  Will be deprecated on June 13, 2024 | 0.9.3 |
+| GPT | gpt-4 | active | | 0.9.3 |
+| GPT | gpt-4-0125-preview | active | | 0.9.3 |
+| GPT | gpt-4-0613 | active | | 0.9.3 |
+| GPT | gpt-4-1106-preview | active | | 0.9.3 |
+| GPT | gpt-4-32k | active | | 0.9.3 |
+| GPT | gpt-4-32k-0613 | active | | 0.9.3 |
+| GPT | gpt-4-turbo-preview | active | | 0.9.3 |
+
+Once a model is `retired`, using it in your models list will have it discarded from the available list with a notification. 
+Similarly, if a used model is listed as `legacy`, a notification of the upcoming deprecation will be shown in the UI.
 
 ## 1.2. .env
 
@@ -132,7 +135,7 @@ This mode is for use if you have `python3` installed and want to test the tool.
 
    ```bash
    $ pip install -U pip
-   $ pip3 install -r requirements.txt
+   $ pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
    ```
 
 1. Copy the default `.env.example` file as `.env`, and manually edit the copy to add your [OpenAI API key](https://beta.openai.com/account/api-keys) and the preferred save directory (which must exist before starting the program). 
