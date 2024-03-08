@@ -15,7 +15,7 @@ DOCKER_CMD=docker
 OAI_BASE="python:3.12-slim-bookworm"
 
 # Version infomation and container name
-OAI_VERSION="0.9.2"
+OAI_VERSION="0.9.3"
 OAI_CONTAINER_NAME="openai_webui"
 
 # Default build tag
@@ -61,6 +61,13 @@ delete_images:
 	@make delete_main
 
 ##
+
+build_docker_amd64:
+	@docker buildx build --platform linux/amd64 --build-arg OAI_BASE=${OAI_BASE} ${OAI_NOCACHE} -t ${OAI_BUILD} -f Dockerfile .
+	@docker tag ${OAI_BUILD} ${OAI_BUILD_LATEST}
+	@docker buildx build --platform linux/amd64 --build-arg OAI_BUILD=${OAI_BUILD} ${OAI_NOCACHE} -t ${OAI_UNRAID_BUILD} -f unraid/Dockerfile .
+	@docker tag ${OAI_UNRAID_BUILD} ${OAI_UNRAID_BUILD_LATEST}
+
 
 docker_push:
 	@echo "Creating docker hub tags -- Press Ctl+c within 5 seconds to cancel -- will only work for maintainers"

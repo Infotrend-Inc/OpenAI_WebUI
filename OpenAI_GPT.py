@@ -43,79 +43,70 @@ def gpt_call(apikey, messages, model_engine, max_tokens, temperature, **kwargs):
 
 ##########
 class OAI_GPT:
-    def __init__(self, apikey, save_location, models_list):
+    def __init__(self, apikey, save_location, models_list, av_models_list):
         self.last_gpt_query = 'last_gpt_query'
 
         self.apikey = apikey
         self.save_location = save_location
 
-        self.models_supported = models_list
-        self.set_parameters(models_list)
+        self.models = {}
+        self.models_status = {}
+        self.model_help = ""
+        self.per_model_help = {}
+        self.gpt_presets = {}
+        self.gpt_presets_help = ""
+        self.gpt_roles = {}
+        self.gpt_roles_help = ""
+
+        self.set_parameters(models_list, av_models_list)
 
 
 #####
 # https://platform.openai.com/docs/models/continuous-model-upgrades
-    def set_parameters(self, models_list):
+    def set_parameters(self, models_list, av_models_list):
         models = {}
+        models_status = {}
         model_help = ""
 
-        all = {
-            "gpt-3.5-turbo":
-            {
-                "label": "Most capable GPT-3.5 model and optimized for chat. Will be updated with OpenAI's latest model iteration. For many basic tasks, the difference between GPT-4 and GPT-3.5 models is not significant. However, in more complex reasoning situations, GPT-4 is much more capable.",
-                "max_token": 4000,
-                "data": "Up to Sep 2021 (as of 20231108)"
-            },
-            "gpt-3.5-turbo-16k":
-            {
-                "label": "Same capabilities as the standard gpt-3.5-turbo model but with 4 times the context.",
-                "max_token": 16000,
-                "data": "Up to Sep 2021 (as of 20231108)"
-            },
-            "gpt-3.5-turbo-1106":
-            {
-                "label": "The latest GPT-3.5 Turbo model with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Returns a maximum of 4,096 output tokens.",
-                "max_token": 4000,
-                "data": "Up to Sep 2021 (as of 20231118)"
-            },
-            "gpt-4":
-            {
-                "label": "More capable than any GPT-3.5 model, able to do more complex tasks, and optimized for chat.",
-                "max_token": 8192,
-                "data": "Up to Sep 2021 (as of 20231108)"
-            },
-            "gpt-4-32k":
-            {
-                "label": "Same capabilities as the base gpt-4 mode but with 4x the context length.",
-                "max_token": 32768,
-                "data": "Up to Sep 2021 (as of 20231108)"
-            },
-            "gpt-4-1106-preview":
-            {
-                "label": "The latest GPT-4 model (with 128k tokens) with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Returns a maximum of 4,096 output tokens. This preview model is not yet suited for production traffic.",
-                "max_token": 4096,
-                "data": "Up to Apr 2023 (as of 20231108)"
-            }
-        }
-
-        s_models_list = models_list.split(",")
-        known_models = list(all.keys())
+        s_models_list = models_list.replace(",", " ").split()
+        known_models = list(av_models_list.keys())
         for t_model in s_models_list:
             model = t_model.strip()
-            if model in all:
-                models[model] = all[model]
+            if model in av_models_list:
+                if av_models_list[model]["status"] == "retired":
+                    st.warning(f"Model {model} is retired (" + av_models_list[model]["status_details"] + "), discarding it")
+                else:
+                    models[model] = dict(av_models_list[model])
+                    if cf.isNotBlank(models[model]["status_details"]):
+                        models_status[model] = models[model]["status"] +" (" + models[model]["status_details"] + ")"
             else:
                 st.error(f"Unknown model: {model} | Known models: {known_models}")
                 cf.error_exit(f"Unknown model {model}")
 
         model_help = ""
         for key in models:
-            model_help += key + ":\n"
-            model_help += models[key]["label"] + "\n"
-            model_help += "max_token: " + str(models[key]["max_token"]) + "\n"
-            model_help += "data: " + models[key]["data"] + "\n\n"
+            per_model_help = f"{key} (" + models[key]["status"] + "):\n"
+            per_model_help += models[key]["label"] + "\n"
+            per_model_help += "[Data: " + models[key]["data"] + " | "
+            per_model_help += "Tokens -- max: " + str(models[key]["max_token"]) + " / "
+            per_model_help += "context: " + str(models[key]["context_token"]) + "]"
+            if cf.isNotBlank(models[key]["status_details"]):
+                per_model_help += " NOTE: " + models[key]["status_details"]
+            self.per_model_help[key] = per_model_help
+            model_help += f"{per_model_help}\n\n"
+
+        active_models = [x for x in av_models_list if av_models_list[x]["status"] == "active"]
+        active_models_txt = ",".join(active_models)
+
+        if len(models) == 0:
+            st.error(f"No models retained, unable to continue. Active models: {active_models_txt}")
+            cf.error_exit(f"No models retained, unable to continue.\nActive models: {active_models_txt}")
+
+        model_help += "For a list of available supported models, see https://github.com/Infotrend-Inc/OpenAI_WebUI\n\n"
+        model_help += f"List of active models supported by this release: {active_models_txt}\n\n"
 
         self.models = models
+        self.models_status = models_status
         self.model_help = model_help
 
         self.gpt_presets = {
@@ -251,6 +242,8 @@ class OAI_GPT:
         with st.sidebar:
             st.text("Check the various ? for help", help=f"[Run Details]\n\nRunID: {cf.get_runid()}\n\nSave location: {self.save_location}\n\nUTC time: {cf.get_timeUTC()}\n")
             model = st.selectbox("model", options=list(self.models.keys()), index=0, key="model", help=self.model_help)
+            if model in self.models_status:
+                st.info(f"{model}: {self.models_status[model]}")
             m_token = self.models[model]['max_token']
             role = st.selectbox("Role", options=self.gpt_roles, index=0, key="input_role", help = "Role of the input text\n\n" + self.gpt_roles_help)
             clear_chat = st.toggle(label="Clear next query's chat history", value=False, help="This will clear the chat history for the next query. This is useful when you want to start a new chat with a fresh context.")
@@ -276,7 +269,8 @@ class OAI_GPT:
         if 'gpt_last_prompt' not in st.session_state:
             st.session_state['gpt_last_prompt'] = ''
         prompt_value=f"GPT ({model}) Input (role: {role}) [max_tokens: {max_tokens} | temperature: {temperature} | preset: {presets}]"
-        prompt = st.empty().text_area(prompt_value, st.session_state['gpt_last_prompt'], placeholder="Enter your prompt", key="input")
+        help_text = self.per_model_help[model] if model in self.per_model_help else "No help available for this model"
+        prompt = st.empty().text_area(prompt_value, st.session_state['gpt_last_prompt'], placeholder="Enter your prompt", key="input", help=help_text)
         st.session_state['gpt_last_prompt'] = prompt
 
         if st.button("Request Answer", key="request_answer"):
@@ -287,21 +281,14 @@ class OAI_GPT:
             prompt = self.gpt_presets[presets]["pre"] + prompt + self.gpt_presets[presets]["post"]
             prompt_token_count = self.estimate_tokens(prompt)
             requested_token_count = prompt_token_count + max_tokens
-            used_max_tokens = 0
-            if requested_token_count > self.models[model]["max_token"]:
-                used_max_tokens = self.models[model]["max_token"] - prompt_token_count
-                if used_max_tokens < 0:
-                    st.error("You have exceeded the maximum number of tokens allowed by the model", icon="✋")
-                else:
-                    st.warning("You requested %i tokens, but the model can only generate %i tokens. Requesting at max %i tokens." % (requested_token_count, self.models[model]["max_token"], used_max_tokens), icon="❌")
-            else:
-                used_max_tokens = max_tokens
+            if requested_token_count > self.models[model]["context_token"]:
+                st.warning("You requested an estimated %i tokens, which might exceed the model's context window of %i tokens. We are still proceeding with the request, but an error return is possible." % (requested_token_count, self.models[model]["context_token"]))
 
-            if used_max_tokens > 0:
+            if max_tokens > 0:
                 gpt_dest_dir = self.get_dest_dir()
                 cf.make_wdir_error(gpt_dest_dir)
-                with st.spinner(f"Asking OpenAI ({model} for {used_max_tokens} tokens with temperature {temperature}. Prompt est. tokens : {prompt_token_count})"):
-                    err, run_file = self.chatgpt_it(model, prompt, used_max_tokens, temperature, gpt_dest_dir, clear_chat, role, **self.gpt_presets[presets]["kwargs"])
+                with st.spinner(f"Asking OpenAI ({model} for {max_tokens} tokens with temperature {temperature}. Prompt est. tokens : {prompt_token_count})"):
+                    err, run_file = self.chatgpt_it(model, prompt, max_tokens, temperature, gpt_dest_dir, clear_chat, role, **self.gpt_presets[presets]["kwargs"])
                     if cf.isNotBlank(err):
                         st.error(err)
                     if cf.isNotBlank(run_file):

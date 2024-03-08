@@ -32,6 +32,6 @@ Please see https://github.com/Infotrend-Inc/OpenAI_WebUI/blob/main/.env.example
 e">/mnt/user/appdata/openai_webui</Config>
   <Config Name="OAIWUI_SAVEDIR" Target="OAIWUI_SAVEDIR" Default="/iti" Mode="" Description="Required: location where generated files are placed" Type="Variable" Display="advanced" Required="true" Mask="false">/iti</Config>
   <Config Name="OAIWUI_GPT_ONLY" Target="OAIWUI_GPT_ONLY" Default="False" Mode="" Description="If True, only show the GPT UI&#13;&#10;If False, show both the GPT and the DallE UI" Type="Variable" Display="always" Required="true" Mask="false">False</Config>
-  <Config Name="OAIWUI_GPT_MODELS" Target="OAIWUI_GPT_MODELS" Default="gpt-3.5-turbo,gpt-3.5-turbo-16k,gpt-4" Mode="" Description="Required: list of GPT models authorized for the provided API Key" Type="Variable" Display="always" Required="true" Mask="false">gpt-3.5-turbo,gpt-3.5-turbo-16k,gpt-4</Config>
-  <Config Name="OAIWUI_DALLE_MODELS" Target="OAIWUI_DALLE_MODELS" Default="dall-e-2,dall-e-3" Mode="" Description="Required: list of DALL-E models authorized for the provided API Key" Type="Variable" Display="always" Required="true" Mask="false">dall-e-2,dall-e-3</Config>
+  <Config Name="OAIWUI_GPT_MODELS" Target="OAIWUI_GPT_MODELS" Default="gpt-4,gpt-3.5-turbo" Mode="" Description="Required: comma-separated list of GPT models authorized for the provided API Key" Type="Variable" Display="always" Required="true" Mask="false">gpt-4,gpt-3.5-turbo</Config>
+  <Config Name="OAIWUI_DALLE_MODELS" Target="OAIWUI_DALLE_MODELS" Default="dall-e-3,dall-e-2" Mode="" Description="Required: comma-separated list of DALL-E models authorized for the provided API Key" Type="Variable" Display="always" Required="true" Mask="false">dall-e-3,dall-e-2</Config>
 </Container>
