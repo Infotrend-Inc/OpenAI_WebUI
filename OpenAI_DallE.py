@@ -14,6 +14,7 @@ import os.path
 import pathlib
 
 import common_functions as cf
+import common_functions_WUI as cfw
 
 from datetime import datetime
 
@@ -49,12 +50,16 @@ def dalle_call(apikey, model, prompt, img_size, img_count, **kwargs):
 
 ##########
 class OAI_DallE:
-    def __init__(self, apikey, save_location, models_list, av_models_list):
+    def __init__(self, apikey, base_save_location, username, models_list, av_models_list):
+        print("---------- [INFO] In OAI_DallE __init__ ----------")
+
         self.last_dalle_query = 'last_dalle_query'
 
         self.apikey = apikey
-        self.save_location = save_location
-
+        self.save_location = os.path.join(base_save_location, username)
+        err = cf.make_wdir_recursive(self.save_location)
+        if cf.isNotBlank(err):
+            cf.error_exit(err) # nothing else to do here
         self.models = {}
         self.models_status = {}
         self.model_help = ""
@@ -124,6 +129,7 @@ class OAI_DallE:
 
 #####
     def dalle_it(self, model, prompt, img_size, img_count, dest_dir, **kwargs):
+        err = cf.make_wdir_recursive(dest_dir)
         err = cf.check_existing_dir_w(dest_dir)
         if cf.isNotBlank(err):
             st.error(f"While checking {dest_dir}: {err}")
@@ -145,7 +151,7 @@ class OAI_DallE:
             all_images.append(image_name)
         info_placeholder.empty()
 
-        runid = cf.get_runid()
+        runid = cfw.get_runid()
         run_file = f"{dest_dir}/run---{runid}.json"
         run_json = {
             "prompt": prompt,
@@ -178,7 +184,7 @@ class OAI_DallE:
     def set_ui(self):
         st.sidebar.empty()
         with st.sidebar:
-            st.text("Check the various ? for help", help=f"[Run Details]\n\nRunID: {cf.get_runid()}\n\nSave location: {self.save_location}\n\nUTC time: {cf.get_timeUTC()}\n")
+            st.text("Check the various ? for help", help=f"[Run Details]\n\nRunID: {cfw.get_runid()}\n\nSave location: {self.save_location}\n\nUTC time: {cf.get_timeUTC()}\n")
             mode = list(self.dalle_modes.keys())[0]
             if len(self.dalle_modes.keys()) > 1:
                 mode = st.selectbox("mode", options=list(self.dalle_modes.keys()), index=0, key="dalle_mode", help=self.dalle_help)
@@ -214,11 +220,14 @@ class OAI_DallE:
             )
 
         if dalle_show_history:
-            hist = self.get_history()
+            err, hist = self.get_history()
+            if cf.isNotBlank(err):
+                st.error(err)
+                cf.error_exit(err)
             if len(hist) == 0:
                 st.warning("No prompt history found")
             else:
-                cf.show_history(hist, dalle_allow_history_deletion, 'dalle_last_prompt', self.last_dalle_query)
+                cfw.show_history(hist, dalle_allow_history_deletion, 'dalle_last_prompt', self.last_dalle_query)
 
         if 'dalle_last_prompt' not in st.session_state:
             st.session_state['dalle_last_prompt'] = ""
@@ -235,9 +244,7 @@ class OAI_DallE:
                 st.error(f"Your prompt is {len(prompt)} characters long, which is more than the maximum of {self.models[model]['max_prompt_length']} for this model")
                 return ()
             
-            dalle_dest_dir = self.get_dest_dir()
-            
-            cf.make_wdir_error(dalle_dest_dir)
+            dalle_dest_dir = self.get_dest_dir()            
             with st.spinner(f"Asking OpenAI for a response..."):
                 err, run_file = self.dalle_it(model, prompt, img_size, img_count, dalle_dest_dir, **kwargs)
                 if cf.isNotBlank(err):
