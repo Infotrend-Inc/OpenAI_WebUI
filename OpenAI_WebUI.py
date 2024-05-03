@@ -6,8 +6,11 @@
 
 import streamlit as st
 import extra_streamlit_components as stx
+
 from OpenAI_GPT import OAI_GPT
 from OpenAI_DallE import OAI_DallE
+
+from OpenAI_GPT_WUI import OAI_GPT_WUI
 
 import re
 import os.path
@@ -18,7 +21,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 
 #####
-iti_version="0.9.3"
+iti_version=cf.iti_version
 st.set_page_config(page_title=f"OpenAI API WebUI ({iti_version})", page_icon="🫥", layout="wide", initial_sidebar_state="expanded", menu_items={'Get Help': 'https://github.com/Infotrend-Inc/OpenAI_WebUI', 'About': f"# OpenAI WebUI ({iti_version})\n Brought to you by [Infotrend Inc.](https://www.infotrend.com/)"})
 
 #####
@@ -129,31 +132,42 @@ def main():
                 st.rerun()
     else:
         cf.make_wdir_error(os.path.join(save_location))
-        cf.make_wdir_error(os.path.join(save_location, iti_version))
-        long_save_location = os.path.join(save_location, iti_version, username)
+        long_save_location = os.path.join(save_location, iti_version)
         cf.make_wdir_error(os.path.join(long_save_location))
-        cf.make_wdir_error(os.path.join(long_save_location, "dalle"))
-        cf.make_wdir_error(os.path.join(long_save_location, "gpt"))
 
-        set_ui(long_save_location, apikey, gpt_models, av_gpt_models, dalle_models, av_dalle_models)
+        set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, dalle_models, av_dalle_models)
+
+#####
+
+def process_error_warning(err, warn):
+    if cf.isNotBlank(err):
+        st.error(err)
+        cf.error_exit(err)
+    if cf.isNotBlank(warn):
+        st.warning(warn)
 
 
 #####
-def set_ui(long_save_location, apikey, gpt_models, av_gpt_models, dalle_models, av_dalle_models):
-    oai_gpt = OAI_GPT(apikey, long_save_location, gpt_models, av_gpt_models)
+
+def set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, dalle_models, av_dalle_models):
+    oai_gpt = OAI_GPT(apikey, long_save_location, username)
+    err, warn = oai_gpt.set_parameters(gpt_models, av_gpt_models)
+    process_error_warning(err, warn)
+    oai_gpt_st = OAI_GPT_WUI(oai_gpt)
     oai_dalle = None
     if 'OAIWUI_GPT_ONLY' in os.environ:
         tmp = os.environ.get('OAIWUI_GPT_ONLY')
         if tmp == "True":
             oai_dalle = None
         elif tmp == "False":
-            oai_dalle = OAI_DallE(apikey, long_save_location, dalle_models, av_dalle_models)
+            oai_dalle = OAI_DallE(apikey, long_save_location, username, dalle_models, av_dalle_models)
+#            dalle_process_error_warning_info(oai_dalle)
         else:
             st.error(f"OAIWUI_GPT_ONLY environment variable must be set to 'True' or 'False'")
             cf.error_exit("OAIWUI_GPT_ONLY environment variable must be set to 'True' or 'False'")
 
     if oai_dalle is None:
-        oai_gpt.set_ui()
+        oai_gpt_st.set_ui()
     else:
         chosen_id = stx.tab_bar(data=[
             stx.TabBarItemData(id="gpt_tab", title="GPT", description="Text generation using OpenAI's GPT"),
@@ -162,7 +176,7 @@ def set_ui(long_save_location, apikey, gpt_models, av_gpt_models, dalle_models, 
         if chosen_id == "dalle_tab":
             oai_dalle.set_ui()
         else:
-            oai_gpt.set_ui()
+            oai_gpt_st.set_ui()
 
 
 #####
