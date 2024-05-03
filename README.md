@@ -1,6 +1,6 @@
 <h1>OpenAI WebUI</h1>
 
-Latest version: 0.9.3
+Latest version: 0.9.4
 
 - [1. Description](#1-description)
   - [1.1. Supported models](#11-supported-models)
