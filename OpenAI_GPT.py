@@ -48,7 +48,7 @@ class OAI_GPT:
             username = "test"
 
         self.apikey = apikey
-        self.save_location = os.path.join(base_save_location, username)
+        self.save_location = os.path.join(base_save_location, username, "gpt")
         err = cf.make_wdir_recursive(self.save_location)
         if cf.isNotBlank(err):
             cf.error_exit(err) # nothing else to do here
@@ -191,7 +191,7 @@ class OAI_GPT:
 
 #####
     def get_dest_dir(self):
-        return os.path.join(self.save_location, "gpt", cf.get_timeUTC())
+        return os.path.join(self.save_location, cf.get_timeUTC())
 
 
 #####
