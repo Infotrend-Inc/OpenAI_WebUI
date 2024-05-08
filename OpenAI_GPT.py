@@ -277,6 +277,5 @@ class OAI_GPT:
 
 #####
     def get_history(self):
-        search_dir = os.path.join(self.save_location, "gpt")
-        return cf.get_history(search_dir)
+        return cf.get_history(self.save_location)
 
