@@ -1,6 +1,6 @@
 <h1>OpenAI WebUI</h1>
 
-Latest version: 0.9.3
+Latest version: 0.9.4 (20240513)
 
 - [1. Description](#1-description)
   - [1.1. Supported models](#11-supported-models)
@@ -87,6 +87,8 @@ The following table shows the [models](https://platform.openai.com/docs/models/)
 | GPT | gpt-4-32k | active | | 0.9.3 |
 | GPT | gpt-4-32k-0613 | active | | 0.9.3 |
 | GPT | gpt-4-turbo-preview | active | | 0.9.3 |
+| GPT | gpt-4o | active | 0.9.4 |
+| GPT | gpt-4o-2024-05-13 | active | 0.9.4 |
 
 Once a model is `retired`, using it in your models list will have it discarded from the available list with a notification. 
 Similarly, if a used model is listed as `legacy`, a notification of the upcoming deprecation will be shown in the UI.
@@ -193,6 +195,7 @@ The pre-built container has been added to Unraid's Community Applications.
 
 ##  3.2. Version information/Changelog
 
+- v0.9.4 (20240513): Added support for `gpt-4o`, updated openai python package to 1.29.0
 - v0.9.3 (20240306): Simplifying integration of new models and handling/presentation of their status (active, legacy, retired) + Cleaner handling of max_tokens vs context window tokens + updated openai python package to 1.13.3
 - v0.9.2 (20241218): Keep prompt history for a given session + allow user to review/delete past prompts + updated openai python package: 1.8.0
 - v0.9.1 (20231120): Print `streamlit` errors in case of errors with environment variables + Addition of `gpt-3.5-turbo-1106` in the list of supported models (added in openai python package 1.3.0) + added optional `OAIWUI_USERNAME` environment variable
