@@ -87,8 +87,8 @@ The following table shows the [models](https://platform.openai.com/docs/models/)
 | GPT | gpt-4-32k | active | | 0.9.3 |
 | GPT | gpt-4-32k-0613 | active | | 0.9.3 |
 | GPT | gpt-4-turbo-preview | active | | 0.9.3 |
-| GPT | gpt-4o | active | 0.9.4 |
-| GPT | gpt-4o-2024-05-13 | active | 0.9.4 |
+| GPT | gpt-4o | active | | 0.9.4 |
+| GPT | gpt-4o-2024-05-13 | active | | 0.9.4 |
 
 Once a model is `retired`, using it in your models list will have it discarded from the available list with a notification. 
 Similarly, if a used model is listed as `legacy`, a notification of the upcoming deprecation will be shown in the UI.
