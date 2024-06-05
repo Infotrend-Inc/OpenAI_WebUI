@@ -9,7 +9,7 @@ import json
 
 from datetime import datetime
 
-iti_version="0.9.4"
+iti_version="0.9.5"
 
 def isBlank (myString):
     return not (myString and myString.strip())
@@ -178,17 +178,18 @@ def get_history(search_dir):
         return f"While getting directory listing from {search_dir}: {err}, history will be incomplete", hist
     for entry in listing:
         entry_dir = os.path.join(search_dir, entry)
-        err = check_existing_dir_w(entry_dir)
-        if isNotBlank(err):
-            return f"While checking {entry_dir}: {err}, history will be incomplete", hist
-        for file in os.listdir(entry_dir):
-            if fnmatch.fnmatch(file, 'run.json'):
-                run_file = os.path.join(entry_dir, file)
-                run_json = get_run_file(run_file)
-                if 'prompt' in run_json:
-                    prompt = run_json['prompt']
-                    hist[entry] = [prompt, run_file]
-                break
+        if os.path.isdir(entry_dir) is True:
+            err = check_existing_dir_w(entry_dir)
+            if isNotBlank(err):
+                return f"While checking {entry_dir}: {err}, history will be incomplete", hist
+            for file in os.listdir(entry_dir):
+                if fnmatch.fnmatch(file, 'run.json'):
+                    run_file = os.path.join(entry_dir, file)
+                    run_json = get_run_file(run_file)
+                    if 'prompt' in run_json:
+                        prompt = run_json['prompt']
+                        hist[entry] = [prompt, run_file]
+                    break
     return "", hist
 
 #####
