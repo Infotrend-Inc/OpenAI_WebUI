@@ -11,6 +11,7 @@ from OpenAI_GPT import OAI_GPT
 from OpenAI_DallE import OAI_DallE
 
 from OpenAI_GPT_WUI import OAI_GPT_WUI
+from OpenAI_DallE_WUI import OAI_DallE_WUI
 
 import re
 import os.path
@@ -155,12 +156,16 @@ def set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, dall
     process_error_warning(err, warn)
     oai_gpt_st = OAI_GPT_WUI(oai_gpt)
     oai_dalle = None
+    oai_dalle_st = None
     if 'OAIWUI_GPT_ONLY' in os.environ:
         tmp = os.environ.get('OAIWUI_GPT_ONLY')
         if tmp == "True":
             oai_dalle = None
         elif tmp == "False":
-            oai_dalle = OAI_DallE(apikey, long_save_location, username, dalle_models, av_dalle_models)
+            oai_dalle = OAI_DallE(apikey, long_save_location, username)
+            err, warn = oai_dalle.set_parameters(dalle_models, av_dalle_models)
+            process_error_warning(err, warn)
+            oai_dalle_st = OAI_DallE_WUI(oai_dalle)
 #            dalle_process_error_warning_info(oai_dalle)
         else:
             st.error(f"OAIWUI_GPT_ONLY environment variable must be set to 'True' or 'False'")
@@ -174,7 +179,7 @@ def set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, dall
             stx.TabBarItemData(id="dalle_tab", title="Dall-E", description="Image generation using OpenAI's Dall-E")
             ])
         if chosen_id == "dalle_tab":
-            oai_dalle.set_ui()
+            oai_dalle_st.set_ui()
         else:
             oai_gpt_st.set_ui()
 
