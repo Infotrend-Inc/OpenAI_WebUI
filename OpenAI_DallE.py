@@ -9,7 +9,6 @@ import os.path
 import pathlib
 
 import common_functions as cf
-import common_functions_WUI as cfw
 
 from datetime import datetime
 
@@ -82,8 +81,8 @@ class OAI_DallE:
         for t_model in s_models_list:
             model = t_model.strip()
             if model in av_models_list:
-                if av_models_list[model]["status"] == "retired":
-                    warning += f"Model [{model}] is retired (" + av_models_list[model]['status_details'] + "), discarding it"
+                if av_models_list[model]["status"] == "deprecated":
+                    warning += f"Model [{model}] is deprecated (" + av_models_list[model]['status_details'] + "), discarding it"
                 else:
                     models[model] = dict(av_models_list[model])
                     if cf.isNotBlank(models[model]["status_details"]):
@@ -162,7 +161,6 @@ class OAI_DallE:
         if st_placeholder:
             st_placeholder.empty()
 
-        runid = cfw.get_runid()
         run_file = f"{dest_dir}/run.json"
         run_json = {
             "prompt": prompt,
