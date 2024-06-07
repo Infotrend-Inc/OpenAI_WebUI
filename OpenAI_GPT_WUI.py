@@ -5,9 +5,15 @@ import streamlit as st
 import extra_streamlit_components as stx
 from streamlit_extras.stoggle import stoggle
 
+from PIL import Image
+import base64
+import io
+import math
+
 import json
 
 import os.path
+import tempfile
 
 import common_functions as cf
 import common_functions_WUI as cfw
@@ -24,6 +30,7 @@ class OAI_GPT_WUI:
         self.models = oai_gpt.get_models()
         self.model_help = oai_gpt.get_model_help()
         self.models_status = oai_gpt.get_models_status()
+        self.model_capability = oai_gpt.get_model_capability()
         self.gpt_roles = oai_gpt.get_gpt_roles()
         self.gpt_roles_help = oai_gpt.get_gpt_roles_help()
         self.gpt_presets = oai_gpt.get_gpt_presets()
@@ -31,20 +38,125 @@ class OAI_GPT_WUI:
         self.per_model_help = oai_gpt.get_per_model_help()
 
 
+    def resize_rectangle(self, original_width, original_height, max_width, max_height):
+        aspect_ratio = original_width / original_height
+        max_area = max_width * max_height
+        original_area = original_width * original_height
+
+        # Calculate scaling factor for proportional fit
+        scale_factor = math.sqrt(max_area / original_area)
+
+        # Scale the dimensions
+        new_width = original_width * scale_factor
+        new_height = original_height * scale_factor
+
+        # Check if resizing would make the rectangle larger
+        if new_width >= original_width or new_height >= original_height:
+            return original_width, original_height
+    
+        # Adjust if necessary to fit within max dimensions
+        if new_width > max_width:
+            new_width = max_width
+            new_height = new_width / aspect_ratio
+
+        if new_height > max_height:
+            new_height = max_height
+            new_width = new_height * aspect_ratio
+
+        return new_width, new_height
+
+    def img_resize_core(self, im, max_x, max_y):
+        new_x, new_y = self.resize_rectangle(im.size[0], im.size[1], max_x, max_y)
+        return int(new_x), int(new_y)
+
+    def img_resize(self, tfilen, details_selection):
+        with Image.open(tfilen) as im:
+            new_x, new_y = im_x, im_y = im.size[0], im.size[1]
+            if details_selection == "low":
+                new_x, new_y = self.img_resize_core(im, 512, 512)
+            else:
+                new_x, new_y = self.img_resize_core(im, 2048, 2048)
+
+            if new_x == im_x and new_y == im_y:
+                return new_x, new_y
+
+            im = im.resize((new_x, new_y))
+            im.save(tfilen, format="png")
+            return new_x, new_y
+
+    def file_uploader(self, details_selection):
+        # File uploader: [OpenAI supports] PNG (.png), JPEG (.jpeg and .jpg), WEBP (.webp), and non-animated GIF (.gif).
+        uploaded_file = st.file_uploader("Upload a PNG/JPEG/WebP image (automatic resize to a value closer to the selected \"details\" selected, see its \"?\")", type=['png','jpg','jpeg','webp'])
+        if uploaded_file is not None:
+            placeholder = st.empty()
+            tfile = tempfile.NamedTemporaryFile(delete=False)
+            tfilen = str(tfile.name)
+            with open(tfilen, "wb") as outfile:
+                outfile.write(uploaded_file.getvalue())
+
+            # confirm it is a valid PNG, JPEG, WEBP image
+            im_fmt = None
+            im_det = None
+            im_area = None
+            try:
+                with Image.open(tfilen) as im:
+                    im_fmt = im.format
+                    im_det = f"{im.size[0]}x{im.size[1]}"
+            except OSError:
+                pass
+
+            if im_fmt == "PNG" or im_fmt == "JPEG" or im_fmt == "WEBP":
+                im_x, im_y = self.img_resize(tfilen, details_selection)
+                tk_cst = (170 * im_x * im_y) // (512*512) + 85
+                tk_cst = 1105 if tk_cst > 1105 else tk_cst # following the details of "Calculating costs"
+                n_img_det = f"{im_x}x{im_y}"
+                res_txt = f"resized to: {n_img_det} " if n_img_det != im_det else ""
+                tkn_txt = f"(est. token cost -- \"high\": {tk_cst} | \"low\": 85)"
+                placeholder.info(f"Uploaded image: {im_fmt} orig size: {im_det} {res_txt} {tkn_txt}")
+                return tfilen
+            else:
+                placeholder.error(f"Uploaded image ({im_fmt}) is not a valid/supported PNG, JPEG, or WEBP image")
+                return None
+
+        return None
+
 #####
     def set_ui(self):
         st.sidebar.empty()
+        vision_capable = False
+        vision_mode = False
         with st.sidebar:
             st.text("Check the various ? for help", help=f"[Run Details]\n\nRunID: {cfw.get_runid()}\n\nSave location: {self.save_location}\n\nUTC time: {cf.get_timeUTC()}\n")
             model = st.selectbox("model", options=list(self.models.keys()), index=0, key="model", help=self.model_help)
             if model in self.models_status:
                 st.info(f"{model}: {self.models_status[model]}")
+            if self.model_capability[model] == "vision":
+                vision_capable = True
             m_token = self.models[model]['max_token']
-            role = st.selectbox("Role", options=self.gpt_roles, index=0, key="input_role", help = "Role of the input text\n\n" + self.gpt_roles_help)
-            clear_chat = st.toggle(label="Clear next query's chat history", value=False, help="This will clear the chat history for the next query. This is useful when you want to start a new chat with a fresh context.")
+
+            if vision_capable:
+                vision_mode = st.toggle(label="Vision", value=False, help="Enable the upload of an image. Vision's limitation and cost can be found at https://platform.openai.com/docs/guides/vision/limitations.\n\nDisables the role and presets selectors. Image(s) are not reiszed, so please be aware that each 512px x 512px title is expected to cost 170 tokens. Using this mode disables roles, presets and chat (the next prompt will not have knowledge of past thread of conversation)")
+
+            if vision_mode:
+                vision_details = st.selectbox("Vision Details", options=["auto", "low", "high"], index=0, key="vision_details", help="The model will use the auto setting which will look at the image input size and decide if it should use the low or high setting.\n\n- low: the model will receive a low-res 512px x 512px version of the image, and represent the image with a budget of 85 tokens. This allows the API to return faster responses and consume fewer input tokens for use cases that do not require high detail.\n\n- high will first allows the model to first see the low res image (using 85 tokens) and then creates detailed crops using 170 tokens for each 512px x 512px tile.\n\n\n\nImage inputs are metered and charged in tokens, just as text inputs are. The token cost of a given image is determined by two factors: its size, and the detail option on each image_url block. All images with detail: low cost 85 tokens each. detail: high images are first scaled to fit within a 2048 x 2048 square, maintaining their aspect ratio. Then, they are scaled such that the shortest side of the image is 768px long. Finally, a count of how many 512px squares the image consists of is performed. Each of those squares costs 170 tokens. Another 85 tokens are always added to the final total. More details at https://platform.openai.com/docs/guides/vision/calculating-costs")
+
+            role = list(self.gpt_roles.keys())[0]
+            if vision_mode is False:
+                role = st.selectbox("Role", options=self.gpt_roles, index=0, key="input_role", help = "Role of the input text\n\n" + self.gpt_roles_help)
+            
+            if vision_mode is False:
+                clear_chat = st.toggle(label="Clear next query's chat history", value=False, help="This will clear the chat history for the next query. This is useful when you want to start a new chat with a fresh context.")
+            else:
+                clear_chat = True
+
             max_tokens = st.slider('max_tokens', 0, m_token, 1000, 100, "%i", "max_tokens", "The maximum number of tokens to generate in the completion. The token count of your prompt plus max_tokens cannot exceed the model\'s context length.")
             temperature = st.slider('temperature', 0.0, 1.0, 0.5, 0.01, "%0.2f", "temperature", "The temperature of the model. Higher temperature results in more surprising text.")
-            presets = st.selectbox("Preset", options=list(self.gpt_presets.keys()), index=0, key="presets", help=self.gpt_presets_help)
+
+            if vision_mode is False:
+                presets = st.selectbox("Preset", options=list(self.gpt_presets.keys()), index=0, key="presets", help=self.gpt_presets_help)
+            else:
+                presets = list(self.gpt_presets.keys())[0]
+
             gpt_show_tooltip = st.toggle(label="Show Tips", value=True, help="Show some tips on how to use the tool", key="gpt_show_tooltip")
             gpt_show_history = st.toggle(label='Show Prompt History', value=False, help="Show a list of prompts that you have used in the past (most recent first). Loading a selected prompt does not load the parameters used for the generation.", key="gpt_show_history")
             if gpt_show_history:
@@ -71,6 +183,31 @@ class OAI_GPT_WUI:
         prompt = st.empty().text_area(prompt_value, st.session_state['gpt_last_prompt'], placeholder="Enter your prompt", key="input", help=help_text)
         st.session_state['gpt_last_prompt'] = prompt
 
+        img_file = None
+        msg_extra = None
+        if vision_mode:
+            img_file = self.file_uploader(vision_details)
+            img_type = "png" # convert everything to PNG for processing
+            if img_file is not None:
+                img_b64 = None
+                img_bytes = io.BytesIO()
+                with Image.open(img_file) as image:
+                    image.save(img_bytes, format=img_type)
+                    img_b64 = base64.b64encode(img_bytes.getvalue()).decode('utf-8')
+                if img_b64 is not None:
+                    img_str = f"data:image/{img_type};base64,{img_b64}"
+                    msg_extra = {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": img_str,
+                            "details": vision_details
+                        }
+                    }
+                    clear_chat = True
+                if os.path.exists(img_file):
+                    os.remove(img_file)
+
+
         if st.button("Request Answer", key="request_answer"):
             if cf.isBlank(prompt) or len(prompt) < 10:
                 st.error("Please provide a prompt of at least 10 characters before requesting an answer", icon="✋")
@@ -84,7 +221,7 @@ class OAI_GPT_WUI:
 
             if max_tokens > 0:
                 with st.spinner(f"Asking OpenAI ({model} for {max_tokens} tokens with temperature {temperature}. Prompt est. tokens : {prompt_token_count})"):
-                    err, run_file = self.oai_gpt.chatgpt_it(model, prompt, max_tokens, temperature, clear_chat, role, **self.gpt_presets[presets]["kwargs"])
+                    err, run_file = self.oai_gpt.chatgpt_it(model, prompt, max_tokens, temperature, clear_chat, role, msg_extra, **self.gpt_presets[presets]["kwargs"])
                     if cf.isNotBlank(err):
                         st.error(err)
                     if cf.isNotBlank(run_file):
@@ -101,11 +238,12 @@ class OAI_GPT_WUI:
             if 'messages' in run_json:
                 messages = run_json["messages"]
 
-            stoggle('Original Prompt', prompt)
-            chat_history = ""
-            if len(messages) > 0:
-                chat_history = self.oai_gpt.get_chat_history(run_file)
-                stoggle('Chat History', chat_history)
+            if vision_mode is False:
+                stoggle('Original Prompt', prompt)
+                chat_history = ""
+                if len(messages) > 0:
+                    chat_history = self.oai_gpt.get_chat_history(run_file)
+                    stoggle('Chat History', chat_history)
 
             option_list = ('Text (no wordwrap)', 'Text (wordwrap, may cause some visual inconsistencies)',
                         'Code (automatic highlighting for supported languages)')
