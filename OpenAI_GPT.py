@@ -36,6 +36,32 @@ def gpt_call(apikey, messages, model_engine, max_tokens, temperature, **kwargs):
         return(f"OpenAI API request failed: {e}", "")
 
     return "", completion.choices[0].message.content
+#####
+def simpler_gpt_call(apikey, messages, model_engine, max_tokens, temperature, **kwargs):
+    client = OpenAI(api_key=apikey)
+
+    # Generate a response (20231108: Fixed for new API version)
+    try:
+        completion = client.chat.completions.create(
+            model=model_engine,
+            messages = messages,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            **kwargs
+        )
+    # using list from venv/lib/python3.11/site-packages/openai/_exceptions.py
+    except openai.APIConnectionError as e:
+        return(f"OpenAI API request failed to connect: {e}", "")
+    except openai.AuthenticationError as e:
+        return(f"OpenAI API request was not authorized: {e}", "")
+    except openai.RateLimitError as e:
+        return(f"OpenAI API request exceeded rate limit: {e}", "")
+    except openai.APIError as e:
+        return(f"OpenAI API returned an API Error: {e}", "")
+    except openai.OpenAIError as e:
+        return(f"OpenAI API request failed: {e}", "")
+
+    return "", completion.choices[0].message.content
 
 ##########
 class OAI_GPT:
@@ -62,6 +88,7 @@ class OAI_GPT:
         self.gpt_presets_help = ""
         self.gpt_roles = {}
         self.gpt_roles_help = ""
+        self.model_capability = {}
 
 
 #####
@@ -73,6 +100,9 @@ class OAI_GPT:
 
     def get_model_help(self):
         return self.model_help
+    
+    def get_model_capability(self):
+        return self.model_capability
 
     def get_per_model_help(self):
         return self.per_model_help
@@ -106,8 +136,8 @@ class OAI_GPT:
         for t_model in s_models_list:
             model = t_model.strip()
             if model in av_models_list:
-                if av_models_list[model]["status"] == "retired":
-                    warning += f"Model {model} is retired (" + av_models_list[model]["status_details"] + "), discarding it. "
+                if av_models_list[model]["status"] == "deprecated":
+                    warning += f"Model {model} is deprecated (" + av_models_list[model]["status_details"] + "), discarding it. "
                 else:
                     models[model] = dict(av_models_list[model])
                     if cf.isNotBlank(models[model]["status_details"]):
@@ -122,6 +152,11 @@ class OAI_GPT:
             per_model_help += "[Data: " + models[key]["data"] + " | "
             per_model_help += "Tokens -- max: " + str(models[key]["max_token"]) + " / "
             per_model_help += "context: " + str(models[key]["context_token"]) + "]"
+            if cf.isNotBlank(models[key]["capability"]):
+                per_model_help += " | Capability: " + models[key]["capability"]
+                self.model_capability[key] = models[key]["capability"]
+            else:
+                self.model_capability[key] = "None"
             if cf.isNotBlank(models[key]["status_details"]):
                 per_model_help += " NOTE: " + models[key]["status_details"]
             self.per_model_help[key] = per_model_help
@@ -219,7 +254,7 @@ class OAI_GPT:
 
 
 #####
-    def chatgpt_it(self, model_engine, prompt, max_tokens, temperature, clear_chat, role, **kwargs):
+    def chatgpt_it(self, model_engine, prompt, max_tokens, temperature, clear_chat, role, msg_extra=None, **kwargs):
         dest_dir = self.get_dest_dir()
         err = cf.make_wdir_recursive(dest_dir)
         if cf.isNotBlank(err):
@@ -245,10 +280,16 @@ class OAI_GPT:
                         messages = old_run_json['messages']
                         last_run_file = run_file
 
-        messages.append({ 'role': role, 'content': prompt })
+        if msg_extra is not None:
+            messages.append({ 'role': role, 'content': [ {'type': 'text', 'text': prompt}, { **msg_extra } ] })
+            err, response = simpler_gpt_call(self.apikey, messages, model_engine, max_tokens, temperature, **kwargs)
+        else:
+            messages.append({ 'role': role, 'content': prompt })
+            err, response = gpt_call(self.apikey, messages, model_engine, max_tokens, temperature, **kwargs)
 
-        err, response = gpt_call(self.apikey, messages, model_engine, max_tokens, temperature, **kwargs)
         if cf.isNotBlank(err):
+            with open(os.path.join(dest_dir, "error-messages.json"), 'w') as f:
+                json.dump(messages, f, indent=4)
             return err, ""
 
         run_file = f"{dest_dir}/run.json"
