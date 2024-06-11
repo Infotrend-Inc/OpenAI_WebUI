@@ -70,25 +70,27 @@ Please update your model selection accordingly.
 The [models.json](models.json) file contains the list of models supported by each release (as introduced in v0.9.3).
 The following table shows the [models](https://platform.openai.com/docs/models/) listed in this file as well as the release it was added to:
 
-| Mode | Model | Status | Notes | From |
-| --- | --- | --- | --- | --- |
-| DallE | dalle-e-2 | active | | 0.9.3 |
-| DallE | dalle-e-3 | active | | 0.9.3 |
-| GPT | gpt-3.5-turbo | active | | 0.9.3 |
-| GPT | gpt-3.5-turbo-0125 | active | | 0.9.3 |
-| GPT | gpt-3.5-turbo-0613 | legacy |  Will be deprecated on June 13, 2024 | 0.9.3 |
-| GPT | gpt-3.5-turbo-1106 | active | | 0.9.3 |
-| GPT | gpt-3.5-turbo-16k | legacy |  Will be deprecated on June 13, 2024 | 0.9.3 |
-| GPT | gpt-3.5-turbo-16k-0613 | legacy |  Will be deprecated on June 13, 2024 | 0.9.3 |
-| GPT | gpt-4 | active | | 0.9.3 |
-| GPT | gpt-4-0125-preview | active | | 0.9.3 |
-| GPT | gpt-4-0613 | active | | 0.9.3 |
-| GPT | gpt-4-1106-preview | active | | 0.9.3 |
-| GPT | gpt-4-32k | active | | 0.9.3 |
-| GPT | gpt-4-32k-0613 | active | | 0.9.3 |
-| GPT | gpt-4-turbo-preview | active | | 0.9.3 |
-| GPT | gpt-4o | active | 0.9.4 |
-| GPT | gpt-4o-2024-05-13 | active | 0.9.4 |
+| Mode | Model | Status | Capability | Notes | From |
+| --- | --- | --- | --- | --- | --- |
+| DallE | dalle-e-2 | active | | | 0.9.3 |
+| DallE | dalle-e-3 | active | | | 0.9.3 |
+| GPT | gpt-3.5-turbo | active | | | 0.9.3 |
+| GPT | gpt-3.5-turbo-0125 | active | | | 0.9.3 |
+| GPT | gpt-3.5-turbo-0613 | deprecated | | Deprecated on June 13, 2024 | 0.9.3 |
+| GPT | gpt-3.5-turbo-1106 | active | | | 0.9.3 |
+| GPT | gpt-3.5-turbo-16k | deprecated | | Deprecated on June 13, 2024 | 0.9.3 |
+| GPT | gpt-3.5-turbo-16k-0613 | deprecated | |  Deprecated on June 13, 2024 | 0.9.3 |
+| GPT | gpt-4 | active | | | 0.9.3 |
+| GPT | gpt-4-0125-preview | active | | | 0.9.3 |
+| GPT | gpt-4-0613 | active | | | 0.9.3 |
+| GPT | gpt-4-1106-preview | active | | | 0.9.3 |
+| GPT | gpt-4-32k | active | | | 0.9.3 |
+| GPT | gpt-4-32k-0613 | active | | |  0.9.3 |
+| GPT | gpt-4-turbo-preview | active | | | 0.9.3 |
+| GPT | gpt-4-turbo | active | vision | | 0.9.5 |
+| GPT | gpt-4-turbo-2024-04-09 | active | vision | | 0.9.5 |
+| GPT | gpt-4o | active | vision | | 0.9.4 |
+| GPT | gpt-4o-2024-05-13 | active | vision | | 0.9.4 |
 
 Once a model is `deprecated`, using it in your models list will have it discarded from the available list with a notification. 
 Similarly, if a used model is listed as `legacy`, a notification of the upcoming deprecation will be shown in the UI.
@@ -195,6 +197,7 @@ The pre-built container has been added to Unraid's Community Applications.
 
 ##  3.2. Version information/Changelog
 
+- v0.9.5 (20240611): Added support for `vision` in capable models. Added `gpt-4-turbo` models. Deprecated some models in advance of their 20240613 date.
 - v0.9.4 (20240513): Added support for `gpt-4o`, updated openai python package to 1.29.0
 - v0.9.3 (20240306): Simplifying integration of new models and handling/presentation of their status (active, legacy, deprecated) + Cleaner handling of max_tokens vs context window tokens + updated openai python package to 1.13.3
 - v0.9.2 (20241218): Keep prompt history for a given session + allow user to review/delete past prompts + updated openai python package: 1.8.0
