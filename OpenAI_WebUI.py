@@ -23,6 +23,7 @@ from datetime import datetime
 
 #####
 iti_version=cf.iti_version
+
 st.set_page_config(page_title=f"OpenAI API WebUI ({iti_version})", page_icon="🫥", layout="wide", initial_sidebar_state="expanded", menu_items={'Get Help': 'https://github.com/Infotrend-Inc/OpenAI_WebUI', 'About': f"# OpenAI WebUI ({iti_version})\n Brought to you by [Infotrend Inc.](https://www.infotrend.com/)"})
 
 #####

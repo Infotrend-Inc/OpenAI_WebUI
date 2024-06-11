@@ -1,6 +1,7 @@
 <h1>OpenAI WebUI</h1>
 
-Latest version: 0.9.5
+Latest version: 0.9.5 (20240611)
+
 
 - [1. Description](#1-description)
   - [1.1. Supported models](#11-supported-models)
@@ -93,6 +94,7 @@ The following table shows the [models](https://platform.openai.com/docs/models/)
 | GPT | gpt-4o-2024-05-13 | active | vision | | 0.9.4 |
 
 Once a model is `deprecated`, using it in your models list will have it discarded from the available list with a notification. 
+
 Similarly, if a used model is listed as `legacy`, a notification of the upcoming deprecation will be shown in the UI.
 
 ## 1.2. .env
