@@ -197,7 +197,7 @@ The pre-built container has been added to Unraid's Community Applications.
 
 ##  3.2. Version information/Changelog
 
-- v0.9.5 (20240611): Added support for `vision` in capable models. Added `gpt-4-turbo` models. Deprecated some models in advance of their 20240613 date.
+- v0.9.5 (20240611): Added support for `vision` in capable models + Added `gpt-4-turbo` models + Deprecated some models in advance of 20240613 + Updated openai python package to 1.33.0 + Decoupled UI code to allow support for different frontends.
 - v0.9.4 (20240513): Added support for `gpt-4o`, updated openai python package to 1.29.0
 - v0.9.3 (20240306): Simplifying integration of new models and handling/presentation of their status (active, legacy, deprecated) + Cleaner handling of max_tokens vs context window tokens + updated openai python package to 1.13.3
 - v0.9.2 (20241218): Keep prompt history for a given session + allow user to review/delete past prompts + updated openai python package: 1.8.0
