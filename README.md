@@ -1,6 +1,7 @@
 <h1>OpenAI WebUI</h1>
 
-Latest version: 0.9.4 (20240513)
+Latest version: 0.9.5 (20240611)
+
 
 - [1. Description](#1-description)
   - [1.1. Supported models](#11-supported-models)
@@ -58,39 +59,42 @@ DALL-E (Image Generation) sidebar options (see "?" for specific details):
 
 ## 1.1. Supported models
 
-We have added means to inform the end-user when a model is `retired`, `legacy` or `current`.
-- `retired` models are not available for use anymore.
-- `legacy` models will be retired at a specified date.
+We have added means to inform the end-user when a model is `deprecated`, `legacy` or `current`.
+- `deprecated` models are not available for use anymore.
+- `legacy` models will be deprecated at a specified date.
 - `current` models are available.
 
-The tool will automatically discard known (per the release) `retired` models and inform the end user. 
+The tool will automatically discard known (per the release) `deprecated` models and inform the end user. 
 Similarly, the tool will note when a model is `legacy`.
 Please update your model selection accordingly.
 
 The [models.json](models.json) file contains the list of models supported by each release (as introduced in v0.9.3).
 The following table shows the [models](https://platform.openai.com/docs/models/) listed in this file as well as the release it was added to:
 
-| Mode | Model | Status | Notes | From |
-| --- | --- | --- | --- | --- |
-| DallE | dalle-e-2 | active | | 0.9.3 |
-| DallE | dalle-e-3 | active | | 0.9.3 |
-| GPT | gpt-3.5-turbo | active | | 0.9.3 |
-| GPT | gpt-3.5-turbo-0125 | active | | 0.9.3 |
-| GPT | gpt-3.5-turbo-0613 | legacy |  Will be deprecated on June 13, 2024 | 0.9.3 |
-| GPT | gpt-3.5-turbo-1106 | active | | 0.9.3 |
-| GPT | gpt-3.5-turbo-16k | legacy |  Will be deprecated on June 13, 2024 | 0.9.3 |
-| GPT | gpt-3.5-turbo-16k-0613 | legacy |  Will be deprecated on June 13, 2024 | 0.9.3 |
-| GPT | gpt-4 | active | | 0.9.3 |
-| GPT | gpt-4-0125-preview | active | | 0.9.3 |
-| GPT | gpt-4-0613 | active | | 0.9.3 |
-| GPT | gpt-4-1106-preview | active | | 0.9.3 |
-| GPT | gpt-4-32k | active | | 0.9.3 |
-| GPT | gpt-4-32k-0613 | active | | 0.9.3 |
-| GPT | gpt-4-turbo-preview | active | | 0.9.3 |
-| GPT | gpt-4o | active | | 0.9.4 |
-| GPT | gpt-4o-2024-05-13 | active | | 0.9.4 |
+| Mode | Model | Status | Capability | Notes | From |
+| --- | --- | --- | --- | --- | --- |
+| DallE | dalle-e-2 | active | | | 0.9.3 |
+| DallE | dalle-e-3 | active | | | 0.9.3 |
+| GPT | gpt-3.5-turbo | active | | | 0.9.3 |
+| GPT | gpt-3.5-turbo-0125 | active | | | 0.9.3 |
+| GPT | gpt-3.5-turbo-0613 | deprecated | | Deprecated on June 13, 2024 | 0.9.3 |
+| GPT | gpt-3.5-turbo-1106 | active | | | 0.9.3 |
+| GPT | gpt-3.5-turbo-16k | deprecated | | Deprecated on June 13, 2024 | 0.9.3 |
+| GPT | gpt-3.5-turbo-16k-0613 | deprecated | |  Deprecated on June 13, 2024 | 0.9.3 |
+| GPT | gpt-4 | active | | | 0.9.3 |
+| GPT | gpt-4-0125-preview | active | | | 0.9.3 |
+| GPT | gpt-4-0613 | active | | | 0.9.3 |
+| GPT | gpt-4-1106-preview | active | | | 0.9.3 |
+| GPT | gpt-4-32k | active | | | 0.9.3 |
+| GPT | gpt-4-32k-0613 | active | | |  0.9.3 |
+| GPT | gpt-4-turbo-preview | active | | | 0.9.3 |
+| GPT | gpt-4-turbo | active | vision | | 0.9.5 |
+| GPT | gpt-4-turbo-2024-04-09 | active | vision | | 0.9.5 |
+| GPT | gpt-4o | active | vision | | 0.9.4 |
+| GPT | gpt-4o-2024-05-13 | active | vision | | 0.9.4 |
 
-Once a model is `retired`, using it in your models list will have it discarded from the available list with a notification. 
+Once a model is `deprecated`, using it in your models list will have it discarded from the available list with a notification. 
+
 Similarly, if a used model is listed as `legacy`, a notification of the upcoming deprecation will be shown in the UI.
 
 ## 1.2. .env
@@ -195,8 +199,9 @@ The pre-built container has been added to Unraid's Community Applications.
 
 ##  3.2. Version information/Changelog
 
+- v0.9.5 (20240611): Added support for `vision` in capable models + Added `gpt-4-turbo` models + Deprecated some models in advance of 20240613 + Updated openai python package to 1.33.0 + Decoupled UI code to allow support for different frontends.
 - v0.9.4 (20240513): Added support for `gpt-4o`, updated openai python package to 1.29.0
-- v0.9.3 (20240306): Simplifying integration of new models and handling/presentation of their status (active, legacy, retired) + Cleaner handling of max_tokens vs context window tokens + updated openai python package to 1.13.3
+- v0.9.3 (20240306): Simplifying integration of new models and handling/presentation of their status (active, legacy, deprecated) + Cleaner handling of max_tokens vs context window tokens + updated openai python package to 1.13.3
 - v0.9.2 (20241218): Keep prompt history for a given session + allow user to review/delete past prompts + updated openai python package: 1.8.0
 - v0.9.1 (20231120): Print `streamlit` errors in case of errors with environment variables + Addition of `gpt-3.5-turbo-1106` in the list of supported models (added in openai python package 1.3.0) + added optional `OAIWUI_USERNAME` environment variable
 - v0.9.0 (20231108): Initial release -- incorporating modifications brought by the latest OpenAI Python package (tested against 1.2.0)

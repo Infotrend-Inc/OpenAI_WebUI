@@ -1,32 +1,145 @@
 {
     "GPT": 
     {
+        "gpt-4o":
+        {
+            "label": "Our most advanced, multimodal flagship model that’s cheaper and faster than GPT-4 Turbo. Currently points to gpt-4o-2024-05-13.",
+            "max_token": 4096,
+            "context_token": 128000,
+            "data": "Up to Oct 2023 (as of 20240606)",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision"
+        },
+        "gpt-4o-2024-05-13":
+        {
+            "label": "Our most advanced, multimodal flagship model that’s cheaper and faster than GPT-4 Turbo. gpt-4o currently points to this version.",
+            "max_token": 4096,
+            "context_token": 128000,
+            "data": "Up to Oct 2023 (as of 20240606)",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision"
+        },
+        "gpt-4-turbo":
+        {
+            "label": "The latest GPT-4 Turbo model with vision capabilities. Currently points to gpt-4-turbo-2024-04-09.",
+            "max_token": 4096,
+            "context_token": 128000,
+            "data": "Up to Dec 2023 (as of 20240606)",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision"
+        },
+        "gpt-4-turbo-2024-04-09":
+        {
+            "label": "GPT-4 Turbo with Vision model. gpt-4-turbo currently points to this version.",
+            "max_token": 4096,
+            "context_token": 128000,
+            "data": "Up to Dec 2023 (as of 20240606)",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision"
+        },
+        "gpt-4-turbo-preview":
+        {
+            "label": "Currently points to gpt-4-0125-preview: The latest GPT-4 model intended to reduce cases of laziness where the model doesn’t complete a task. Returns a maximum of 4,096 output tokens.",
+            "max_token": 4096,
+            "context_token": 128000,
+            "data": "Up to Dec 2023 (as of 20240606)",
+            "status": "active",
+            "status_details": "",
+            "capability": ""
+        },
+        "gpt-4-0125-preview":
+        {
+            "label": "GPT-4 Turbo preview model intended to reduce cases of laziness where the model doesn’t complete a task. Returns a maximum of 4,096 output tokens.",
+            "max_token": 4096,
+            "context_token": 128000,
+            "data": "Up to Dec 2023 (as of 20240606)",
+            "status": "active",
+            "status_details": "",
+            "capability": ""
+        },
+        "gpt-4-1106-preview":
+        {
+            "label": "GPT-4 Turbo model featuring improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Returns a maximum of 4,096 output tokens. This is a preview model.",
+            "max_token": 4096,
+            "context_token": 128000,
+            "data": "Up to Apr 2023 (as of 20240606)",
+            "status": "active",
+            "status_details": "",
+            "capability": ""
+        },
+        "gpt-4":
+        {
+            "label": "Currently points to gpt-4-0613: Snapshot of gpt-4 from June 13th 2023 with improved function calling support.",
+            "max_token": 4096,
+            "context_token": 8192,
+            "data": "Up to Sep 2021 (as of 20240606)",
+            "status": "active",
+            "status_details": "",
+            "capability": ""
+        },
+        "gpt-4-0613":
+        {
+            "label": "Snapshot of gpt-4 from June 13th 2023 with improved function calling support.",
+            "max_token": 4096,
+            "context_token": 8192,
+            "data": "Up to Sep 2021 (as of 20240606)",
+            "status": "active",
+            "status_details": "",
+            "capability": ""
+        },
+        "gpt-4-32k":
+        {
+            "label": "Currently points to gpt-4-32k-0613: Snapshot of gpt-4-32k from June 13th 2023 with improved function calling support. This model was never rolled out widely in favor of GPT-4 Turbo.",
+            "max_token": 4096,
+            "context_token": 32768,
+            "data": "Up to Sep 2021 (as of 20240606)",
+            "status": "active",
+            "status_details": "",
+            "capability": ""
+        },
+        "gpt-4-32k-0613":
+        {
+            "label": "Snapshot of gpt-4-32k from June 13th 2023 with improved function calling support. This model was never rolled out widely in favor of GPT-4 Turbo.",
+            "max_token": 4096,
+            "context_token": 32768,
+            "data": "Up to Sep 2021 (as of 20240606)",
+            "status": "active",
+            "status_details": "",
+            "capability": ""
+        },
         "gpt-3.5-turbo-0125":
         {
             "label": "The latest GPT-3.5 Turbo model with higher accuracy at responding in requested formats and a fix for a bug which caused a text encoding issue for non-English language function calls. Returns a maximum of 4,096 output tokens.",
             "max_token": 4096,
             "context_token": 16385,
-            "data": "Up to Sep 2021 (as of 20240513)",
+            "data": "Up to Sep 2021 (as of 20240606)",
             "status": "active",
-            "status_details": ""
+            "status_details": "",
+            "capability": ""
         },
         "gpt-3.5-turbo":
         {
             "label": "Currently points to gpt-3.5-turbo-0125: The latest GPT-3.5 Turbo model with higher accuracy at responding in requested formats and a fix for a bug which caused a text encoding issue for non-English language function calls. Returns a maximum of 4,096 output tokens.",
             "max_token": 4096,
             "context_token": 16385,
-            "data": "Up to Sep 2021 (as of 20240513)",
+            "data": "Up to Sep 2021 (as of 20240606)",
             "status": "active",
-            "status_details": ""
+            "status_details": "",
+            "capability": ""
         },
         "gpt-3.5-turbo-1106":
         {
             "label": "GPT-3.5 Turbo model with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Returns a maximum of 4,096 output tokens.",
             "max_token": 4096,
             "context_token": 16385,
-            "data": "Up to Sep 2021 (as of 20240513)",
+            "data": "Up to Sep 2021 (as of 20240606)",
             "status": "active",
-            "status_details": ""
+            "status_details": "",
+            "capability": ""
         },
         "gpt-3.5-turbo-16k":
         {
@@ -34,8 +147,9 @@
             "max_token": 4096,
             "context_token": 16385,
             "data": "Up to Sep 2021 (as of 20240513)",
-            "status": "legacy",
-            "status_details": "Will be deprecated on June 13, 2024."
+            "status": "deprecated",
+            "status_details": "Will be deprecated on June 13, 2024.",
+            "capability": ""
         },
         "gpt-3.5-turbo-0613":
         {
@@ -43,8 +157,9 @@
             "max_token": 4096,
             "context_token": 4096,
             "data": "Up to Sep 2021 (as of 20240513)",
-            "status": "legacy",
-            "status_details": "Will be deprecated on June 13, 2024."
+            "status": "deprecated",
+            "status_details": "Will be deprecated on June 13, 2024.",
+            "capability": ""
         },
         "gpt-3.5-turbo-16k-0613":
         {
@@ -52,106 +167,26 @@
             "max_token": 4096,
             "context_token": 16385,
             "data": "Up to Sep 2021 (as of 20240513)",
-            "status": "legacy",
-            "status_details": "Will be deprecated on June 13, 2024."
-        },
-        "gpt-4-0125-preview":
-        {
-            "label": "GPT-4 Turbo preview model intended to reduce cases of laziness where the model doesn’t complete a task. Returns a maximum of 4,096 output tokens.",
-            "max_token": 4096,
-            "context_token": 128000,
-            "data": "Up to Dec 2023 (as of 20240513)",
-            "status": "active",
-            "status_details": ""
-        },
-        "gpt-4-turbo-preview":
-        {
-            "label": "Currently points to gpt-4-0125-preview: The latest GPT-4 model intended to reduce cases of “laziness” where the model doesn’t complete a task. Returns a maximum of 4,096 output tokens.",
-            "max_token": 4096,
-            "context_token": 128000,
-            "data": "Up to Dec 2023 (as of 20240513)",
-            "status": "active",
-            "status_details": ""
-        },
-        "gpt-4-1106-preview":
-        {
-            "label": "GPT-4 Turbo model featuring improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Returns a maximum of 4,096 output tokens. This is a preview model.",
-            "max_token": 4096,
-            "context_token": 128000,
-            "data": "Up to Apr 2023 (as of 20240513)",
-            "status": "active",
-            "status_details": ""
-        },
-        "gpt-4":
-        {
-            "label": "Currently points to gpt-4-0613: Snapshot of gpt-4 from June 13th 2023 with improved function calling support.",
-            "max_token": 4096,
-            "context_token": 8192,
-            "data": "Up to Sep 2021 (as of 20240513)",
-            "status": "active",
-            "status_details": ""
-        },
-        "gpt-4-0613":
-        {
-            "label": "Snapshot of gpt-4 from June 13th 2023 with improved function calling support.",
-            "max_token": 4096,
-            "context_token": 8192,
-            "data": "Up to Sep 2021 (as of 20240513)",
-            "status": "active",
-            "status_details": ""
-        },
-        "gpt-4-32k":
-        {
-            "label": "Currently points to gpt-4-32k-0613: Snapshot of gpt-4-32k from June 13th 2023 with improved function calling support. This model was never rolled out widely in favor of GPT-4 Turbo.",
-            "max_token": 4096,
-            "context_token": 32768,
-            "data": "Up to Sep 2021 (as of 20240513)",
-            "status": "active",
-            "status_details": ""
-        },
-        "gpt-4-32k-0613":
-        {
-            "label": "Snapshot of gpt-4-32k from June 13th 2023 with improved function calling support. This model was never rolled out widely in favor of GPT-4 Turbo.",
-            "max_token": 4096,
-            "context_token": 32768,
-            "data": "Up to Sep 2021 (as of 20240513)",
-            "status": "active",
-            "status_details": ""
-        },
-        "gpt-4o":
-        {
-            "label": "Our most advanced, multimodal flagship model that’s cheaper and faster than GPT-4 Turbo. Currently points to gpt-4o-2024-05-13.",
-            "max_token": 4096,
-            "context_token": 128000,
-            "data": "Up to Oct 2023 (as of 20240513)",
-            "status": "active",
-            "status_details": "GPT-4o is available in the OpenAI API to paying customers"
-        },
-        "gpt-4o-2024-05-13":
-        {
-            "label": "Our most advanced, multimodal flagship model that’s cheaper and faster than GPT-4 Turbo. gpt-4o currently points to this version.",
-            "max_token": 4096,
-            "context_token": 128000,
-            "data": "Up to Oct 2023 (as of 20240513)",
-            "status": "active",
-            "status_details": "GPT-4o is available in the OpenAI API to paying customers"
+            "status": "deprecated",
+            "status_details": "Will be deprecated on June 13, 2024.",
+            "capability": ""
         }
     },
     "DallE":
     {
-        "dall-e-2":
-        {
-            "label": "The previous DALL·E model released in Nov 2022. The maximum prompt length is 1000 characters.",
-            "image_size": ["256x256", "512x512", "1024x1024"],
-            "max_prompt_length": 1000,
-            "status": "active",
-            "status_details": ""
-        },
         "dall-e-3":
         {
             "label": "The latest DALL·E model released in Nov 2023. The maximum prompt length is 4000 characters.",
             "image_size": ["1024x1024", "1024x1792", "1792x1024"],
             "max_prompt_length": 4000,
+            "status": "active",
+            "status_details": ""
+        },
+        "dall-e-2":
+        {
+            "label": "The previous DALL·E model released in Nov 2022. The maximum prompt length is 1000 characters.",
+            "image_size": ["256x256", "512x512", "1024x1024"],
+            "max_prompt_length": 1000,
             "status": "active",
             "status_details": ""
         }

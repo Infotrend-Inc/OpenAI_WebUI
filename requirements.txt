@@ -1,7 +1,8 @@
-openai==1.29.0
+openai==1.33.0
 streamlit
 python-dotenv
 extra-streamlit-components
 streamlit-extras
 streamlit_image_select
 requests
+pillow
