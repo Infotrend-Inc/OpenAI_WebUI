@@ -170,16 +170,6 @@
             "status": "deprecated",
             "status_details": "Will be deprecated on June 13, 2024.",
             "capability": ""
-        },
-        "davinci":
-        {
-            "label": "Retired",
-            "max_token": 4096,
-            "context_token": 4096,
-            "data": "",
-            "status": "deprecated",
-            "status_details": "Deprecated as of 2024-01-04",
-            "capability": ""
         }
     },
     "DallE":
