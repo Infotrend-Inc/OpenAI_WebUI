@@ -242,9 +242,9 @@ class OAI_GPT_WUI:
             if 'messages' in run_json:
                 messages = run_json["messages"]
 
+            chat_history = ""
             if vision_mode is False:
                 stoggle('Original Prompt', prompt)
-                chat_history = ""
                 if len(messages) > 0:
                     chat_history = self.oai_gpt.get_chat_history(run_file)
                     stoggle('Chat History', chat_history)
