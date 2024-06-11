@@ -157,7 +157,7 @@ class OAI_GPT_WUI:
             else:
                 presets = list(self.gpt_presets.keys())[0]
 
-            gpt_show_tooltip = st.toggle(label="Show Tips", value=True, help="Show some tips on how to use the tool", key="gpt_show_tooltip")
+            gpt_show_tooltip = st.toggle(label="Show Tips", value=False, help="Show some tips on how to use the tool", key="gpt_show_tooltip")
             gpt_show_history = st.toggle(label='Show Prompt History', value=False, help="Show a list of prompts that you have used in the past (most recent first). Loading a selected prompt does not load the parameters used for the generation.", key="gpt_show_history")
             if gpt_show_history:
                 gpt_allow_history_deletion = st.toggle('Allow Prompt History Deletion', value=False, help="This will allow you to delete a prompt from the history. This will delete the prompt and all its associated files. This cannot be undone.", key="gpt_allow_history_deletion")
