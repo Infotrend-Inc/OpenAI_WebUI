@@ -21,6 +21,8 @@ import common_functions as cf
 from dotenv import load_dotenv
 from datetime import datetime
 
+import hmac
+
 #####
 iti_version=cf.iti_version
 
@@ -51,9 +53,41 @@ def load_models():
     return gpt_models, dalle_models
 
 #####
+# https://docs.streamlit.io/knowledge-base/deploy/authentication-without-sso
+def check_password():
+    """Returns `True` if the user had the correct password."""
+
+    def password_entered():
+        """Checks whether a password entered by the user is correct."""
+        if hmac.compare_digest(st.session_state["password"], st.secrets["password"]):
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # Don't store the password.
+        else:
+            st.session_state["password_correct"] = False
+
+    # Return True if the password is validated.
+    if st.session_state.get("password_correct", False):
+        return True
+
+    # Show input for password.
+    st.text_input(
+        "WebUI Required Password", type="password", on_change=password_entered, key="password"
+    )
+    if "password_correct" in st.session_state:
+        st.error("😕 Password incorrect")
+    return False
+
+
+#####
 def main():
     # Load all supported models (need the status field to decide or prompt if we can use that model or not)
     av_gpt_models, av_dalle_models = load_models()    
+
+    err = cf.check_file_r(".streamlit/secrets.toml", "Secrets file")
+    if cf.isBlank(err):
+        if not check_password():
+            st.error("Required password incorrect, can not continue")
+            st.stop()
 
     err = cf.check_file_r(".env", "Environment file")
     if cf.isBlank(err):
