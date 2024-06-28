@@ -1,6 +1,6 @@
 <h1>OpenAI WebUI</h1>
 
-Latest version: 0.9.5 (20240611)
+Latest version: 0.9.6 (20240628)
 
 
 - [1. Description](#1-description)
