@@ -1,12 +1,12 @@
 <h1>OpenAI WebUI</h1>
 
-Latest version: 0.9.6 (20240628)
-
+Latest version: 0.9.6 (20240701)
 
 - [1. Description](#1-description)
   - [1.1. Supported models](#11-supported-models)
   - [1.2. .env](#12-env)
   - [1.3. savedir](#13-savedir)
+  - [1.4. password protecting the WebUI](#14-password-protecting-the-webui)
 - [2. Setup](#2-setup)
   - [2.1. Python virtualenv](#21-python-virtualenv)
   - [2.2. Docker/Podman](#22-dockerpodman)
@@ -106,6 +106,7 @@ The `.env.example` file contains the parameters needed to pass to the running to
 - `OAIWUI_GPT_MODELS` is a comma-separated list of GPT model(s) your API key is authorized to use. See https://platform.openai.com/docs/api-reference/making-requests for more information.
 - `OAIWUI_DALLE_MODELS` is a comma-separated list of DallE model(s) your API key is authorized to use.
 - `OAIWUI_USERNAME` (optional) specifies a `username` and avoids being prompted at each re-run. The default mode is to run in multi-user settings so this is not enabled by default.
+- `OAIWUI_GPT_VISION` will, for compatible models, disable their vision capabilities
 
 Those values can be passed by making a `.env` file containing the expected values or using environment variables.
 
@@ -123,6 +124,12 @@ Its structure is: `savedir`/`version`/`username`/`mode`/`UTCtime`/`<CONTENT>`, w
 - `<CONTENT>` is often a `json` file containing the details of the run for `gpt`, but also the different `png` images generated for `dalle`
 
 We do not check the directories for size. It is left to the end user to clean up space if required.
+
+## 1.4. password protecting the WebUI
+
+To do this, create a `.streamlit/secrets.toml` file in the directory where the streamlit app is started (for the python virtualenv setup, this should be the directory where this `README.md` is present, while for other deployment methods, please see the corresponding [setup](#2-setup) section) and add a `password = "SET_YOUR_PASSWORD_HERE"` value to it.
+
+When the WebUI starts, it will see of `secrets.toml` file and challenge users for the password set within.
 
 #  2. Setup
 
@@ -179,6 +186,8 @@ This setup prefers the use of environment variable, using `docker run ... -e VAR
     $ docker run --rm -it -p 8501:8501 -v `pwd`/savedir:/iti -e OPENAI_API_KEY="Your_OpenAI_API_Key" -e OAIWUI_SAVEDIR=/iti -e OAIWUI_GPT_ONLY=False -e OAIWUI_GPT_MODELS="gpt-3.5-turbo,gpt-4" -e OAIWUI_DALLE_MODELS="dall-e-2,dall-e-3" openai_webui:latest
     ```
 
+If you want to use the password protection for the WebUI, create and populate the `.streamlit/secrets.toml` file before you start the container (see [password protecting the webui](#14-password-protecting-the-webui)) then add `-v PATH_TO/secrets.toml:/app/.streamlit/secrets.toml:ro` to your command line (adapting `PATH_TO` with the full path location of the secrets file)
+
 You can have the `Makefile` delete locally built containers:
 
 ```
@@ -191,6 +200,20 @@ For [Unraid](https://unraid.net/) users, a special build mode is available to ge
 
 The pre-built container has been added to Unraid's Community Applications.
 
+The configuration file contains many of the possible environment variables, as detailed in the [.env](#12-env) section.
+Omitted from the configuration files are:
+- a `Variable` named `OAIWUI_USERNAME` whose value will set a default username.
+The edited XML file would add a line similar to (adapting the `username` accordingly):
+    ```
+    <Config Name="OAIWUI_USERNAME" Target="OAIWUI_USERNAME" Default="username" Mode="" Description="Automatically use a default user" Type="Variable" Display="always" Required="false" Mask="false">username</Config>
+    ``` 
+- a `Path` mapping a `secrets.toml` file to the `/app/.streamlit/secrets.toml` location within the running docker container (read-only recommended). 
+Before setting this, create and populate a file with the expected value (as described in [password protecting the WebUI](#14-password-protecting-the-webui)).
+For example, if your `appdata` location for the OpenAI WebUI was `/mnt/user/appdata/openai_webui` in which you placed the needed `secrets.toml` file, the expected XML addition would look similar to: 
+    ```
+    <Config Name="/app/.streamlit/secrets.toml" Target="/app/.streamlit/secrets.toml" Default="/mnt/user/appdata/openai_webui/secrets.toml" Mode="ro" Description="WebUI password protection -- secrets.toml file must exist with a password variable" Type="Path" Display="always" Required="false" Mask="false">/mnt/user/appdata/openai_webui/secrets.toml</Config>
+    ```
+
 # 3. Misc
 
 ##  3.1. Notes
@@ -199,6 +222,7 @@ The pre-built container has been added to Unraid's Community Applications.
 
 ##  3.2. Version information/Changelog
 
+- v0.9.6 (20240701): Added method to disable `vision` for capable models + added whole WebUI password protection using streamlit's `secrets.toml` method 
 - v0.9.5 (20240611): Added support for `vision` in capable models + Added `gpt-4-turbo` models + Deprecated some models in advance of 20240613 + Updated openai python package to 1.33.0 + Decoupled UI code to allow support for different frontends.
 - v0.9.4 (20240513): Added support for `gpt-4o`, updated openai python package to 1.29.0
 - v0.9.3 (20240306): Simplifying integration of new models and handling/presentation of their status (active, legacy, deprecated) + Cleaner handling of max_tokens vs context window tokens + updated openai python package to 1.13.3
