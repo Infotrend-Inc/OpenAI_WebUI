@@ -15,7 +15,7 @@ DOCKER_CMD=docker
 OAI_BASE="python:3.12-slim-bookworm"
 
 # Version infomation and container name
-OAI_VERSION="0.9.5"
+OAI_VERSION="0.9.6"
 
 OAI_CONTAINER_NAME="openai_webui"
 

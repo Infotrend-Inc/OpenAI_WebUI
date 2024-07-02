@@ -22,7 +22,7 @@ import OpenAI_GPT as OAI_GPT
 
 ##########
 class OAI_GPT_WUI:
-    def __init__(self, oai_gpt: OAI_GPT) -> None:
+    def __init__(self, oai_gpt: OAI_GPT, enable_vision: bool = True) -> None:
         self.last_gpt_query = "last_gpt_query"
 
         self.oai_gpt = oai_gpt
@@ -36,6 +36,8 @@ class OAI_GPT_WUI:
         self.gpt_presets = oai_gpt.get_gpt_presets()
         self.gpt_presets_help = oai_gpt.get_gpt_presets_help()
         self.per_model_help = oai_gpt.get_per_model_help()
+
+        self.enable_vision = enable_vision
 
 
     def resize_rectangle(self, original_width, original_height, max_width, max_height):
@@ -133,6 +135,11 @@ class OAI_GPT_WUI:
             if self.model_capability[model] == "vision":
                 vision_capable = True
             m_token = self.models[model]['max_token']
+
+            # vision mode bypass
+            if self.enable_vision is False:
+                vision_mode = False
+                vision_capable = False
 
             if vision_capable:
                 vision_mode = st.toggle(label="Vision", value=False, help="Enable the upload of an image. Vision's limitation and cost can be found at https://platform.openai.com/docs/guides/vision/limitations.\n\nDisables the role and presets selectors. Image(s) are resized when over the max of the \'details\' selected. Please be aware that each 512px x 512px title is expected to cost 170 tokens. Using this mode disables roles, presets and chat (the next prompt will not have knowledge of past thread of conversation)")

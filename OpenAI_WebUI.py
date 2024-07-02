@@ -21,6 +21,8 @@ import common_functions as cf
 from dotenv import load_dotenv
 from datetime import datetime
 
+import hmac
+
 #####
 iti_version=cf.iti_version
 
@@ -51,9 +53,41 @@ def load_models():
     return gpt_models, dalle_models
 
 #####
+# https://docs.streamlit.io/knowledge-base/deploy/authentication-without-sso
+def check_password():
+    """Returns `True` if the user had the correct password."""
+
+    def password_entered():
+        """Checks whether a password entered by the user is correct."""
+        if hmac.compare_digest(st.session_state["password"], st.secrets["password"]):
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # Don't store the password.
+        else:
+            st.session_state["password_correct"] = False
+
+    # Return True if the password is validated.
+    if st.session_state.get("password_correct", False):
+        return True
+
+    # Show input for password.
+    st.text_input(
+        "WebUI Required Password", type="password", on_change=password_entered, key="password"
+    )
+    if "password_correct" in st.session_state:
+        st.error("😕 Password incorrect")
+    return False
+
+
+#####
 def main():
     # Load all supported models (need the status field to decide or prompt if we can use that model or not)
     av_gpt_models, av_dalle_models = load_models()    
+
+    err = cf.check_file_r(".streamlit/secrets.toml", "Secrets file")
+    if cf.isBlank(err):
+        if not check_password():
+            st.error("Required password incorrect, can not continue")
+            st.stop()
 
     err = cf.check_file_r(".env", "Environment file")
     if cf.isBlank(err):
@@ -87,6 +121,17 @@ def main():
     if cf.isBlank(gpt_models):
         st.error(f"OAIWUI_GPT_MODELS environment variable is empty")
         cf.error_exit("OAIWUI_GPT_MODELS environment variable is empty")
+
+    gpt_vision = True
+    if 'OAIWUI_GPT_VISION' in os.environ:
+        tmp = os.environ.get('OAIWUI_GPT_VISION')
+        if tmp.lower() == "false":
+            gpt_vision = False
+        elif tmp.lower() == "true" :
+            gpt_vision = True
+        else:
+            st.error(f"OAIWUI_GPT_VISION environment variable must be set to 'True' or 'False'")
+            cf.error_exit("OAIWUI_GPT_VISION environment variable must be set to 'True' or 'False'")
 
     dalle_models = ""
     if 'OAIWUI_DALLE_MODELS' in os.environ:
@@ -137,7 +182,7 @@ def main():
         long_save_location = os.path.join(save_location, iti_version)
         cf.make_wdir_error(os.path.join(long_save_location))
 
-        set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, dalle_models, av_dalle_models)
+        set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models)
 
 #####
 
@@ -151,18 +196,18 @@ def process_error_warning(err, warn):
 
 #####
 
-def set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, dalle_models, av_dalle_models):
+def set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models):
     oai_gpt = OAI_GPT(apikey, long_save_location, username)
     err, warn = oai_gpt.set_parameters(gpt_models, av_gpt_models)
     process_error_warning(err, warn)
-    oai_gpt_st = OAI_GPT_WUI(oai_gpt)
+    oai_gpt_st = OAI_GPT_WUI(oai_gpt, gpt_vision)
     oai_dalle = None
     oai_dalle_st = None
     if 'OAIWUI_GPT_ONLY' in os.environ:
         tmp = os.environ.get('OAIWUI_GPT_ONLY')
-        if tmp == "True":
+        if tmp.lower() == "true":
             oai_dalle = None
-        elif tmp == "False":
+        elif tmp.lower() == "false":
             oai_dalle = OAI_DallE(apikey, long_save_location, username)
             err, warn = oai_dalle.set_parameters(dalle_models, av_dalle_models)
             process_error_warning(err, warn)

@@ -5,4 +5,4 @@ venv
 savedir
 .env.docker
 *.svg
-
+.streamlit/secrets.toml
