@@ -10,7 +10,8 @@ Latest version: 0.9.6 (20240701)
 - [2. Setup](#2-setup)
   - [2.1. Python virtualenv](#21-python-virtualenv)
   - [2.2. Docker/Podman](#22-dockerpodman)
-  - [2.3. Unraid](#23-unraid)
+  - [2.3. Docker compose](#23-docker-compose)
+  - [2.4. Unraid](#24-unraid)
 - [3. Misc](#3-misc)
   - [3.1. Notes](#31-notes)
   - [3.2. Version information/Changelog](#32-version-informationchangelog)
@@ -194,7 +195,46 @@ You can have the `Makefile` delete locally built containers:
 $ make delete_main
 ```
 
-## 2.3. Unraid
+## 2.3. Docker compose
+
+To run the built or downloaded container using `docker compose`, decide on the directory where you want the `compose.yaml` to be, and place the following as the content of the file:
+
+```yaml
+services:
+  openai_webui:
+    image: infotrend/openai_webui:latest
+    container_name: openai_webui
+    restart: unless-stopped
+    volumes:
+      - ./savedir:/iti
+      # Uncomment the following and create a secrets.toml in the directory where this compose.yaml file is to password protect access to the application
+      # - ./secrets.toml:/app/.streamlit/secrets.toml:ro
+    ports:
+      # host port:container port
+      - 8501:8501
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OAIWUI_SAVEDIR=/iti
+      # Adapt the following as best suits your deployment
+      - OAIWUI_GPT_ONLY=False
+      - OAIWUI_GPT_MODELS=gpt-4o
+      - OAIWUI_GPT_VISION=True
+      # Even if OAIWUI_GPT_ONLY is True, please set a model, it will be ignored
+      - OAIWUI_DALLE_MODELS=dall-e-3
+      # Uncomment and enter a value if you are using a single user deployment
+      # - OAIWUI_USERNAME=user
+```
+
+In the directory where the `compose.yaml` is located, create a `savedir` directory (it will be mounted as `/iti` within the running container), and create a `.env` file that needs only contain the `OPENAI_API_KEY=value` entry.
+If using a `secrets.toml` file with a `password=WEBUIPASSWORD` content, uncomment the entry in the `compose.yaml` file.
+
+As configured, the container will `restart` `unless-stopped` which also means that unless the container is stopped it will automatically restart after a host reboot.
+
+Run using `docker compose up -d`
+
+The WebUI will be accessible on port 8501 of your host.
+
+## 2.4. Unraid
 
 For [Unraid](https://unraid.net/) users, a special build mode is available to get a container using unraid's preferred `uid`/`gid`, use `make build_unraid` to build it.
 
