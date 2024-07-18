@@ -265,6 +265,7 @@ For example, if your `appdata` location for the OpenAI WebUI was `/mnt/user/appd
 
 ##  3.2. Version information/Changelog
 
+- v0.9.7 (20240718): Added `gpt-4o-mini` and `deprecated` older `32k` models
 - v0.9.6 (20240701): Added method to disable `vision` for capable models + added whole WebUI password protection using streamlit's `secrets.toml` method 
 - v0.9.5 (20240611): Added support for `vision` in capable models + Added `gpt-4-turbo` models + Deprecated some models in advance of 20240613 + Updated openai python package to 1.33.0 + Decoupled UI code to allow support for different frontends.
 - v0.9.4 (20240513): Added support for `gpt-4o`, updated openai python package to 1.29.0
