@@ -1,12 +1,32 @@
 {
     "GPT": 
     {
+        "gpt-4o-mini":
+        {
+            "label": "Our affordable and intelligent small model for fast, lightweight tasks. GPT-4o mini is cheaper and more capable than GPT-3.5 Turbo. Currently points to gpt-4o-mini-2024-07-18.",
+            "max_token": 4096,
+            "context_token": 128000,
+            "data": "Up to Oct 2023 (as of 20240718)",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision"
+        },
+        "gpt-4o-mini-2024-07-18":
+        {
+            "label": "Our affordable and intelligent small model for fast, lightweight tasks. GPT-4o mini is cheaper and more capable than GPT-3.5 Turbo.",
+            "max_token": 4096,
+            "context_token": 128000,
+            "data": "Up to Oct 2023 (as of 20240718)",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision"
+        },
         "gpt-4o":
         {
             "label": "Our most advanced, multimodal flagship model that’s cheaper and faster than GPT-4 Turbo. Currently points to gpt-4o-2024-05-13.",
             "max_token": 4096,
             "context_token": 128000,
-            "data": "Up to Oct 2023 (as of 20240606)",
+            "data": "Up to Oct 2023 (as of 20240718)",
             "status": "active",
             "status_details": "",
             "capability": "vision"
@@ -16,7 +36,7 @@
             "label": "Our most advanced, multimodal flagship model that’s cheaper and faster than GPT-4 Turbo. gpt-4o currently points to this version.",
             "max_token": 4096,
             "context_token": 128000,
-            "data": "Up to Oct 2023 (as of 20240606)",
+            "data": "Up to Oct 2023 (as of 20240718)",
             "status": "active",
             "status_details": "",
             "capability": "vision"
@@ -26,7 +46,7 @@
             "label": "The latest GPT-4 Turbo model with vision capabilities. Currently points to gpt-4-turbo-2024-04-09.",
             "max_token": 4096,
             "context_token": 128000,
-            "data": "Up to Dec 2023 (as of 20240606)",
+            "data": "Up to Dec 2023 (as of 20240718)",
             "status": "active",
             "status_details": "",
             "capability": "vision"
@@ -36,7 +56,7 @@
             "label": "GPT-4 Turbo with Vision model. gpt-4-turbo currently points to this version.",
             "max_token": 4096,
             "context_token": 128000,
-            "data": "Up to Dec 2023 (as of 20240606)",
+            "data": "Up to Dec 2023 (as of 20240718)",
             "status": "active",
             "status_details": "",
             "capability": "vision"
@@ -46,7 +66,7 @@
             "label": "Currently points to gpt-4-0125-preview: The latest GPT-4 model intended to reduce cases of laziness where the model doesn’t complete a task. Returns a maximum of 4,096 output tokens.",
             "max_token": 4096,
             "context_token": 128000,
-            "data": "Up to Dec 2023 (as of 20240606)",
+            "data": "Up to Dec 2023 (as of 20240718)",
             "status": "active",
             "status_details": "",
             "capability": ""
@@ -56,7 +76,7 @@
             "label": "GPT-4 Turbo preview model intended to reduce cases of laziness where the model doesn’t complete a task. Returns a maximum of 4,096 output tokens.",
             "max_token": 4096,
             "context_token": 128000,
-            "data": "Up to Dec 2023 (as of 20240606)",
+            "data": "Up to Dec 2023 (as of 20240718)",
             "status": "active",
             "status_details": "",
             "capability": ""
@@ -66,7 +86,7 @@
             "label": "GPT-4 Turbo model featuring improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Returns a maximum of 4,096 output tokens. This is a preview model.",
             "max_token": 4096,
             "context_token": 128000,
-            "data": "Up to Apr 2023 (as of 20240606)",
+            "data": "Up to Apr 2023 (as of 20240718)",
             "status": "active",
             "status_details": "",
             "capability": ""
@@ -76,7 +96,7 @@
             "label": "Currently points to gpt-4-0613: Snapshot of gpt-4 from June 13th 2023 with improved function calling support.",
             "max_token": 4096,
             "context_token": 8192,
-            "data": "Up to Sep 2021 (as of 20240606)",
+            "data": "Up to Sep 2021 (as of 20240718)",
             "status": "active",
             "status_details": "",
             "capability": ""
@@ -86,7 +106,7 @@
             "label": "Snapshot of gpt-4 from June 13th 2023 with improved function calling support.",
             "max_token": 4096,
             "context_token": 8192,
-            "data": "Up to Sep 2021 (as of 20240606)",
+            "data": "Up to Sep 2021 (as of 20240718)",
             "status": "active",
             "status_details": "",
             "capability": ""
@@ -97,7 +117,7 @@
             "max_token": 4096,
             "context_token": 32768,
             "data": "Up to Sep 2021 (as of 20240606)",
-            "status": "active",
+            "status": "deprecated",
             "status_details": "",
             "capability": ""
         },
@@ -107,7 +127,7 @@
             "max_token": 4096,
             "context_token": 32768,
             "data": "Up to Sep 2021 (as of 20240606)",
-            "status": "active",
+            "status": "deprecated",
             "status_details": "",
             "capability": ""
         },
@@ -116,7 +136,7 @@
             "label": "The latest GPT-3.5 Turbo model with higher accuracy at responding in requested formats and a fix for a bug which caused a text encoding issue for non-English language function calls. Returns a maximum of 4,096 output tokens.",
             "max_token": 4096,
             "context_token": 16385,
-            "data": "Up to Sep 2021 (as of 20240606)",
+            "data": "Up to Sep 2021 (as of 20240718)",
             "status": "active",
             "status_details": "",
             "capability": ""
@@ -126,7 +146,7 @@
             "label": "Currently points to gpt-3.5-turbo-0125: The latest GPT-3.5 Turbo model with higher accuracy at responding in requested formats and a fix for a bug which caused a text encoding issue for non-English language function calls. Returns a maximum of 4,096 output tokens.",
             "max_token": 4096,
             "context_token": 16385,
-            "data": "Up to Sep 2021 (as of 20240606)",
+            "data": "Up to Sep 2021 (as of 20240718)",
             "status": "active",
             "status_details": "",
             "capability": ""
@@ -136,7 +156,7 @@
             "label": "GPT-3.5 Turbo model with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Returns a maximum of 4,096 output tokens.",
             "max_token": 4096,
             "context_token": 16385,
-            "data": "Up to Sep 2021 (as of 20240606)",
+            "data": "Up to Sep 2021 (as of 20240718)",
             "status": "active",
             "status_details": "",
             "capability": ""
