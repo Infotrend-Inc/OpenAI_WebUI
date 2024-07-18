@@ -1,4 +1,4 @@
-openai==1.35.6
+openai==1.35.15
 streamlit
 python-dotenv
 extra-streamlit-components
