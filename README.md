@@ -1,6 +1,6 @@
 <h1>OpenAI WebUI</h1>
 
-Latest version: 0.9.6 (20240701)
+Latest version: 0.9.7 (20240718)
 
 - [1. Description](#1-description)
   - [1.1. Supported models](#11-supported-models)
@@ -86,13 +86,16 @@ The following table shows the [models](https://platform.openai.com/docs/models/)
 | GPT | gpt-4-0125-preview | active | | | 0.9.3 |
 | GPT | gpt-4-0613 | active | | | 0.9.3 |
 | GPT | gpt-4-1106-preview | active | | | 0.9.3 |
-| GPT | gpt-4-32k | active | | | 0.9.3 |
-| GPT | gpt-4-32k-0613 | active | | |  0.9.3 |
+| GPT | gpt-4-32k | deprecated | | | 0.9.3 |
+| GPT | gpt-4-32k-0613 | deprecated | | |  0.9.3 |
 | GPT | gpt-4-turbo-preview | active | | | 0.9.3 |
 | GPT | gpt-4-turbo | active | vision | | 0.9.5 |
 | GPT | gpt-4-turbo-2024-04-09 | active | vision | | 0.9.5 |
 | GPT | gpt-4o | active | vision | | 0.9.4 |
 | GPT | gpt-4o-2024-05-13 | active | vision | | 0.9.4 |
+| GPT | gpt-4o-mini | active | vision | | 0.9.7 |
+| GPT | gpt-4o-mini-2024-07-18 | active | vision | | 0.9.7 |
+
 
 Once a model is `deprecated`, using it in your models list will have it discarded from the available list with a notification. 
 
