@@ -151,6 +151,27 @@ def main():
         else:
             st.session_state['username'] = username
 
+    prompt_presets_dir = None
+    if 'OAIWUI_PROMPT_PRESETS_DIR' in os.environ:
+        prompt_presets_dir = os.environ.get('OAIWUI_PROMPT_PRESETS_DIR')
+        if cf.isBlank(prompt_presets_dir):
+            st.warning(f"OAIWUI_PROMPT_PRESETS_DIR provided but empty, will not use prompt presets")
+        else:
+            err = cf.check_dir(prompt_presets_dir, "OAIWUI_PROMPT_PRESETS_DIR directory")
+            if cf.isNotBlank(err):
+                st.warning(f"While checking OAIWUI_PROMPT_PRESETS_DIR: {err}")
+                prompt_presets_dir = None
+            else:
+                has_json = False
+                for file in os.listdir(prompt_presets_dir):
+                    if file.endswith(".json"):
+                        has_json = True
+                        break
+                if not has_json:
+                    st.warning(f"OAIWUI_PROMPT_PRESETS_DIR provided but empty, will not use prompt presets")
+                    prompt_presets_dir = None
+            
+
     # Store the initial value of widgets in session state
     if "visibility" not in st.session_state:
         st.session_state.visibility = "visible"
@@ -182,7 +203,7 @@ def main():
         long_save_location = os.path.join(save_location, iti_version)
         cf.make_wdir_error(os.path.join(long_save_location))
 
-        set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models)
+        set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir)
 
 #####
 
@@ -196,11 +217,11 @@ def process_error_warning(err, warn):
 
 #####
 
-def set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models):
+def set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir: str = None):
     oai_gpt = OAI_GPT(apikey, long_save_location, username)
     err, warn = oai_gpt.set_parameters(gpt_models, av_gpt_models)
     process_error_warning(err, warn)
-    oai_gpt_st = OAI_GPT_WUI(oai_gpt, gpt_vision)
+    oai_gpt_st = OAI_GPT_WUI(oai_gpt, gpt_vision, prompt_presets_dir)
     oai_dalle = None
     oai_dalle_st = None
     if 'OAIWUI_GPT_ONLY' in os.environ:
