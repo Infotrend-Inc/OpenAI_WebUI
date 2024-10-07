@@ -1,6 +1,6 @@
 <h1>OpenAI WebUI</h1>
 
-Latest version: 0.9.7 (20240718)
+Latest version: 0.9.8 (20241007)
 
 - [1. Description](#1-description)
   - [1.1. Supported models](#11-supported-models)
@@ -8,7 +8,7 @@ Latest version: 0.9.7 (20240718)
   - [1.3. savedir](#13-savedir)
   - [1.4. password protecting the WebUI](#14-password-protecting-the-webui)
 - [2. Setup](#2-setup)
-  - [2.1. Python virtualenv](#21-python-virtualenv)
+  - [2.1. Python virtualenv (poetry)](#21-python-virtualenv-poetry)
   - [2.2. Docker/Podman](#22-dockerpodman)
   - [2.3. Docker compose](#23-docker-compose)
   - [2.4. Unraid](#24-unraid)
@@ -137,25 +137,21 @@ When the WebUI starts, it will see of `secrets.toml` file and challenge users fo
 
 #  2. Setup
 
-##  2.1. Python virtualenv
+##  2.1. Python virtualenv (poetry)
 
-This mode is for use if you have `python3` installed and want to test the tool.
+The virtualenv setup requires [`poetry`](https://python-poetry.org/) and the setup is defined in the `pyproject.toml` file.
+
+This mode is for use if you have `python3` and `poetry` installed and want to test the tool.
 
 1. Create and activate your virtual environment
 
     ```bash
-    $ python3 -m venv venv
-    $ source venv/bin/activate
+    $ poetry install
+    $ poetry shell
     ```
 
-1. Install the requirements within our activated virtual environment
 
-   ```bash
-   $ pip install -U pip
-   $ pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
-   ```
-
-1. Copy the default `.env.example` file as `.env`, and manually edit the copy to add your [OpenAI API key](https://beta.openai.com/account/api-keys) and the preferred save directory (which must exist before starting the program). 
+2. Copy the default `.env.example` file as `.env`, and manually edit the copy to add your [OpenAI API key](https://beta.openai.com/account/api-keys) and the preferred save directory (which must exist before starting the program). 
 You can also configure the GPT `models` you can access with ChatGPT and disable the UI for Dall-E if preferred. 
 Do not distribute that file.
 
@@ -170,7 +166,7 @@ Do not distribute that file.
     $ streamlit run ./OpenAI_WebUI.py --server.port=8501 --server.address=127.0.0.1 --logger.level=debug
     ```
 
-1. You can now open your browser to http://127.0.0.1:8501 to test the WebUI.
+2. You can now open your browser to http://127.0.0.1:8501 to test the WebUI.
 
 ## 2.2. Docker/Podman
 
