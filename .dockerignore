@@ -9,3 +9,4 @@
 **/.gitlab-ci.xml
 **/Makefile
 **/*.md
+**/poetry.lock

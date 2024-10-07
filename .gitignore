@@ -6,3 +6,5 @@ savedir
 .env.docker
 *.svg
 .streamlit/secrets.toml
+poetry.lock
+prompt_presets
