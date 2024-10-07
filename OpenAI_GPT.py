@@ -234,27 +234,48 @@ class OAI_GPT:
         return (f"\n\n--------------------------\n\n -- role: {role}\n\n -- prompt: {prompt}\n\n -- response: {response }\n\n")
 
 #####
-    def get_chat_history(self, run_file):
+    def get_chat_history_core(self, run_file):
+        # return: array of multple set of 5 elements: err, len(messages), role, prompt, response
+        err = cf.check_file_r(run_file)
+        if cf.isNotBlank(err):
+            return([f"A run file does not exist {run_file}, it might have been deleted, truncating chat history", 0, "", "", ""])
+
+        (role, prompt, response) = self.get_rf_role_prompt_response(run_file)
+
         run_json = cf.get_run_file(run_file)
+        len_messages = 0
+        if 'messages' in run_json:
+            len_messages = len(run_json['messages'])
+
+        return_array = ["", len_messages, role, prompt, response]
         if 'last_run_file' in run_json:
-            (role, prompt, response) = self.get_rf_role_prompt_response(run_file)
-            txt = self.format_rpr(role, prompt, response)
             last_run_file = run_json['last_run_file']
-            if cf.isNotBlank(last_run_file):
-                err = cf.check_file_r(last_run_file)
-                if cf.isNotBlank(err):
-                    return(f"A previous run file does not exist {last_run_file}, it might have been deleted, truncating chat history\n\n" + txt)
-                tmp = self.get_chat_history(last_run_file)
-                return (self.get_chat_history(last_run_file) + txt)
-            else:
+            print(f"last_run_file: {last_run_file}")
+            if last_run_file is not None:
+                return return_array + self.get_chat_history_core(last_run_file)
+#        print(return_array)
+        return(return_array)
+
+
+    def get_chat_history(self, run_file, prompt_toremove:int=0):
+        full_array = self.get_chat_history_core(run_file)
+#        print(full_array)
+        txt = ""
+        # process by set of 5 elements from full_array
+        for i in range(0, len(full_array), 5):
+            (err, len_messages, role, prompt, response) = full_array[i:i+5]
+            if cf.isNotBlank(err):
+                txt += err
+                return(txt)
+            txt += self.format_rpr(role, prompt, response)
+            if prompt_toremove > 0 and len_messages <= prompt_toremove:
                 return (txt)
-        else: # last one, return the formatted text
-            (role, prompt, response) = self.get_rf_role_prompt_response(run_file)
-            return(self.format_rpr(role, prompt, response))
+            
+        return(txt)
 
 
 #####
-    def chatgpt_it(self, model_engine, prompt, max_tokens, temperature, clear_chat, role, msg_extra=None, **kwargs):
+    def chatgpt_it(self, model_engine, prompt, max_tokens, temperature, clear_chat, role, msg_extra=None, messages=[], **kwargs):
         dest_dir = self.get_dest_dir()
         err = cf.make_wdir_recursive(dest_dir)
         if cf.isNotBlank(err):
@@ -264,7 +285,6 @@ class OAI_GPT:
         if cf.isNotBlank(err):
             return f"While checking {dest_dir}: {err}", ""
 
-        messages = []
         last_run_file = None
         if not clear_chat:
             # Obtain previous messages
