@@ -260,13 +260,12 @@ class OAI_GPT_WUI:
                     clear_chat = True
                 if os.path.exists(img_file):
                     os.remove(img_file)
-        messages = []
         if prompt_preset is not None:
             if prompt_preset not in self.prompt_presets:
                 st.warning(f"Unkown {prompt_preset}")
             else:
                 if 'messages' in self.prompt_presets[prompt_preset]:
-                    messages = self.prompt_presets[prompt_preset]["messages"]
+                    msg_extra = self.prompt_presets[prompt_preset]["messages"]
                     clear_chat = True
 
         if st.button("Request Answer", key="request_answer"):
@@ -285,7 +284,7 @@ class OAI_GPT_WUI:
                     if 'clear_chat' in st.session_state:
                         clear_chat = True
                         del st.session_state['clear_chat']
-                    err, run_file = self.oai_gpt.chatgpt_it(model, prompt, max_tokens, temperature, clear_chat, role, msg_extra, messages, **self.gpt_presets[presets]["kwargs"])
+                    err, run_file = self.oai_gpt.chatgpt_it(model, prompt, max_tokens, temperature, clear_chat, role, msg_extra, **self.gpt_presets[presets]["kwargs"])
                     if cf.isNotBlank(err):
                         st.error(err)
                     if cf.isNotBlank(run_file):
@@ -298,20 +297,12 @@ class OAI_GPT_WUI:
 
             prompt = run_json["prompt"]
             response = run_json["response"]
-            messages = []
-            prompt_toremove = 0
-            if 'messages' in run_json:
-                messages = run_json["messages"]
-            elif prompt_preset is not None:
-                messages = self.gpt_presets[prompt_preset]["messages"]
-                prompt_toremove = len(self.gpt_presets[prompt_preset]["messages"])
 
             chat_history = ""
             if vision_mode is False:
                 stoggle('Original Prompt', prompt)
-                if len(messages) > 0:
-                    chat_history = self.oai_gpt.get_chat_history(run_file, prompt_toremove)
-                    stoggle('Chat History', chat_history)
+                chat_history = self.oai_gpt.get_chat_history(run_file)
+                stoggle('Chat History', chat_history)
 
             option_list = ('Text (no wordwrap)', 'Text (wordwrap, may cause some visual inconsistencies)',
                         'Code (automatic highlighting for supported languages)')
@@ -327,12 +318,7 @@ class OAI_GPT_WUI:
                 st.error("Unknown display mode")
 
             query_output = prompt + "\n\n--------------------------\n\n" + response
-            if len(messages) > 1:
-                col1, col2, col3 = st.columns(3)
-                col1.download_button(label="Download Latest Result", data=response)
-                col2.download_button(label="Download Latest Query+Result", data=query_output)
-                col3.download_button(label="Download Chat Query+Result", data=chat_history)
-            else:
-                col1, col2 = st.columns(2)
-                col1.download_button(label="Download Result", data=response)
-                col2.download_button(label="Download Query+Result", data=query_output)
+            col1, col2, col3 = st.columns(3)
+            col1.download_button(label="Download Latest Result", data=response)
+            col2.download_button(label="Download Latest Query+Result", data=query_output)
+            col3.download_button(label="Download Chat Query+Result", data=chat_history)

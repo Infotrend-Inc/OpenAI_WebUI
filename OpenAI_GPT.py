@@ -9,34 +9,6 @@ import common_functions as cf
 
 
 #####
-def gpt_call(apikey, messages, model_engine, max_tokens, temperature, **kwargs):
-    client = OpenAI(api_key=apikey)
-
-    # Generate a response (20231108: Fixed for new API version)
-    try:
-        completion = client.chat.completions.create(
-            model=model_engine,
-            messages = messages,
-            max_tokens=max_tokens,
-            n=1,
-            stop=None,
-            temperature=temperature,
-            **kwargs
-        )
-    # using list from venv/lib/python3.11/site-packages/openai/_exceptions.py
-    except openai.APIConnectionError as e:
-        return(f"OpenAI API request failed to connect: {e}", "")
-    except openai.AuthenticationError as e:
-        return(f"OpenAI API request was not authorized: {e}", "")
-    except openai.RateLimitError as e:
-        return(f"OpenAI API request exceeded rate limit: {e}", "")
-    except openai.APIError as e:
-        return(f"OpenAI API returned an API Error: {e}", "")
-    except openai.OpenAIError as e:
-        return(f"OpenAI API request failed: {e}", "")
-
-    return "", completion.choices[0].message.content
-#####
 def simpler_gpt_call(apikey, messages, model_engine, max_tokens, temperature, **kwargs):
     client = OpenAI(api_key=apikey)
 
@@ -230,52 +202,49 @@ class OAI_GPT:
 
 
 #####
-    def format_rpr(self, role, prompt, response):
-        return (f"\n\n--------------------------\n\n -- role: {role}\n\n -- prompt: {prompt}\n\n -- response: {response }\n\n")
+    def format_rpr(self, role, text):
+        return (f"\n\n--------------------------\n\n -- role: {role}\n\n -- text: {text}\n\n")
 
 #####
     def get_chat_history_core(self, run_file):
         # return: array of multple set of 5 elements: err, len(messages), role, prompt, response
         err = cf.check_file_r(run_file)
         if cf.isNotBlank(err):
-            return([f"A run file does not exist {run_file}, it might have been deleted, truncating chat history", 0, "", "", ""])
-
-        (role, prompt, response) = self.get_rf_role_prompt_response(run_file)
+            return f"run file {run_file} issue ({err}), truncating chat history", []
 
         run_json = cf.get_run_file(run_file)
-        len_messages = 0
-        if 'messages' in run_json:
-            len_messages = len(run_json['messages'])
+        if 'messages' not in run_json:
+            return f"run file {run_file} does not contain messages", []
 
-        return_array = ["", len_messages, role, prompt, response]
-        if 'last_run_file' in run_json:
-            last_run_file = run_json['last_run_file']
-            print(f"last_run_file: {last_run_file}")
-            if last_run_file is not None:
-                return return_array + self.get_chat_history_core(last_run_file)
-#        print(return_array)
-        return(return_array)
+        return "", run_json['messages']
 
 
-    def get_chat_history(self, run_file, prompt_toremove:int=0):
-        full_array = self.get_chat_history_core(run_file)
-#        print(full_array)
+    def get_chat_history(self, run_file):
+        err, dict_array = self.get_chat_history_core(run_file)
+        if cf.isNotBlank(err):
+            return err
+        
         txt = ""
-        # process by set of 5 elements from full_array
-        for i in range(0, len(full_array), 5):
-            (err, len_messages, role, prompt, response) = full_array[i:i+5]
-            if cf.isNotBlank(err):
-                txt += err
-                return(txt)
-            txt += self.format_rpr(role, prompt, response)
-            if prompt_toremove > 0 and len_messages <= prompt_toremove:
-                return (txt)
-            
+        # process each dict in the array
+        if len(dict_array) == 0:
+            return "No messages in chat history"
+        for msg in dict_array:
+            print (msg)
+            if 'oaiwui_skip' in msg:
+                continue
+            if 'content' not in msg:
+                continue
+            if 'type' not in msg['content'][0]:
+                continue
+
+            if msg['content'][0]['type'] == 'text':
+                txt += self.format_rpr(msg['role'], msg['content'][0]['text'])
+
         return(txt)
 
 
 #####
-    def chatgpt_it(self, model_engine, prompt, max_tokens, temperature, clear_chat, role, msg_extra=None, messages=[], **kwargs):
+    def chatgpt_it(self, model_engine, prompt, max_tokens, temperature, clear_chat, role, msg_extra=None, **kwargs):
         dest_dir = self.get_dest_dir()
         err = cf.make_wdir_recursive(dest_dir)
         if cf.isNotBlank(err):
@@ -285,7 +254,11 @@ class OAI_GPT:
         if cf.isNotBlank(err):
             return f"While checking {dest_dir}: {err}", ""
 
-        last_run_file = None
+        messages = []
+        if msg_extra is not None:
+            for msg in msg_extra:
+                messages.append(msg)
+
         if not clear_chat:
             # Obtain previous messages
             if cf.isNotBlank(self.last_runfile):
@@ -297,20 +270,28 @@ class OAI_GPT:
                 if cf.isNotBlank(run_file):
                     old_run_json = cf.get_run_file(run_file)
                     if 'messages' in old_run_json:
-                        messages = old_run_json['messages']
-                        last_run_file = run_file
+                        for msg in old_run_json['messages']:
+                            messages.append(msg)
 
-        if msg_extra is not None:
-            messages.append({ 'role': role, 'content': [ {'type': 'text', 'text': prompt}, { **msg_extra } ] })
-            err, response = simpler_gpt_call(self.apikey, messages, model_engine, max_tokens, temperature, **kwargs)
-        else:
-            messages.append({ 'role': role, 'content': prompt })
-            err, response = gpt_call(self.apikey, messages, model_engine, max_tokens, temperature, **kwargs)
+        to_add = { 'role': role, 'content': [ {'type': 'text', 'text': prompt} ] }
+        messages.append(to_add)
+
+        clean_messages = []
+        for msg in messages:
+            if 'oaiwui_skip' in msg:
+                continue
+            clean_messages.append(msg)
+
+        # Call the GPT API
+        err, response = simpler_gpt_call(self.apikey, clean_messages, model_engine, max_tokens, temperature, **kwargs)
 
         if cf.isNotBlank(err):
             with open(os.path.join(dest_dir, "error-messages.json"), 'w') as f:
                 json.dump(messages, f, indent=4)
             return err, ""
+
+        # Add the response to the messages
+        messages.append({ 'role': 'assistant', 'content': [ {'type': 'text', 'text': response} ] })
 
         run_file = f"{dest_dir}/run.json"
         run_json = {
@@ -318,7 +299,6 @@ class OAI_GPT:
             "prompt": prompt,
             "response": response,
             'messages': messages,
-            'last_run_file': last_run_file,
         }
         with open(run_file, 'w') as f:
             json.dump(run_json, f, indent=4)
