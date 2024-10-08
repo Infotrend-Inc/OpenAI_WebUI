@@ -5,6 +5,8 @@ import json
 
 import os.path
 
+import copy
+
 import common_functions as cf
 
 
@@ -277,10 +279,13 @@ class OAI_GPT:
         messages.append(to_add)
 
         clean_messages = []
+        msg_count = 0
         for msg in messages:
-            if 'oaiwui_skip' in msg:
-                continue
-            clean_messages.append(msg)
+            msg_copy = copy.deepcopy(msg)
+            msg_count += 1
+            if 'oaiwui_skip' in msg_copy:
+                del msg_copy['oaiwui_skip']
+            clean_messages.append(msg_copy)
 
         # Call the GPT API
         err, response = simpler_gpt_call(self.apikey, clean_messages, model_engine, max_tokens, temperature, **kwargs)
