@@ -143,7 +143,7 @@ The virtualenv setup requires [`poetry`](https://python-poetry.org/) and the set
 
 This mode is for use if you have `python3` and `poetry` installed and want to test the tool.
 
-1. Create and activate your virtual environment
+1. Create and activate your virtual environment (in the directory where this `README.md` is located):
 
     ```bash
     $ poetry install
@@ -151,7 +151,7 @@ This mode is for use if you have `python3` and `poetry` installed and want to te
     ```
 
 
-2. Copy the default `.env.example` file as `.env`, and manually edit the copy to add your [OpenAI API key](https://beta.openai.com/account/api-keys) and the preferred save directory (which must exist before starting the program). 
+1. Copy the default `.env.example` file as `.env`, and manually edit the copy to add your [OpenAI API key](https://beta.openai.com/account/api-keys) and the preferred save directory (which must exist before starting the program). 
 You can also configure the GPT `models` you can access with ChatGPT and disable the UI for Dall-E if preferred. 
 Do not distribute that file.
 
@@ -160,13 +160,13 @@ Do not distribute that file.
    $ code .env
    ```
 
-1. For developers, edit the code as you would, and when you are ready to test, start the WebUI.
+1. Edit the code if desired, and when you are ready to test, start the WebUI.
 
     ```bash
     $ streamlit run ./OpenAI_WebUI.py --server.port=8501 --server.address=127.0.0.1 --logger.level=debug
     ```
 
-2. You can now open your browser to http://127.0.0.1:8501 to test the WebUI.
+1. You can now open your browser to http://127.0.0.1:8501 to test the WebUI.
 
 ## 2.2. Docker/Podman
 
@@ -177,16 +177,35 @@ This setup prefers the use of environment variable, using `docker run ... -e VAR
 1. Build the container
 
     ```bash
-    $ make build_main
+    make build_main
     ```
 
 1. Run the built container, here specifying your `OAIWUI_SAVEDIR` to be `/iti`, which will be mounted from the current working directory's `savedir` and mounted to `/iti` within the container:
 
     ```bash
-    $ docker run --rm -it -p 8501:8501 -v `pwd`/savedir:/iti -e OPENAI_API_KEY="Your_OpenAI_API_Key" -e OAIWUI_SAVEDIR=/iti -e OAIWUI_GPT_ONLY=False -e OAIWUI_GPT_MODELS="gpt-3.5-turbo,gpt-4" -e OAIWUI_DALLE_MODELS="dall-e-2,dall-e-3" openai_webui:latest
+    docker run --rm -it -p 8501:8501 -v `pwd`/savedir:/iti -e OPENAI_API_KEY="Your_OpenAI_API_Key" -e OAIWUI_SAVEDIR=/iti -e OAIWUI_GPT_ONLY=False -e OAIWUI_GPT_MODELS="gpt-4o-mini,gpt-4" -e OAIWUI_DALLE_MODELS="dall-e-3" openai_webui:latest
     ```
 
+If you want to use the "prompt presets" and its "prompt presets settings" environment variables, those can be added to the command line. For example to use the provided examples add the following to the command line (before the name of the container): 
+```-v `pwd`/prompt_presets.example:/prompt_presets -e OAIWUI_PROMPT_PRESETS_DIR=/prompt_presets```
+and  ```-v `pwd`/prompt_presets_settings-example.json:/prompt_presets.json -e OAIWUI_PROMPT_PRESETS_ONLY=/prompt_presets.json```
+
+
 If you want to use the password protection for the WebUI, create and populate the `.streamlit/secrets.toml` file before you start the container (see [password protecting the webui](#14-password-protecting-the-webui)) then add `-v PATH_TO/secrets.toml:/app/.streamlit/secrets.toml:ro` to your command line (adapting `PATH_TO` with the full path location of the secrets file)
+
+With all the above options enabled, the command line would be:
+
+```bash
+docker run --rm -it -p 8501:8501 -v `pwd`/savedir:/iti -e OPENAI_API_KEY="Your_OpenAI_API_Key" -e OAIWUI_SAVEDIR=/iti -e OAIWUI_GPT_ONLY=False -e OAIWUI_GPT_MODELS="gpt-4o-mini,gpt-4" -e OAIWUI_DALLE_MODELS="dall-e-3" -v `pwd`/prompt_presets.example:/prompt_presets:ro -e OAIWUI_PROMPT_PRESETS_DIR=/prompt_presets -v `pwd`/prompt_presets_settings-example.json:/prompt_presets.json:ro -e OAIWUI_PROMPT_PRESETS_ONLY=/prompt_presets.json -v `pwd`/secrets.toml:/app/.streamlit/secrets.toml:ro openai_webui:latest
+```
+
+It is also possible to populate a `.env` file and mount it within the `/app` directory. Note that `-v` options still need to be applied for.
+For example, adapt the provided `.env.docker.example` file that uses `/iti` for its `savedir` and similar mount as the above command line for the "prompt presets" (but does not use the `secrets.toml`). The command line can be command line can be simplified as:
+
+```bash
+docker run --rm -it -p 8501:8501 -v `pwd`/.env.docker.example:/app/.env:ro -v `pwd`/savedir:/iti -v `pwd`/prompt_presets.example:/prompt_presets:ro -v `pwd`/prompt_presets_settings-example.json:/prompt_presets.json:ro openai_webui:latest
+```
+
 
 You can have the `Makefile` delete locally built containers:
 
@@ -206,8 +225,13 @@ services:
     restart: unless-stopped
     volumes:
       - ./savedir:/iti
+      # Warning: do not mount other content within /iti 
       # Uncomment the following and create a secrets.toml in the directory where this compose.yaml file is to password protect access to the application
       # - ./secrets.toml:/app/.streamlit/secrets.toml:ro
+      # Mount your "prompt presets" directory to enable those are options
+      # - ./prompt_presets.example:/prompt_presets:ro
+      # Mount the "prompt presets" settings file to limit users to the model, tokens and temperature set in the file
+      # - ./prompt_presets_settings-example.json:prompt_presets.json:ro
     ports:
       # host port:container port
       - 8501:8501
@@ -222,6 +246,10 @@ services:
       - OAIWUI_DALLE_MODELS=dall-e-3
       # Uncomment and enter a value if you are using a single user deployment
       # - OAIWUI_USERNAME=user
+      # Enable the user of "prompt presets" present in the mounted directory (must have a directory matching in the `volumes` section)
+      # - OAIWUI_PROMPT_PRESETS_DIR=/prompt_presets
+      # Enable the "prompt presets" setting (must have a file matching in the `volumes` section)
+      # - OAIWUI_PROMPT_PRESETS_ONLY=/prompt_presets.json
 ```
 
 In the directory where the `compose.yaml` is located, create a `savedir` directory (it will be mounted as `/iti` within the running container), and create a `.env` file that needs only contain the `OPENAI_API_KEY=value` entry.
