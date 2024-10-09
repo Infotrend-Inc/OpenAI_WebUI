@@ -22,7 +22,7 @@ import OpenAI_GPT as OAI_GPT
 
 ##########
 class OAI_GPT_WUI:
-    def __init__(self, oai_gpt: OAI_GPT, enable_vision: bool = True, prompt_presets_dir: str = None) -> None:
+    def __init__(self, oai_gpt: OAI_GPT, enable_vision: bool = True, prompt_presets_dir: str = None, prompt_presets_file: str = None) -> None:
         self.last_gpt_query = "last_gpt_query"
 
         self.oai_gpt = oai_gpt
@@ -42,6 +42,8 @@ class OAI_GPT_WUI:
         self.prompt_presets_dir = prompt_presets_dir
         self.prompt_presets = {}
 
+        self.prompt_presets_file = prompt_presets_file
+        self.prompt_presets_settings = {}
 
     def resize_rectangle(self, original_width, original_height, max_width, max_height):
         aspect_ratio = original_width / original_height
@@ -127,21 +129,51 @@ class OAI_GPT_WUI:
 
 #####
 
-    def load_prompt_presets(self, prompt_presets_dir=None):
-        if prompt_presets_dir is None:
-            self.prompt_presets = {}
+    def load_prompt_presets(self):
+        if self.prompt_presets_dir is None:
             return ""
 
         prompt_presets = {}
-        for file in os.listdir(prompt_presets_dir):
+        for file in os.listdir(self.prompt_presets_dir):
             if file.endswith(".json"):
-                err = cf.check_file_r(os.path.join(prompt_presets_dir, file))
+                err = cf.check_file_r(os.path.join(self.prompt_presets_dir, file))
                 if cf.isNotBlank(err):
                     return err
-                with open(os.path.join(prompt_presets_dir, file), "r") as f:
+                with open(os.path.join(self.prompt_presets_dir, file), "r") as f:
                     prompt_presets[file.split(".json")[0]] = json.load(f)
 
         self.prompt_presets = prompt_presets
+
+        if self.prompt_presets_file is not None:
+            err = cf.check_file_r(self.prompt_presets_file)
+            if cf.isNotBlank(err):
+                return err
+            with open(self.prompt_presets_file, "r") as f:
+                self.prompt_presets_settings = json.load(f)
+            if 'model' not in self.prompt_presets_settings:
+                return f"Could not find 'model' in {self.prompt_presets_file}"
+            model = self.prompt_presets_settings['model']
+            if model not in self.models:
+                return f"Could not find requested 'model' ({model}) in available models: {list(self.models.keys())} (from {self.prompt_presets_file})"
+            if 'tokens' not in self.prompt_presets_settings:
+                return f"Could not find 'tokens' in {self.prompt_presets_file}"
+            tmp = self.prompt_presets_settings['tokens']
+            if tmp is None:
+                return f"Invalid 'tokens' ({tmp}) in {self.prompt_presets_file}"
+            if tmp <= 0:
+                return f"Invalid 'tokens' ({tmp}) in {self.prompt_presets_file}"
+            if tmp > self.models[model]['max_token']:
+                return f"Requested 'tokens' ({tmp}) is greater than model's 'max_token' ({self.models[model]['max_token']}) in {self.prompt_presets_file}"
+            if 'temperature' not in self.prompt_presets_settings:
+                return f"Could not find 'temperature' in {self.prompt_presets_file}"
+            tmp = self.prompt_presets_settings['temperature']
+            if tmp is None:
+                return f"Invalid 'temperature' ({tmp}) in {self.prompt_presets_file}"
+            if tmp < 0:
+                return f"Invalid 'temperature' ({tmp}) in {self.prompt_presets_file}"
+            if tmp > 1:
+                return f"Invalid 'temperature' ({tmp}) in {self.prompt_presets_file}"
+
         return ""
 
 
@@ -151,65 +183,79 @@ class OAI_GPT_WUI:
         vision_capable = False
         vision_mode = False
         disable_preset_prompts = False
+        clear_chat = False
+
         if 'gpt_last_prompt' in st.session_state:
             if st.session_state['gpt_last_prompt'] != "":
                 disable_preset_prompts = True
+
         with st.sidebar:
             st.text("Check the various ? for help", help=f"[Run Details]\n\nRunID: {cfw.get_runid()}\n\nSave location: {self.save_location}\n\nUTC time: {cf.get_timeUTC()}\n")
-
-            if vision_mode is False and self.prompt_presets_dir is not None:
-                if self.prompt_presets == {}:
-                    err = self.load_prompt_presets(self.prompt_presets_dir)
-                    if cf.isNotBlank(err):
-                        st.error(err)
-                        cf.error_exit(err)
-                prompt_preset = st.selectbox("Prompt preset", options=list(self.prompt_presets.keys()), index=None, key="prompt_preset", help="Load a prompt preset. Can only be used with new chats.", disabled=disable_preset_prompts)
-
-            model = st.selectbox("model", options=list(self.models.keys()), index=0, key="model", help=self.model_help)
-            if model in self.models_status:
-                st.info(f"{model}: {self.models_status[model]}")
-            if self.model_capability[model] == "vision":
-                vision_capable = True
-            m_token = self.models[model]['max_token']
-
-            # vision mode bypass
-            if self.enable_vision is False:
-                vision_mode = False
-                vision_capable = False
-
-            if vision_capable:
-                vision_mode = st.toggle(label="Vision", value=False, help="Enable the upload of an image. Vision's limitation and cost can be found at https://platform.openai.com/docs/guides/vision/limitations.\n\nDisables the role and presets selectors. Image(s) are resized when over the max of the \'details\' selected. Please be aware that each 512px x 512px title is expected to cost 170 tokens. Using this mode disables roles, presets and chat (the next prompt will not have knowledge of past thread of conversation)")
-
-            if vision_mode:
-                vision_details = st.selectbox("Vision Details", options=["auto", "low", "high"], index=0, key="vision_details", help="The model will use the auto setting which will look at the image input size and decide if it should use the low or high setting.\n\n- low: the model will receive a low-res 512px x 512px version of the image, and represent the image with a budget of 85 tokens. This allows the API to return faster responses and consume fewer input tokens for use cases that do not require high detail.\n\n- high will first allows the model to first see the low res image (using 85 tokens) and then creates detailed crops using 170 tokens for each 512px x 512px tile.\n\n\n\nImage inputs are metered and charged in tokens, just as text inputs are. The token cost of a given image is determined by two factors: its size, and the detail option on each image_url block. All images with detail: low cost 85 tokens each. detail: high images are first scaled to fit within a 2048 x 2048 square, maintaining their aspect ratio. Then, they are scaled such that the shortest side of the image is 768px long. Finally, a count of how many 512px squares the image consists of is performed. Each of those squares costs 170 tokens. Another 85 tokens are always added to the final total. More details at https://platform.openai.com/docs/guides/vision/calculating-costs")
-
-            role = list(self.gpt_roles.keys())[0]
-            if vision_mode is False:
-                role = st.selectbox("Role", options=self.gpt_roles, index=0, key="input_role", help = "Role of the input text\n\n" + self.gpt_roles_help)
-            
-            clear_chat = False
-            if vision_mode is True:
-                clear_chat = True
-
-            max_tokens = st.slider('max_tokens', 0, m_token, 1000, 100, "%i", "max_tokens", "The maximum number of tokens to generate in the completion. The token count of your prompt plus max_tokens cannot exceed the model\'s context length.")
-            temperature = st.slider('temperature', 0.0, 1.0, 0.5, 0.01, "%0.2f", "temperature", "The temperature of the model. Higher temperature results in more surprising text.")
-
-            if vision_mode is False:
-                presets = st.selectbox("GPT Task", options=list(self.gpt_presets.keys()), index=0, key="presets", help=self.gpt_presets_help)
-            else:
-                presets = list(self.gpt_presets.keys())[0]
-
-            gpt_show_tooltip = st.toggle(label="Show Tips", value=False, help="Show some tips on how to use the tool", key="gpt_show_tooltip")
-            gpt_show_history = st.toggle(label='Show Prompt History', value=False, help="Show a list of prompts that you have used in the past (most recent first). Loading a selected prompt does not load the parameters used for the generation.", key="gpt_show_history")
-            if gpt_show_history:
-                gpt_allow_history_deletion = st.toggle('Allow Prompt History Deletion', value=False, help="This will allow you to delete a prompt from the history. This will delete the prompt and all its associated files. This cannot be undone.", key="gpt_allow_history_deletion")
 
             if st.button("Clear Chat History"):
                 clear_chat = True
                 st.session_state['gpt_last_prompt'] = ''
                 if self.last_gpt_query in st.session_state:
                     del st.session_state[self.last_gpt_query]
+                disable_preset_prompts = False
                 st.session_state['clear_chat'] = True
+
+            if vision_mode is False and self.prompt_presets_dir is not None:
+                if self.prompt_presets == {}:
+                    err = self.load_prompt_presets()
+                    if cf.isNotBlank(err):
+                        st.error(err)
+                        cf.error_exit(err)
+                prompt_preset = st.selectbox("Prompt preset", options=list(self.prompt_presets.keys()), index=None, key="prompt_preset", help="Load a prompt preset. Can only be used with new chats.", disabled=disable_preset_prompts)
+
+            if self.prompt_presets_settings == {}:
+                # Only available if not in "preset only" mode
+                model = st.selectbox("model", options=list(self.models.keys()), index=0, key="model", help=self.model_help)
+                if model in self.models_status:
+                    st.info(f"{model}: {self.models_status[model]}")
+                if self.model_capability[model] == "vision":
+                    vision_capable = True
+                m_token = self.models[model]['max_token']
+
+                # vision mode bypass
+                if self.enable_vision is False:
+                    vision_mode = False
+                    vision_capable = False
+
+                if vision_capable:
+                    vision_mode = st.toggle(label="Vision", value=False, help="Enable the upload of an image. Vision's limitation and cost can be found at https://platform.openai.com/docs/guides/vision/limitations.\n\nDisables the role and presets selectors. Image(s) are resized when over the max of the \'details\' selected. Please be aware that each 512px x 512px title is expected to cost 170 tokens. Using this mode disables roles, presets and chat (the next prompt will not have knowledge of past thread of conversation)")
+
+                if vision_mode:
+                    vision_details = st.selectbox("Vision Details", options=["auto", "low", "high"], index=0, key="vision_details", help="The model will use the auto setting which will look at the image input size and decide if it should use the low or high setting.\n\n- low: the model will receive a low-res 512px x 512px version of the image, and represent the image with a budget of 85 tokens. This allows the API to return faster responses and consume fewer input tokens for use cases that do not require high detail.\n\n- high will first allows the model to first see the low res image (using 85 tokens) and then creates detailed crops using 170 tokens for each 512px x 512px tile.\n\n\n\nImage inputs are metered and charged in tokens, just as text inputs are. The token cost of a given image is determined by two factors: its size, and the detail option on each image_url block. All images with detail: low cost 85 tokens each. detail: high images are first scaled to fit within a 2048 x 2048 square, maintaining their aspect ratio. Then, they are scaled such that the shortest side of the image is 768px long. Finally, a count of how many 512px squares the image consists of is performed. Each of those squares costs 170 tokens. Another 85 tokens are always added to the final total. More details at https://platform.openai.com/docs/guides/vision/calculating-costs")
+
+                role = list(self.gpt_roles.keys())[0]
+                if vision_mode is False:
+                    role = st.selectbox("Role", options=self.gpt_roles, index=0, key="input_role", help = "Role of the input text\n\n" + self.gpt_roles_help)
+                
+                if vision_mode is True:
+                    clear_chat = True
+
+                max_tokens = st.slider('max_tokens', 0, m_token, 1000, 100, "%i", "max_tokens", "The maximum number of tokens to generate in the completion. The token count of your prompt plus max_tokens cannot exceed the model\'s context length.")
+                temperature = st.slider('temperature', 0.0, 1.0, 0.5, 0.01, "%0.2f", "temperature", "The temperature of the model. Higher temperature results in more surprising text.")
+
+                if vision_mode is False:
+                    presets = st.selectbox("GPT Task", options=list(self.gpt_presets.keys()), index=0, key="presets", help=self.gpt_presets_help)
+                else:
+                    presets = list(self.gpt_presets.keys())[0]
+            
+            else: # "preset only" mode
+                model = self.prompt_presets_settings['model']
+                max_tokens = self.prompt_presets_settings['tokens']
+                temperature = self.prompt_presets_settings['temperature']
+                presets = list(self.gpt_presets.keys())[0]
+                role = list(self.gpt_roles.keys())[0]
+
+
+            gpt_show_tooltip = st.toggle(label="Show Tips", value=False, help="Show some tips on how to use the tool", key="gpt_show_tooltip")
+            gpt_show_history = st.toggle(label='Show Prompt History', value=False, help="Show a list of prompts that you have used in the past (most recent first). Loading a selected prompt does not load the parameters used for the generation.", key="gpt_show_history")
+            if gpt_show_history:
+                gpt_allow_history_deletion = st.toggle('Allow Prompt History Deletion', value=False, help="This will allow you to delete a prompt from the history. This will delete the prompt and all its associated files. This cannot be undone.", key="gpt_allow_history_deletion")
+
 
         # Main window
         if gpt_show_tooltip:

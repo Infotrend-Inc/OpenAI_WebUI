@@ -231,7 +231,6 @@ class OAI_GPT:
         if len(dict_array) == 0:
             return "No messages in chat history"
         for msg in dict_array:
-            print (msg)
             if 'oaiwui_skip' in msg:
                 continue
             if 'content' not in msg:
@@ -278,14 +277,12 @@ class OAI_GPT:
         to_add = { 'role': role, 'content': [ {'type': 'text', 'text': prompt} ] }
         messages.append(to_add)
 
-        clean_messages = []
+        clean_messages = copy.deepcopy(messages)
         msg_count = 0
-        for msg in messages:
-            msg_copy = copy.deepcopy(msg)
+        for msg in clean_messages:
             msg_count += 1
-            if 'oaiwui_skip' in msg_copy:
-                del msg_copy['oaiwui_skip']
-            clean_messages.append(msg_copy)
+            if 'oaiwui_skip' in msg:
+                del msg['oaiwui_skip']
 
         # Call the GPT API
         err, response = simpler_gpt_call(self.apikey, clean_messages, model_engine, max_tokens, temperature, **kwargs)
