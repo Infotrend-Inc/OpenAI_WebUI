@@ -184,6 +184,7 @@ class OAI_GPT_WUI:
         vision_mode = False
         disable_preset_prompts = False
         clear_chat = False
+        prompt_preset = None
 
         if 'gpt_last_prompt' in st.session_state:
             if st.session_state['gpt_last_prompt'] != "":
@@ -306,6 +307,7 @@ class OAI_GPT_WUI:
                     clear_chat = True
                 if os.path.exists(img_file):
                     os.remove(img_file)
+
         if prompt_preset is not None:
             if prompt_preset not in self.prompt_presets:
                 st.warning(f"Unkown {prompt_preset}")
