@@ -6,6 +6,8 @@
 **/unraid
 **/.env
 **/.env.example
+**/.env.docker
+**/.env.docker.example
 **/.gitlab-ci.xml
 **/Makefile
 **/*.md
