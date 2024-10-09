@@ -268,11 +268,12 @@ class OAI_GPT:
                     tmp = cf.read_json(self.last_runfile)
                     if 'last_runfile' in tmp:
                         run_file = tmp['last_runfile']
-                if cf.isNotBlank(run_file):
-                    old_run_json = cf.get_run_file(run_file)
-                    if 'messages' in old_run_json:
-                        for msg in old_run_json['messages']:
-                            messages.append(msg)
+                if cf.isNotBlank(run_file): # We can only load previous messages if the file exists
+                    if cf.check_file_r(run_file) == "":
+                        old_run_json = cf.get_run_file(run_file)
+                        if 'messages' in old_run_json:
+                            for msg in old_run_json['messages']:
+                                messages.append(msg)
 
         to_add = { 'role': role, 'content': [ {'type': 'text', 'text': prompt} ] }
         messages.append(to_add)
