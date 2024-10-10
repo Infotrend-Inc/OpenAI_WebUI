@@ -119,7 +119,7 @@ The `.env.example` file contains the parameters needed to pass to the running to
 - `OAIWUI_GPT_VISION` will, for compatible models, disable their vision capabilities if set to `False`
 - `OAIWUI_IGNORE_EMPTY` (required for Unraid) discard errors in case the following environment variables are used but not set.
 - `OAIWUI_PROMPT_PRESETS_DIR` sets the directory that contains prompt presets. If a directory is provided, it must contains at least one valid json file.
-- `OAIWUI_PROMPT_PRESETS_ONLY` sets the JSON file that contains valid settings to use for the OAIWUI_PROMPT_PRESETS_DIR presets.
+- `OAIWUI_PROMPT_PRESETS_ONLY` sets the JSON file that contains valid settings to use for the `OAIWUI_PROMPT_PRESETS_DIR` presets.
 
 Those values can be passed by making a `.env` file containing the expected values or using environment variables.
 
