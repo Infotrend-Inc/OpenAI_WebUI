@@ -2,7 +2,10 @@ __off
 __pycache__
 venv
 .env
+.env.docker
 savedir
 .env.docker
 *.svg
 .streamlit/secrets.toml
+poetry.lock
+prompt_presets

@@ -5,37 +5,11 @@ import json
 
 import os.path
 
+import copy
+
 import common_functions as cf
 
 
-#####
-def gpt_call(apikey, messages, model_engine, max_tokens, temperature, **kwargs):
-    client = OpenAI(api_key=apikey)
-
-    # Generate a response (20231108: Fixed for new API version)
-    try:
-        completion = client.chat.completions.create(
-            model=model_engine,
-            messages = messages,
-            max_tokens=max_tokens,
-            n=1,
-            stop=None,
-            temperature=temperature,
-            **kwargs
-        )
-    # using list from venv/lib/python3.11/site-packages/openai/_exceptions.py
-    except openai.APIConnectionError as e:
-        return(f"OpenAI API request failed to connect: {e}", "")
-    except openai.AuthenticationError as e:
-        return(f"OpenAI API request was not authorized: {e}", "")
-    except openai.RateLimitError as e:
-        return(f"OpenAI API request exceeded rate limit: {e}", "")
-    except openai.APIError as e:
-        return(f"OpenAI API returned an API Error: {e}", "")
-    except openai.OpenAIError as e:
-        return(f"OpenAI API request failed: {e}", "")
-
-    return "", completion.choices[0].message.content
 #####
 def simpler_gpt_call(apikey, messages, model_engine, max_tokens, temperature, **kwargs):
     client = OpenAI(api_key=apikey)
@@ -230,27 +204,44 @@ class OAI_GPT:
 
 
 #####
-    def format_rpr(self, role, prompt, response):
-        return (f"\n\n--------------------------\n\n -- role: {role}\n\n -- prompt: {prompt}\n\n -- response: {response }\n\n")
+    def format_rpr(self, role, text):
+        return (f"\n\n--------------------------\n\n -- role: {role}\n\n -- text: {text}\n\n")
 
 #####
-    def get_chat_history(self, run_file):
+    def get_chat_history_core(self, run_file):
+        # return: array of multple set of 5 elements: err, len(messages), role, prompt, response
+        err = cf.check_file_r(run_file)
+        if cf.isNotBlank(err):
+            return f"run file {run_file} issue ({err}), truncating chat history", []
+
         run_json = cf.get_run_file(run_file)
-        if 'last_run_file' in run_json:
-            (role, prompt, response) = self.get_rf_role_prompt_response(run_file)
-            txt = self.format_rpr(role, prompt, response)
-            last_run_file = run_json['last_run_file']
-            if cf.isNotBlank(last_run_file):
-                err = cf.check_file_r(last_run_file)
-                if cf.isNotBlank(err):
-                    return(f"A previous run file does not exist {last_run_file}, it might have been deleted, truncating chat history\n\n" + txt)
-                tmp = self.get_chat_history(last_run_file)
-                return (self.get_chat_history(last_run_file) + txt)
-            else:
-                return (txt)
-        else: # last one, return the formatted text
-            (role, prompt, response) = self.get_rf_role_prompt_response(run_file)
-            return(self.format_rpr(role, prompt, response))
+        if 'messages' not in run_json:
+            return f"run file {run_file} does not contain messages", []
+
+        return "", run_json['messages']
+
+
+    def get_chat_history(self, run_file):
+        err, dict_array = self.get_chat_history_core(run_file)
+        if cf.isNotBlank(err):
+            return err
+        
+        txt = ""
+        # process each dict in the array
+        if len(dict_array) == 0:
+            return "No messages in chat history"
+        for msg in dict_array:
+            if 'oaiwui_skip' in msg:
+                continue
+            if 'content' not in msg:
+                continue
+            if 'type' not in msg['content'][0]:
+                continue
+
+            if msg['content'][0]['type'] == 'text':
+                txt += self.format_rpr(msg['role'], msg['content'][0]['text'])
+
+        return(txt)
 
 
 #####
@@ -259,14 +250,22 @@ class OAI_GPT:
         err = cf.make_wdir_recursive(dest_dir)
         if cf.isNotBlank(err):
             return f"While checking {dest_dir}: {err}", ""
+        slug = os.path.basename(dest_dir)
 
         err = cf.check_existing_dir_w(dest_dir)
         if cf.isNotBlank(err):
             return f"While checking {dest_dir}: {err}", ""
 
         messages = []
-        last_run_file = None
-        if not clear_chat:
+        if msg_extra is not None:
+            for msg in msg_extra:
+                msg_copy = copy.deepcopy(msg)
+                if 'oaiwui_skip' in msg_copy:
+                    msg_copy['oaiwui_skip'] = slug
+                messages.append(msg_copy)
+#                print(msg_copy['content'][0]['type'])
+
+        if clear_chat is False:
             # Obtain previous messages
             if cf.isNotBlank(self.last_runfile):
                 run_file = ""
@@ -274,31 +273,58 @@ class OAI_GPT:
                     tmp = cf.read_json(self.last_runfile)
                     if 'last_runfile' in tmp:
                         run_file = tmp['last_runfile']
-                if cf.isNotBlank(run_file):
-                    old_run_json = cf.get_run_file(run_file)
-                    if 'messages' in old_run_json:
-                        messages = old_run_json['messages']
-                        last_run_file = run_file
+                if cf.isNotBlank(run_file): # We can only load previous messages if the file exists
+                    if cf.check_file_r(run_file) == "":
+                        old_run_json = cf.get_run_file(run_file)
+                        if 'messages' in old_run_json:
+                            for msg in old_run_json['messages']:
+                                messages.append(msg)
 
-        if msg_extra is not None:
-            messages.append({ 'role': role, 'content': [ {'type': 'text', 'text': prompt}, { **msg_extra } ] })
-            err, response = simpler_gpt_call(self.apikey, messages, model_engine, max_tokens, temperature, **kwargs)
-        else:
-            messages.append({ 'role': role, 'content': prompt })
-            err, response = gpt_call(self.apikey, messages, model_engine, max_tokens, temperature, **kwargs)
+        to_add = { 'role': role, 'content': [ {'type': 'text', 'text': prompt} ] }
+        messages.append(to_add)
+
+        clean_messages = []
+        stored_messages = []
+        msg_count = 0
+        for msg in messages:
+            if 'oaiwui_skip' in msg:
+                if msg['oaiwui_skip'] == slug:
+                    # keep a copy of the original message
+                    stored_messages.append(copy.deepcopy(msg))
+                    # delete the 'oaiwui_skip' to pass to the API
+                    del msg['oaiwui_skip']
+                    clean_messages.append(msg)
+                else:
+                    # remove the message
+                    continue
+            else:
+                # keep the message
+                stored_messages.append(msg)
+                clean_messages.append(msg)
+
+            msg_count += 1
+#        print(f"##### clean messages: {clean_messages}")
+#        print(f"##### clear_chat: {clear_chat} msg_count: {msg_count}")
+
+        # Call the GPT API
+        msg_file = f"{dest_dir}/msg.json"
+        with open(msg_file, 'w') as f:
+            json.dump(clean_messages, f, indent=4)
+        err, response = simpler_gpt_call(self.apikey, clean_messages, model_engine, max_tokens, temperature, **kwargs)
 
         if cf.isNotBlank(err):
-            with open(os.path.join(dest_dir, "error-messages.json"), 'w') as f:
-                json.dump(messages, f, indent=4)
             return err, ""
+        os.remove(msg_file)
+
+        # Add the response to the messages
+        stored_messages.append({ 'role': 'assistant', 'content': [ {'type': 'text', 'text': response} ] })
 
         run_file = f"{dest_dir}/run.json"
         run_json = {
             "role": role,
             "prompt": prompt,
             "response": response,
-            'messages': messages,
-            'last_run_file': last_run_file,
+            'messages': stored_messages,
         }
         with open(run_file, 'w') as f:
             json.dump(run_json, f, indent=4)

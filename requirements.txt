@@ -1,8 +1,0 @@
-openai==1.35.15
-streamlit
-python-dotenv
-extra-streamlit-components
-streamlit-extras
-streamlit_image_select
-requests
-pillow

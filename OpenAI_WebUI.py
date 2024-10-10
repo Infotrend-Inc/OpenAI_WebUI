@@ -143,13 +143,58 @@ def main():
         st.error(f"OAIWUI_DALLE_MODELS environment variable is empty")
         cf.error_exit("OAIWUI_DALLE_MODELS environment variable is empty")
 
+    # variable to not fail on empy values, and just ignore those type of errors
+    ignore_empty = False
+    if 'OAIWUI_IGNORE_EMPTY' in os.environ: # values does not matter, just need to be present
+        ignore_empty = True
+
     username = ""
     if 'OAIWUI_USERNAME' in os.environ:
         username = os.environ.get('OAIWUI_USERNAME')
         if cf.isBlank(username):
-            st.warning(f"OAIWUI_USERNAME provided but empty, will ask for username")
+            if not ignore_empty:
+                st.warning(f"OAIWUI_USERNAME provided but empty, will ask for username")
         else:
             st.session_state['username'] = username
+
+    prompt_presets_dir = None
+    if 'OAIWUI_PROMPT_PRESETS_DIR' in os.environ:
+        tmp = os.environ.get('OAIWUI_PROMPT_PRESETS_DIR')
+        if cf.isBlank(tmp):
+            if not ignore_empty:
+                st.warning(f"OAIWUI_PROMPT_PRESETS_DIR provided but empty, will not use prompt presets")
+
+        else:
+            err = cf.check_dir(tmp, "OAIWUI_PROMPT_PRESETS_DIR directory")
+            if cf.isNotBlank(err):
+                st.warning(f"While checking OAIWUI_PROMPT_PRESETS_DIR: {err}")
+            else:
+                has_json = False
+                for file in os.listdir(tmp):
+                    if file.endswith(".json"):
+                        has_json = True
+                        break
+                if not has_json:
+                    st.warning(f"OAIWUI_PROMPT_PRESETS_DIR provided but appears to not contain prompts, will not use prompt presets")
+                else: # all the conditions are met
+                    prompt_presets_dir = tmp
+
+    prompt_presets_file = None 
+    if 'OAIWUI_PROMPT_PRESETS_ONLY' in os.environ:
+        tmp = os.environ.get('OAIWUI_PROMPT_PRESETS_ONLY')
+        if cf.isBlank(tmp):
+            if not ignore_empty:
+                st.warning(f"OAIWUI_PROMPT_PRESETS_ONLY provided but empty, will not use prompt presets")
+
+        else:
+            err = cf.check_file_r(tmp)
+            if cf.isNotBlank(err):
+                st.warning(f"While checking OAIWUI_PROMPT_PRESETS_ONLY: {err}")
+            else:
+                if prompt_presets_dir is None:
+                    st.warning(f"OAIWUI_PROMPT_PRESETS_ONLY provided but no OAIWUI_PROMPT_PRESETS_DIR, will not use prompt presets")
+                else: # all the conditions are met
+                    prompt_presets_file = tmp
 
     # Store the initial value of widgets in session state
     if "visibility" not in st.session_state:
@@ -182,7 +227,7 @@ def main():
         long_save_location = os.path.join(save_location, iti_version)
         cf.make_wdir_error(os.path.join(long_save_location))
 
-        set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models)
+        set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir, prompt_presets_file)
 
 #####
 
@@ -196,11 +241,11 @@ def process_error_warning(err, warn):
 
 #####
 
-def set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models):
+def set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir: str = None, prompt_presets_file: str = None):
     oai_gpt = OAI_GPT(apikey, long_save_location, username)
     err, warn = oai_gpt.set_parameters(gpt_models, av_gpt_models)
     process_error_warning(err, warn)
-    oai_gpt_st = OAI_GPT_WUI(oai_gpt, gpt_vision)
+    oai_gpt_st = OAI_GPT_WUI(oai_gpt, gpt_vision, prompt_presets_dir, prompt_presets_file)
     oai_dalle = None
     oai_dalle_st = None
     if 'OAIWUI_GPT_ONLY' in os.environ:

@@ -1,14 +1,16 @@
 <h1>OpenAI WebUI</h1>
 
-Latest version: 0.9.7 (20240718)
+Latest version: 0.9.8 (20241007)
 
 - [1. Description](#1-description)
   - [1.1. Supported models](#11-supported-models)
   - [1.2. .env](#12-env)
   - [1.3. savedir](#13-savedir)
   - [1.4. password protecting the WebUI](#14-password-protecting-the-webui)
+  - [1.5. Using "prompt presets" (GPT only)](#15-using-prompt-presets-gpt-only)
+    - [1.5.1. prompt presets settings](#151-prompt-presets-settings)
 - [2. Setup](#2-setup)
-  - [2.1. Python virtualenv](#21-python-virtualenv)
+  - [2.1. Python virtualenv (poetry)](#21-python-virtualenv-poetry)
   - [2.2. Docker/Podman](#22-dockerpodman)
   - [2.3. Docker compose](#23-docker-compose)
   - [2.4. Unraid](#24-unraid)
@@ -93,9 +95,13 @@ The following table shows the [models](https://platform.openai.com/docs/models/)
 | GPT | gpt-4-turbo-2024-04-09 | active | vision | | 0.9.5 |
 | GPT | gpt-4o | active | vision | | 0.9.4 |
 | GPT | gpt-4o-2024-05-13 | active | vision | | 0.9.4 |
+| GPT | gpt-4o-2024-08-06 | active | vision | | 0.9.8 |
 | GPT | gpt-4o-mini | active | vision | | 0.9.7 |
 | GPT | gpt-4o-mini-2024-07-18 | active | vision | | 0.9.7 |
+| GPT | o1-preview | active | vision | untested | 0.9.8 |
+| GPT | o1-mini | active | vision | untested | 0.9.8 |
 
+(MM) Note on "untested": we do not yet have access to the model (`... or you do not have access to it`)
 
 Once a model is `deprecated`, using it in your models list will have it discarded from the available list with a notification. 
 
@@ -110,7 +116,10 @@ The `.env.example` file contains the parameters needed to pass to the running to
 - `OAIWUI_GPT_MODELS` is a comma-separated list of GPT model(s) your API key is authorized to use. See https://platform.openai.com/docs/api-reference/making-requests for more information.
 - `OAIWUI_DALLE_MODELS` is a comma-separated list of DallE model(s) your API key is authorized to use.
 - `OAIWUI_USERNAME` (optional) specifies a `username` and avoids being prompted at each re-run. The default mode is to run in multi-user settings so this is not enabled by default.
-- `OAIWUI_GPT_VISION` will, for compatible models, disable their vision capabilities
+- `OAIWUI_GPT_VISION` will, for compatible models, disable their vision capabilities if set to `False`
+- `OAIWUI_IGNORE_EMPTY` (required for Unraid) discard errors in case the following environment variables are used but not set.
+- `OAIWUI_PROMPT_PRESETS_DIR` sets the directory that contains prompt presets. If a directory is provided, it must contains at least one valid json file.
+- `OAIWUI_PROMPT_PRESETS_ONLY` sets the JSON file that contains valid settings to use for the `OAIWUI_PROMPT_PRESETS_DIR` presets.
 
 Those values can be passed by making a `.env` file containing the expected values or using environment variables.
 
@@ -135,25 +144,75 @@ To do this, create a `.streamlit/secrets.toml` file in the directory where the s
 
 When the WebUI starts, it will see of `secrets.toml` file and challenge users for the password set within.
 
+## 1.5. Using "prompt presets" (GPT only)
+
+Prompt presets enable the preparation of custom methods to answer "user" prompt by specifying some "system" and "assistant" settings.
+It is used by setting the `OAIWUI_PROMPT_PRESETS_DIR` to a folder containg `.json` files.
+
+We have provided an example directory containing one pre-configured "prompt preset".
+The example directory is named `prompt_presets.example` and its content is the file `shakespeare.json` which guides the GPT answer in the English used by Shakespeare.
+
+The structure of the used JSON file follows OpenAI `messages`' API structure and as such should be adhere to as closely as possible.
+It contains a series of messages that will be passed at the begining of new conversations to the GPT to set the `role` to `system` (the direction the GPT is expected to follow when answering) and/or the `assistant` (past conversations/expected knowledge) for that GPT conversation. The `content` section is expected to be a `text` `type` with the `text` to provide to the GPT.
+
+For example, one of the prompt for the `shakespeare.json` example is as follows:
+
+```json
+       {
+            "role": "system",
+            "content": [
+                {
+                        "type": "text",
+                        "text": "You are a helpful assistant. You also like to speak in the words of Shakespeare. Incorporate that into your responses."
+                }
+            ],
+            "oaiwui_skip": true
+        }
+```
+
+The name of the prompt preset is directly related to the name of the file; if the file is title `shakespeare.json`, the prompt will be named `shakespeare`.
+
+Creating new "prompt presets" should be a matter of duplicating the example and replacing the content within the file.
+
+Another method consists of passing the prompt to the WebUI and setting the `role` accordingly, then running a query.
+The content saved within the `savedir` will contain a `messages` structure that matches the `role` and `content` sections shown above. 
+Integrate that content within a new prompt presets JSON file.
+
+Note that the `oaiwui_skip` is not passed to the GPT, but is used to remove the content from the chat history.
+
+### 1.5.1. prompt presets settings
+
+When using "prompt presets", it is possible to make the tool behave such that the end user can only use a single `model` with a set `temperature` and maximum requested `tokens`. This JSON settings file is used by pointing the `OAIWUI_PROMPT_PRESETS_ONLY` environment variable to the location of the file.
+
+We have provided an example `prompt_presets_settings-example.json` file. This example file contains:
+
+```json
+{
+    "model": "gpt-4o-mini",
+    "tokens": 3000,
+    "temperature": 0.5
+}
+```
+, which will:
+- use the `gpt-4o-mini` model (which must be in the `OAIWUI_GPT_MODELS` list of authorized models)
+- requests a maximum of 3K tokens for the GPT answer. The maximum value per model differs so the tool will error if the requested value is too high (note this is not the context tokens, which covers the entire chat)
+- set the temperature to 0.5. The temperature controls the randomness of responses, with lower values yielding more deterministic answers and higher values producing more creative and varied outputs (the range is 0 to 1)
+
 #  2. Setup
 
-##  2.1. Python virtualenv
+##  2.1. Python virtualenv (poetry)
 
-This mode is for use if you have `python3` installed and want to test the tool.
+The virtualenv setup requires [`poetry`](https://python-poetry.org/) and the setup is defined in the `pyproject.toml` file.
 
-1. Create and activate your virtual environment
+This mode is for use if you have `python3` and `poetry` installed and want to test the tool.
+
+1. Create and activate your virtual environment (in the directory where this `README.md` is located):
 
     ```bash
-    $ python3 -m venv venv
-    $ source venv/bin/activate
+    $ poetry install
+    $ poetry shell
     ```
 
-1. Install the requirements within our activated virtual environment
-
-   ```bash
-   $ pip install -U pip
-   $ pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
-   ```
 
 1. Copy the default `.env.example` file as `.env`, and manually edit the copy to add your [OpenAI API key](https://beta.openai.com/account/api-keys) and the preferred save directory (which must exist before starting the program). 
 You can also configure the GPT `models` you can access with ChatGPT and disable the UI for Dall-E if preferred. 
@@ -164,7 +223,7 @@ Do not distribute that file.
    $ code .env
    ```
 
-1. For developers, edit the code as you would, and when you are ready to test, start the WebUI.
+1. Edit the code if desired, and when you are ready to test, start the WebUI.
 
     ```bash
     $ streamlit run ./OpenAI_WebUI.py --server.port=8501 --server.address=127.0.0.1 --logger.level=debug
@@ -181,16 +240,35 @@ This setup prefers the use of environment variable, using `docker run ... -e VAR
 1. Build the container
 
     ```bash
-    $ make build_main
+    make build_main
     ```
 
 1. Run the built container, here specifying your `OAIWUI_SAVEDIR` to be `/iti`, which will be mounted from the current working directory's `savedir` and mounted to `/iti` within the container:
 
     ```bash
-    $ docker run --rm -it -p 8501:8501 -v `pwd`/savedir:/iti -e OPENAI_API_KEY="Your_OpenAI_API_Key" -e OAIWUI_SAVEDIR=/iti -e OAIWUI_GPT_ONLY=False -e OAIWUI_GPT_MODELS="gpt-3.5-turbo,gpt-4" -e OAIWUI_DALLE_MODELS="dall-e-2,dall-e-3" openai_webui:latest
+    docker run --rm -it -p 8501:8501 -v `pwd`/savedir:/iti -e OPENAI_API_KEY="Your_OpenAI_API_Key" -e OAIWUI_SAVEDIR=/iti -e OAIWUI_GPT_ONLY=False -e OAIWUI_GPT_MODELS="gpt-4o-mini,gpt-4" -e OAIWUI_DALLE_MODELS="dall-e-3" openai_webui:latest
     ```
 
+If you want to use the "prompt presets" and its "prompt presets settings" environment variables, those can be added to the command line. For example to use the provided examples add the following to the command line (before the name of the container): 
+```-v `pwd`/prompt_presets.example:/prompt_presets -e OAIWUI_PROMPT_PRESETS_DIR=/prompt_presets```
+and  ```-v `pwd`/prompt_presets_settings-example.json:/prompt_presets.json -e OAIWUI_PROMPT_PRESETS_ONLY=/prompt_presets.json```
+
+
 If you want to use the password protection for the WebUI, create and populate the `.streamlit/secrets.toml` file before you start the container (see [password protecting the webui](#14-password-protecting-the-webui)) then add `-v PATH_TO/secrets.toml:/app/.streamlit/secrets.toml:ro` to your command line (adapting `PATH_TO` with the full path location of the secrets file)
+
+With all the above options enabled, the command line would be:
+
+```bash
+docker run --rm -it -p 8501:8501 -v `pwd`/savedir:/iti -e OPENAI_API_KEY="Your_OpenAI_API_Key" -e OAIWUI_SAVEDIR=/iti -e OAIWUI_GPT_ONLY=False -e OAIWUI_GPT_MODELS="gpt-4o-mini,gpt-4" -e OAIWUI_DALLE_MODELS="dall-e-3" -v `pwd`/prompt_presets.example:/prompt_presets:ro -e OAIWUI_PROMPT_PRESETS_DIR=/prompt_presets -v `pwd`/prompt_presets_settings-example.json:/prompt_presets.json:ro -e OAIWUI_PROMPT_PRESETS_ONLY=/prompt_presets.json -v `pwd`/secrets.toml:/app/.streamlit/secrets.toml:ro openai_webui:latest
+```
+
+It is also possible to populate a `.env` file and mount it within the `/app` directory. Note that `-v` options still need to be applied for.
+For example, adapt the provided `.env.docker.example` file that uses `/iti` for its `savedir` and similar mount as the above command line for the "prompt presets" (but does not use the `secrets.toml`). The command line can be command line can be simplified as:
+
+```bash
+docker run --rm -it -p 8501:8501 -v `pwd`/.env.docker.example:/app/.env:ro -v `pwd`/savedir:/iti -v `pwd`/prompt_presets.example:/prompt_presets:ro -v `pwd`/prompt_presets_settings-example.json:/prompt_presets.json:ro openai_webui:latest
+```
+
 
 You can have the `Makefile` delete locally built containers:
 
@@ -210,8 +288,13 @@ services:
     restart: unless-stopped
     volumes:
       - ./savedir:/iti
+      # Warning: do not mount other content within /iti 
       # Uncomment the following and create a secrets.toml in the directory where this compose.yaml file is to password protect access to the application
       # - ./secrets.toml:/app/.streamlit/secrets.toml:ro
+      # Mount your "prompt presets" directory to enable those are options
+      # - ./prompt_presets.example:/prompt_presets:ro
+      # Mount the "prompt presets" settings file to limit users to the model, tokens and temperature set in the file
+      # - ./prompt_presets_settings-example.json:prompt_presets.json:ro
     ports:
       # host port:container port
       - 8501:8501
@@ -226,6 +309,10 @@ services:
       - OAIWUI_DALLE_MODELS=dall-e-3
       # Uncomment and enter a value if you are using a single user deployment
       # - OAIWUI_USERNAME=user
+      # Enable the user of "prompt presets" present in the mounted directory (must have a directory matching in the `volumes` section)
+      # - OAIWUI_PROMPT_PRESETS_DIR=/prompt_presets
+      # Enable the "prompt presets" setting (must have a file matching in the `volumes` section)
+      # - OAIWUI_PROMPT_PRESETS_ONLY=/prompt_presets.json
 ```
 
 In the directory where the `compose.yaml` is located, create a `savedir` directory (it will be mounted as `/iti` within the running container), and create a `.env` file that needs only contain the `OPENAI_API_KEY=value` entry.
@@ -244,12 +331,7 @@ For [Unraid](https://unraid.net/) users, a special build mode is available to ge
 The pre-built container has been added to Unraid's Community Applications.
 
 The configuration file contains many of the possible environment variables, as detailed in the [.env](#12-env) section.
-Omitted from the configuration files are:
-- a `Variable` named `OAIWUI_USERNAME` whose value will set a default username.
-The edited XML file would add a line similar to (adapting the `username` accordingly):
-    ```
-    <Config Name="OAIWUI_USERNAME" Target="OAIWUI_USERNAME" Default="username" Mode="" Description="Automatically use a default user" Type="Variable" Display="always" Required="false" Mask="false">username</Config>
-    ``` 
+Omitted from the configuration file:
 - a `Path` mapping a `secrets.toml` file to the `/app/.streamlit/secrets.toml` location within the running docker container (read-only recommended). 
 Before setting this, create and populate a file with the expected value (as described in [password protecting the WebUI](#14-password-protecting-the-webui)).
 For example, if your `appdata` location for the OpenAI WebUI was `/mnt/user/appdata/openai_webui` in which you placed the needed `secrets.toml` file, the expected XML addition would look similar to: 
@@ -265,6 +347,7 @@ For example, if your `appdata` location for the OpenAI WebUI was `/mnt/user/appd
 
 ##  3.2. Version information/Changelog
 
+- v0.9.8 (20241010): Added `o1-preview` and `o1-mini` model (untested) + "prompt presets" functionalities 
 - v0.9.7 (20240718): Added `gpt-4o-mini` and `deprecated` older `32k` models
 - v0.9.6 (20240701): Added method to disable `vision` for capable models + added whole WebUI password protection using streamlit's `secrets.toml` method 
 - v0.9.5 (20240611): Added support for `vision` in capable models + Added `gpt-4-turbo` models + Deprecated some models in advance of 20240613 + Updated openai python package to 1.33.0 + Decoupled UI code to allow support for different frontends.

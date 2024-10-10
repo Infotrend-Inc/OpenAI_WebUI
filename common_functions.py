@@ -4,12 +4,13 @@ import pathlib
 import sys
 import shutil
 import fnmatch
+import stat
 
 import json
 
 from datetime import datetime
 
-iti_version="0.9.7"
+iti_version="0.9.8"
 
 def isBlank (myString):
     return not (myString and myString.strip())
@@ -26,9 +27,9 @@ def get_fullpath(path):
 
 def check_file(file, text="checked file"):
     if not os.path.exists(file):
-        return(text + " (" + file + ") does not exist")
+        return(f"{text} ({file}) does not exist")
     if not os.path.isfile(file):
-        return(text + " (" + file + ") is not a file")
+        return(f"{text} ({file}) is not a file")
     return("")
 
 ##
@@ -37,8 +38,9 @@ def check_file_r(file, text="checked file"):
     err = check_file(file, text)
     if isNotBlank(err):
         return(err)
-    if not os.access(file, os.R_OK):
-        return(text + " (" + file + ") can not be read")
+    permissions = stat.S_IMODE(os.lstat(file).st_mode)
+    if not (permissions & stat.S_IRUSR):
+        return(f"{text} ({file}) can not be read")
     return("")
 
 ##
@@ -46,19 +48,30 @@ def check_file_r(file, text="checked file"):
 def check_existing_file_w(file, text="checked file"):
     err = check_file(file, text)
     if isNotBlank(err):
-        return(err)
-    if not os.access(file, os.W_OK):
-        return(text + " (" + file + ") can not be written to")
-    return("")
+        return err
+    permissions = stat.S_IMODE(os.lstat(file).st_mode)
+    if not (permissions & stat.S_IWUSR):
+        return f"{text} ({file}) unable to write"
+        
+    return ""    
 
 ##
 
 def check_file_w(file, text="checked file"):
-    try:
-        with open(file, 'a') as f:
-            return("")
-    except IOError as x:
-        return("Issue opening "+text+" file ("+file+") for writing : "+x.strerror)
+    err = check_file(file, text)
+    if isBlank(err):
+        # The file already exist, lets check if we can write to it
+        err = check_existing_file_w(file, text)
+        if isNotBlank(err):
+            # The file is not writable
+            return f"{text} ({file}) file exists but we are unable to write"
+        return "" # the file exists and is writable, we are done here
+    
+    # if the file does not exist, we will try to create it
+    file_obj = open(file, "a") # open in append mode to create the file
+    file_obj.close()
+    # we created a file that should be writable, let's check again
+    return check_existing_file_w(file, text)
 
 ##
 
@@ -72,10 +85,10 @@ def check_file_size(file, text="checked file"):
 
 def check_dir(dir, text="checked directory"):
     if os.path.exists(dir) is False:
-        return(f"Path ({dir}) for {text} does not exist")
+        return f"Path ({dir}) for {text} does not exist"
 
     if os.path.isdir(dir) is False:
-        return(text+" directory ("+dir+") does not exist")
+        return f"{text} directory ({dir}) does not exist"
 
     return("")
 
@@ -84,38 +97,34 @@ def check_dir(dir, text="checked directory"):
 def check_existing_dir_w(dir, text="checked"):
     err = check_dir(dir, text=text)
     if isNotBlank(err):
-        return(err)
-    if os.access(dir, os.W_OK) is False:
-        return(f"{text} directory ({dir}) unable to write to")
-    return("")
+        return err
+    permissions = stat.S_IMODE(os.lstat(dir).st_mode)
+    if not (permissions & stat.S_IWUSR):
+        return f"{text} directory ({dir}) unable to write to"
+    return ""
 
 ###
 
 def make_wdir(dir, text="destination"):
     if os.path.isdir(dir) is True:
-        return(check_existing_dir_w(dir, text))
-    
-    try:
-        os.mkdir(dir, 0o755)
-    except OSError as e:
-        x = str(e)
-        return(f"Problem creating {text} directory {dir}: {x}")
+        return check_existing_dir_w(dir, text)
 
-    return("")
+    # the directory does not exist, we will try to create it
+    os.mkdir(dir, 0o755)
+    # and test if we were successful
+    return check_existing_dir_w(dir, text)
 
 ###
 
 def make_wdir_recursive(dir, text="destination"):
     if os.path.isdir(dir) is True:
-        return(check_existing_dir_w(dir, text))
-    
-    try:
-        os.makedirs(dir, 0o755)
-    except OSError as e:
-        x = str(e)
-        return(f"Problem creating {text} directories {dir}: {x}")
+        return check_existing_dir_w(dir, text)
 
-    return("")
+    # the directories does not exist, we will try to create them
+    pathlib.Path(dir).mkdir(parents=True, exist_ok=True)
+    # and test if we were successful
+    return check_existing_dir_w(dir, text)
+
 
 def make_wdir_error(dest_dir):
     err = make_wdir(dest_dir)
@@ -127,10 +136,10 @@ def make_wdir_error(dest_dir):
 def get_dirlist(dir, text="checked directory"):
     err = check_dir(dir, text)
     if isNotBlank(err):
-        return(err, [])
-    
+        return (err, [])
+
     listing = os.listdir(dir)
-    return("", listing)
+    return ("", listing)
 
 ##########
 
