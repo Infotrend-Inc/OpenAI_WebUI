@@ -377,10 +377,9 @@ class OAI_GPT_WUI:
             prompt = run_json["prompt"]
             response = run_json["response"]
 
-            chat_history = ""
+            chat_history = self.oai_gpt.get_chat_history(run_file)
             if vision_mode is False:
                 stoggle('Original Prompt', prompt)
-                chat_history = self.oai_gpt.get_chat_history(run_file)
                 stoggle('Chat History', chat_history)
 
             option_list = ('Text (no wordwrap)', 'Text (wordwrap, may cause some visual inconsistencies)',
