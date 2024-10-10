@@ -250,6 +250,7 @@ class OAI_GPT:
         err = cf.make_wdir_recursive(dest_dir)
         if cf.isNotBlank(err):
             return f"While checking {dest_dir}: {err}", ""
+        slug = os.path.basename(dest_dir)
 
         err = cf.check_existing_dir_w(dest_dir)
         if cf.isNotBlank(err):
@@ -258,9 +259,12 @@ class OAI_GPT:
         messages = []
         if msg_extra is not None:
             for msg in msg_extra:
-                messages.append(msg)
+                msg_copy = copy.deepcopy(msg)
+                if 'oaiwui_skip' in msg_copy:
+                    msg_copy['oaiwui_skip'] = slug
+                messages.append(msg_copy)
 
-        if not clear_chat:
+        if clear_chat is False:
             # Obtain previous messages
             if cf.isNotBlank(self.last_runfile):
                 run_file = ""
@@ -278,30 +282,46 @@ class OAI_GPT:
         to_add = { 'role': role, 'content': [ {'type': 'text', 'text': prompt} ] }
         messages.append(to_add)
 
-        clean_messages = copy.deepcopy(messages)
+        clean_messages = []
+        stored_messages = []
         msg_count = 0
-        for msg in clean_messages:
-            msg_count += 1
+        for msg in messages:
             if 'oaiwui_skip' in msg:
-                del msg['oaiwui_skip']
+                if msg['oaiwui_skip'] == slug:
+                    # keep a copy of the original message
+                    stored_messages.append(copy.deepcopy(msg))
+                    # delete the 'oaiwui_skip' to pass to the API
+                    del msg['oaiwui_skip']
+                    clean_messages.append(msg)
+                else:
+                    # remove the message
+                    continue
+            else:
+                # keep the message
+                stored_messages.append(msg)
+                clean_messages.append(msg)
+
+            msg_count += 1
+#        print(f"##### clean messages: {clean_messages}")
+#        print(f"##### clear_chat: {clear_chat} msg_count: {msg_count}")
 
         # Call the GPT API
         err, response = simpler_gpt_call(self.apikey, clean_messages, model_engine, max_tokens, temperature, **kwargs)
 
         if cf.isNotBlank(err):
             with open(os.path.join(dest_dir, "error-messages.json"), 'w') as f:
-                json.dump(messages, f, indent=4)
+                json.dump(stored_messages, f, indent=4)
             return err, ""
 
         # Add the response to the messages
-        messages.append({ 'role': 'assistant', 'content': [ {'type': 'text', 'text': response} ] })
+        stored_messages.append({ 'role': 'assistant', 'content': [ {'type': 'text', 'text': response} ] })
 
         run_file = f"{dest_dir}/run.json"
         run_json = {
             "role": role,
             "prompt": prompt,
             "response": response,
-            'messages': messages,
+            'messages': stored_messages,
         }
         with open(run_file, 'w') as f:
             json.dump(run_json, f, indent=4)
