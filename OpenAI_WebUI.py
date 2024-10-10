@@ -143,11 +143,17 @@ def main():
         st.error(f"OAIWUI_DALLE_MODELS environment variable is empty")
         cf.error_exit("OAIWUI_DALLE_MODELS environment variable is empty")
 
+    # variable to not fail on empy values, and just ignore those type of errors
+    ignore_empty = False
+    if 'OAIWUI_IGNORE_EMPTY' in os.environ: # values does not matter, just need to be present
+        ignore_empty = True
+
     username = ""
     if 'OAIWUI_USERNAME' in os.environ:
         username = os.environ.get('OAIWUI_USERNAME')
         if cf.isBlank(username):
-            st.warning(f"OAIWUI_USERNAME provided but empty, will ask for username")
+            if not ignore_empty:
+                st.warning(f"OAIWUI_USERNAME provided but empty, will ask for username")
         else:
             st.session_state['username'] = username
 
@@ -155,7 +161,8 @@ def main():
     if 'OAIWUI_PROMPT_PRESETS_DIR' in os.environ:
         tmp = os.environ.get('OAIWUI_PROMPT_PRESETS_DIR')
         if cf.isBlank(tmp):
-            st.warning(f"OAIWUI_PROMPT_PRESETS_DIR provided but empty, will not use prompt presets")
+            if not ignore_empty:
+                st.warning(f"OAIWUI_PROMPT_PRESETS_DIR provided but empty, will not use prompt presets")
 
         else:
             err = cf.check_dir(tmp, "OAIWUI_PROMPT_PRESETS_DIR directory")
@@ -176,7 +183,9 @@ def main():
     if 'OAIWUI_PROMPT_PRESETS_ONLY' in os.environ:
         tmp = os.environ.get('OAIWUI_PROMPT_PRESETS_ONLY')
         if cf.isBlank(tmp):
-            st.warning(f"OAIWUI_PROMPT_PRESETS_ONLY provided but empty, will not use prompt presets")
+            if not ignore_empty:
+                st.warning(f"OAIWUI_PROMPT_PRESETS_ONLY provided but empty, will not use prompt presets")
+
         else:
             err = cf.check_file_r(tmp)
             if cf.isNotBlank(err):

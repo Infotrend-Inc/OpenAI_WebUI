@@ -15,7 +15,7 @@ Requires your valid OpenAI API key.&#xD;
 &#xD;
 Please review https://github.com/Infotrend-Inc/OpenAI_WebUI/README.md for two sections in particular:&#xD;
 - the .env supported environment variables that are defined in this template&#xD;
-- the Unraid specific setup section that introduces features not enabled by default: a default username for single user mode, and the ability to password protect the WebUI.&#xD;
+- the Unraid specific setup section that introduces features not enabled by default, including the ability to password protect the WebUI.&#xD;
   </Overview>
   <Category>Productivity:</Category>
   <WebUI>http://[IP]:[PORT:8501]</WebUI>
@@ -37,4 +37,8 @@ e">/mnt/user/appdata/openai_webui</Config>
   <Config Name="OAIWUI_GPT_MODELS" Target="OAIWUI_GPT_MODELS" Default="gpt-4,gpt-3.5-turbo" Mode="" Description="Required: comma-separated list of GPT models authorized for the provided API Key" Type="Variable" Display="always" Required="true" Mask="false">gpt-4o,gpt-4-turbo,gpt-4,gpt-3.5-turbo</Config>
   <Config Name="OAIWUI_DALLE_MODELS" Target="OAIWUI_DALLE_MODELS" Default="dall-e-3,dall-e-2" Mode="" Description="Required: comma-separated list of DALL-E models authorized for the provided API Key" Type="Variable" Display="always" Required="true" Mask="false">dall-e-3,dall-e-2</Config>
   <Config Name="OAIWUI_GPT_VISION" Target="OAIWUI_GPT_VISION" Default="True" Mode="" Description="For compatible models, disable their vision capabilities" Type="Variable" Display="always" Required="false" Mask="false">True</Config>
+  <Config Name="OAIWUI_IGNORE_EMPTY" Target="OAIWUI_IGNORE_EMPTY" Default="" Mode="" Description="Required for Unraid: avoid errors in case some (not all) environment variables are not set" Type="Variable" Display="advanced-hide" Required="true" Mask="false">True</Config>
+  <Config Name="OAIWUI_USERNAME" Target="OAIWUI_USERNAME" Default="" Mode="" Description="Default username (leave blank to be prompted)" Type="Variable" Display="advanced" Required="false" Mask="false">user2</Config>
+  <Config Name="OAIWUI_PROMPT_PRESETS_DIR" Target="OAIWUI_PROMPT_PRESETS_DIR" Default="" Mode="" Description="Directory that contains prompt presets (see GitHub for examples). If a directory is provided, it must contains at least one valid json file" Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="OAIWUI_PROMPT_PRESETS_ONLY" Target="OAIWUI_PROMPT_PRESETS_ONLY" Default="" Mode="" Description="Json file that contains valid settings to use for the OAIWUI_PROMPT_PRESETS_DIR presets" Type="Variable" Display="advanced" Required="false" Mask="false"/>
 </Container>
