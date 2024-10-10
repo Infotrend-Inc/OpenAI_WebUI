@@ -7,6 +7,8 @@ Latest version: 0.9.8 (20241007)
   - [1.2. .env](#12-env)
   - [1.3. savedir](#13-savedir)
   - [1.4. password protecting the WebUI](#14-password-protecting-the-webui)
+  - [1.5. Using "prompt presets" (GPT only)](#15-using-prompt-presets-gpt-only)
+    - [1.5.1. prompt presets settings](#151-prompt-presets-settings)
 - [2. Setup](#2-setup)
   - [2.1. Python virtualenv (poetry)](#21-python-virtualenv-poetry)
   - [2.2. Docker/Podman](#22-dockerpodman)
@@ -93,9 +95,13 @@ The following table shows the [models](https://platform.openai.com/docs/models/)
 | GPT | gpt-4-turbo-2024-04-09 | active | vision | | 0.9.5 |
 | GPT | gpt-4o | active | vision | | 0.9.4 |
 | GPT | gpt-4o-2024-05-13 | active | vision | | 0.9.4 |
+| GPT | gpt-4o-2024-08-06 | active | vision | | 0.9.8 |
 | GPT | gpt-4o-mini | active | vision | | 0.9.7 |
 | GPT | gpt-4o-mini-2024-07-18 | active | vision | | 0.9.7 |
+| GPT | o1-preview | active | vision | untested | 0.9.8 |
+| GPT | o1-mini | active | vision | untested | 0.9.8 |
 
+(MM) Note on "untested": we do not yet have access to the model (`... or you do not have access to it`)
 
 Once a model is `deprecated`, using it in your models list will have it discarded from the available list with a notification. 
 
@@ -110,7 +116,10 @@ The `.env.example` file contains the parameters needed to pass to the running to
 - `OAIWUI_GPT_MODELS` is a comma-separated list of GPT model(s) your API key is authorized to use. See https://platform.openai.com/docs/api-reference/making-requests for more information.
 - `OAIWUI_DALLE_MODELS` is a comma-separated list of DallE model(s) your API key is authorized to use.
 - `OAIWUI_USERNAME` (optional) specifies a `username` and avoids being prompted at each re-run. The default mode is to run in multi-user settings so this is not enabled by default.
-- `OAIWUI_GPT_VISION` will, for compatible models, disable their vision capabilities
+- `OAIWUI_GPT_VISION` will, for compatible models, disable their vision capabilities if set to `False`
+- `OAIWUI_IGNORE_EMPTY` (required for Unraid) discard errors in case the following environment variables are used but not set.
+- `OAIWUI_PROMPT_PRESETS_DIR` sets the directory that contains prompt presets. If a directory is provided, it must contains at least one valid json file.
+- `OAIWUI_PROMPT_PRESETS_ONLY` sets the JSON file that contains valid settings to use for the OAIWUI_PROMPT_PRESETS_DIR presets.
 
 Those values can be passed by making a `.env` file containing the expected values or using environment variables.
 
@@ -134,6 +143,54 @@ We do not check the directories for size. It is left to the end user to clean up
 To do this, create a `.streamlit/secrets.toml` file in the directory where the streamlit app is started (for the python virtualenv setup, this should be the directory where this `README.md` is present, while for other deployment methods, please see the corresponding [setup](#2-setup) section) and add a `password = "SET_YOUR_PASSWORD_HERE"` value to it.
 
 When the WebUI starts, it will see of `secrets.toml` file and challenge users for the password set within.
+
+## 1.5. Using "prompt presets" (GPT only)
+
+Prompt presets enable the preparation of custom methods to answer "user" prompt by specifying some "system" and "assistant" settings.
+It is used by setting the `OAIWUI_PROMPT_PRESETS_DIR` to a folder containg `.json` files.
+
+We have provided an example directory containing one pre-configured "prompt preset".
+The example directory is named `prompt_presets.example` and its content is the file `shakespeare.json` which guides the GPT answer in the English used by Shakespeare.
+
+The structure of the used JSON file follows OpenAI `messages`' API structure and as such should be adhere to as closely as possible.
+It contains a series of messages that will be passed at the begining of new conversations to the GPT to set the `role` to `system` (the direction the GPT is expected to follow when answering) and/or the `assistant` (past conversations/expected knowledge) for that GPT conversation. The `content` section is expected to be a `text` `type` with the `text` to provide to the GPT.
+
+For example, one of the prompt for the `shakespeare.json` example is as follows:
+
+```json
+       {
+            "role": "system",
+            "content": [
+                {
+                        "type": "text",
+                        "text": "You are a helpful assistant. You also like to speak in the words of Shakespeare. Incorporate that into your responses."
+                }
+            ],
+            "oaiwui_skip": true
+        }
+```
+
+Creating new "prompt presets" should be a matter of duplicating the example and replacing the 
+
+Note that the `oaiwui_skip` is not passed to the GPT, but is used to remove the common content from the chat history.
+
+### 1.5.1. prompt presets settings
+
+When using "prompt presets", it is possible to make the tool behave such that the end user can only use a single `model` with a set `temperature` and maximum requested `tokens`. This JSON settings file is used by pointing the `OAIWUI_PROMPT_PRESETS_ONLY` environment variable to the location of the file.
+
+We have provided an example `prompt_presets_settings-example.json` file. This example file contains:
+
+```json
+{
+    "model": "gpt-4o-mini",
+    "tokens": 3000,
+    "temperature": 0.5
+}
+```
+, which will:
+- use the `gpt-4o-mini` model (which must be in the `OAIWUI_GPT_MODELS` list of authorized models)
+- requests a maximum of 3K tokens for the GPT answer. The maximum value per model differs so the tool will error if the requested value is too high (note this is not the context tokens, which covers the entire chat)
+- set the temperature to 0.5. The temperature controls the randomness of responses, with lower values yielding more deterministic answers and higher values producing more creative and varied outputs (the range is 0 to 1)
 
 #  2. Setup
 
@@ -268,12 +325,7 @@ For [Unraid](https://unraid.net/) users, a special build mode is available to ge
 The pre-built container has been added to Unraid's Community Applications.
 
 The configuration file contains many of the possible environment variables, as detailed in the [.env](#12-env) section.
-Omitted from the configuration files are:
-- a `Variable` named `OAIWUI_USERNAME` whose value will set a default username.
-The edited XML file would add a line similar to (adapting the `username` accordingly):
-    ```
-    <Config Name="OAIWUI_USERNAME" Target="OAIWUI_USERNAME" Default="username" Mode="" Description="Automatically use a default user" Type="Variable" Display="always" Required="false" Mask="false">username</Config>
-    ``` 
+Omitted from the configuration file:
 - a `Path` mapping a `secrets.toml` file to the `/app/.streamlit/secrets.toml` location within the running docker container (read-only recommended). 
 Before setting this, create and populate a file with the expected value (as described in [password protecting the WebUI](#14-password-protecting-the-webui)).
 For example, if your `appdata` location for the OpenAI WebUI was `/mnt/user/appdata/openai_webui` in which you placed the needed `secrets.toml` file, the expected XML addition would look similar to: 
@@ -289,6 +341,7 @@ For example, if your `appdata` location for the OpenAI WebUI was `/mnt/user/appd
 
 ##  3.2. Version information/Changelog
 
+- v0.9.8 (20241010): Added `o1-preview` and `o1-mini` model (untested) + "prompt presets" functionalities 
 - v0.9.7 (20240718): Added `gpt-4o-mini` and `deprecated` older `32k` models
 - v0.9.6 (20240701): Added method to disable `vision` for capable models + added whole WebUI password protection using streamlit's `secrets.toml` method 
 - v0.9.5 (20240611): Added support for `vision` in capable models + Added `gpt-4-turbo` models + Deprecated some models in advance of 20240613 + Updated openai python package to 1.33.0 + Decoupled UI code to allow support for different frontends.
