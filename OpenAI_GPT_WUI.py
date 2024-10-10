@@ -11,6 +11,7 @@ import io
 import math
 
 import json
+import copy
 
 import os.path
 import tempfile
@@ -44,6 +45,12 @@ class OAI_GPT_WUI:
 
         self.prompt_presets_file = prompt_presets_file
         self.prompt_presets_settings = {}
+
+        err = self.load_prompt_presets()
+        if cf.isNotBlank(err):
+            st.error(err)
+            cf.error_exit(err)
+
 
     def resize_rectangle(self, original_width, original_height, max_width, max_height):
         aspect_ratio = original_width / original_height
@@ -204,27 +211,8 @@ class OAI_GPT_WUI:
                 if 'gpt_msg_extra' in st.session_state:
                     del st.session_state['gpt_msg_extra'] # only a clear will allow us to set msg_extra again
 
-            if vision_mode is False and self.prompt_presets_dir is not None:
-                if self.prompt_presets == {}:
-                    err = self.load_prompt_presets()
-                    if cf.isNotBlank(err):
-                        st.error(err)
-                        cf.error_exit(err)
-                prompt_preset = st.selectbox("Prompt preset", options=list(self.prompt_presets.keys()), index=None, key="prompt_preset", help="Load a prompt preset. Can only be used with new chats.", disabled=disable_preset_prompts)
-                if prompt_preset is not None:
-                    if prompt_preset not in self.prompt_presets:
-                        st.warning(f"Unkown {prompt_preset}")
-                    else:
-                        if 'messages' in self.prompt_presets[prompt_preset]:
-                            if 'gpt_msg_extra' not in st.session_state:
-                                msg_extra = self.prompt_presets[prompt_preset]["messages"]
-                                st.session_state['gpt_msg_extra'] = msg_extra
-                                # msg_extra is also set for vision mode but this check is only needed if not in vision mode to avoid passing the msg_extra each time
-                                st.session_state['gpt_clear_chat'] = True
-                                # clear the chat history in the GPT call as well
-                else:
-                    if 'gpt_msg_extra' in st.session_state:
-                        del st.session_state['gpt_msg_extra']
+            # create a location placeholder for the prompt preset selector
+            st_preset_placeholder = st.empty()
 
             if self.prompt_presets_settings == {}:
                 # Only available if not in "preset only" mode
@@ -249,9 +237,6 @@ class OAI_GPT_WUI:
                 role = list(self.gpt_roles.keys())[0]
                 if vision_mode is False:
                     role = st.selectbox("Role", options=self.gpt_roles, index=0, key="input_role", help = "Role of the input text\n\n" + self.gpt_roles_help)
-                
-                if vision_mode is True:
-                    clear_chat = True
 
                 max_tokens = st.slider('max_tokens', 0, m_token, 1000, 100, "%i", "max_tokens", "The maximum number of tokens to generate in the completion. The token count of your prompt plus max_tokens cannot exceed the model\'s context length.")
                 temperature = st.slider('temperature', 0.0, 1.0, 0.5, 0.01, "%0.2f", "temperature", "The temperature of the model. Higher temperature results in more surprising text.")
@@ -267,6 +252,24 @@ class OAI_GPT_WUI:
                 temperature = self.prompt_presets_settings['temperature']
                 presets = list(self.gpt_presets.keys())[0]
                 role = list(self.gpt_roles.keys())[0]
+
+            # use the location of the placeholder now that we have the vision settings
+            if self.prompt_presets_dir is not None:
+                prompt_preset = st_preset_placeholder.selectbox("Prompt preset", options=list(self.prompt_presets.keys()), index=None, key="prompt_preset", help="Load a prompt preset. Can only be used with new chats.", disabled=disable_preset_prompts)
+                if prompt_preset is not None:
+                    if prompt_preset not in self.prompt_presets:
+                        st_preset_placeholder.warning(f"Unkown {prompt_preset}")
+                    else:
+                        if 'messages' in self.prompt_presets[prompt_preset]:
+                            if 'gpt_msg_extra' not in st.session_state:
+                                msg_extra = self.prompt_presets[prompt_preset]["messages"]
+                                st.session_state['gpt_msg_extra'] = msg_extra
+                                # msg_extra is also set for vision mode but this check is only needed if not in vision mode to avoid passing the msg_extra each time
+                                st.session_state['gpt_clear_chat'] = True
+                                # clear the chat history in the GPT call as well
+                else:
+                    if 'gpt_msg_extra' in st.session_state:
+                        del st.session_state['gpt_msg_extra']
 
 
             gpt_show_tooltip = st.toggle(label="Show Tips", value=False, help="Show some tips on how to use the tool", key="gpt_show_tooltip")
@@ -292,16 +295,15 @@ class OAI_GPT_WUI:
         if 'gpt_last_prompt' not in st.session_state:
             st.session_state['gpt_last_prompt'] = ''
 
-        prompt_value=f"GPT ({model}) Input (role: {role}) [max_tokens: {max_tokens} | temperature: {temperature} | "
+        prompt_value=f"GPT ({model}) Input (role: {role}) [max_tokens: {max_tokens} | temperature: {temperature}"
         if vision_mode:
-            prompt_value += f"vision details: {vision_details} ]"
-        else:
-            prompt_value += f"preset: {presets}"
-            if prompt_preset is not None:
-                prompt_value += f" | prompt preset: {prompt_preset}"
-            if 'gpt_clear_chat' in st.session_state or clear_chat is True:
-                prompt_value += " | Clear Chat"
-            prompt_value += f" ]"
+            prompt_value += f" | vision details: {vision_details}"
+        prompt_value += f" | preset: {presets}"
+        if prompt_preset is not None:
+            prompt_value += f" | prompt preset: {prompt_preset}"
+        if 'gpt_clear_chat' in st.session_state or clear_chat is True:
+            prompt_value += " | Clear Chat"
+        prompt_value += f" ]"
 
         help_text = self.per_model_help[model] if model in self.per_model_help else "No help available for this model"
         prompt = st.empty().text_area(prompt_value, st.session_state['gpt_last_prompt'], placeholder="Enter your prompt", key="input", help=help_text)
@@ -319,17 +321,21 @@ class OAI_GPT_WUI:
                     img_b64 = base64.b64encode(img_bytes.getvalue()).decode('utf-8')
                 if img_b64 is not None:
                     img_str = f"data:image/{img_type};base64,{img_b64}"
-                    msg_extra = {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": img_str,
-                            "details": vision_details
+                    msg_extra = [ 
+                        { 
+                            "role": "user", 
+                            "content": [
+                                {
+                                    "type": "image_url",
+                                    "image_url": {
+                                        "url": img_str,
+                                        "details": vision_details
+                                    }
+                                }
+                            ],
+                            "oaiwui_skip": True
                         }
-                    }
-                    clear_chat = True
-                    if 'gpt_msg_extra' in st.session_state:
-                        del st.session_state['gpt_msg_extra']
-                        # avoid having prompt presets compete with vision mode
+                    ]
                 if os.path.exists(img_file):
                     os.remove(img_file)
 
@@ -352,8 +358,11 @@ class OAI_GPT_WUI:
                     if msg_extra is None:
                         if 'gpt_msg_extra' in st.session_state:
                             msg_extra = st.session_state['gpt_msg_extra']
-#                    print(f"*************  msg_extra: {msg_extra}")
-#                    print(f"************* clear_chat: {clear_chat}")
+                    else:
+                        if 'gpt_msg_extra' in st.session_state:
+                            tmp = msg_extra
+                            msg_extra = copy.deepcopy(st.session_state['gpt_msg_extra'])
+                            msg_extra.append(tmp[0])
                     err, run_file = self.oai_gpt.chatgpt_it(model, prompt, max_tokens, temperature, clear_chat, role, msg_extra, **self.gpt_presets[presets]["kwargs"])
                     if cf.isNotBlank(err):
                         st.error(err)

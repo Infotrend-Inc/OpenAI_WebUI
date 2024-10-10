@@ -263,6 +263,7 @@ class OAI_GPT:
                 if 'oaiwui_skip' in msg_copy:
                     msg_copy['oaiwui_skip'] = slug
                 messages.append(msg_copy)
+#                print(msg_copy['content'][0]['type'])
 
         if clear_chat is False:
             # Obtain previous messages
@@ -306,12 +307,14 @@ class OAI_GPT:
 #        print(f"##### clear_chat: {clear_chat} msg_count: {msg_count}")
 
         # Call the GPT API
+        msg_file = f"{dest_dir}/msg.json"
+        with open(msg_file, 'w') as f:
+            json.dump(clean_messages, f, indent=4)
         err, response = simpler_gpt_call(self.apikey, clean_messages, model_engine, max_tokens, temperature, **kwargs)
 
         if cf.isNotBlank(err):
-            with open(os.path.join(dest_dir, "error-messages.json"), 'w') as f:
-                json.dump(stored_messages, f, indent=4)
             return err, ""
+        os.remove(msg_file)
 
         # Add the response to the messages
         stored_messages.append({ 'role': 'assistant', 'content': [ {'type': 'text', 'text': response} ] })
