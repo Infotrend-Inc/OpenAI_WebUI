@@ -170,9 +170,15 @@ For example, one of the prompt for the `shakespeare.json` example is as follows:
         }
 ```
 
-Creating new "prompt presets" should be a matter of duplicating the example and replacing the 
+The name of the prompt preset is directly related to the name of the file; if the file is title `shakespeare.json`, the prompt will be named `shakespeare`.
 
-Note that the `oaiwui_skip` is not passed to the GPT, but is used to remove the common content from the chat history.
+Creating new "prompt presets" should be a matter of duplicating the example and replacing the content within the file.
+
+Another method consists of passing the prompt to the WebUI and setting the `role` accordingly, then running a query.
+The content saved within the `savedir` will contain a `messages` structure that matches the `role` and `content` sections shown above. 
+Integrate that content within a new prompt presets JSON file.
+
+Note that the `oaiwui_skip` is not passed to the GPT, but is used to remove the content from the chat history.
 
 ### 1.5.1. prompt presets settings
 
