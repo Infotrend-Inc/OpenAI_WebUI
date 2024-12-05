@@ -98,10 +98,9 @@ The following table shows the [models](https://platform.openai.com/docs/models/)
 | GPT | gpt-4o-2024-08-06 | active | vision | | 0.9.8 |
 | GPT | gpt-4o-mini | active | vision | | 0.9.7 |
 | GPT | gpt-4o-mini-2024-07-18 | active | vision | | 0.9.7 |
-| GPT | o1-preview | active | | untested | 0.9.8 |
-| GPT | o1-mini | active | | untested | 0.9.8 |
+| GPT | o1-preview | active | | | 0.9.8 |
+| GPT | o1-mini | active | | | 0.9.8 |
 
-(MM) Note on "untested": we do not yet have access to the model (`... or you do not have access to it`)
 
 Once a model is `deprecated`, using it in your models list will have it discarded from the available list with a notification. 
 
