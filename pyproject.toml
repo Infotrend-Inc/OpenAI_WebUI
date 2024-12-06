@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "Infotrend-OpenAI_WebUI"
-version = "0.9.8"
+version = "0.9.9"
 description = "Streamlit-based WebUI to OpenAI's ChatGPT and Dall-E's API (requires an OpenAI API key)."
 authors = ["Martial Michel <mmichel@infotrend.com>"]
 license = "MIT"
