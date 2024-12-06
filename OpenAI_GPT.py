@@ -332,9 +332,7 @@ class OAI_GPT:
         with open(msg_file, 'w') as f:
             json.dump(clean_messages, f, indent=4)
 
-        beta_model = False
-        if model_engine in self.beta_models:
-            beta_model = True
+        beta_model = self.beta_models[model_engine]
         err, response = simpler_gpt_call(self.apikey, clean_messages, model_engine, max_tokens, temperature, beta_model=beta_model, **kwargs)
 
         if cf.isNotBlank(err):
