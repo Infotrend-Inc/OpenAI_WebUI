@@ -11,7 +11,8 @@ import common_functions as cf
 
 
 #####
-def simpler_gpt_call(apikey, messages, model_engine, max_tokens, temperature, beta_model=False, **kwargs):
+# 20241206: Removed temperature and max_tokens from the function call, those are now passed within kwargs
+def simpler_gpt_call(apikey, messages, model_engine, **kwargs):
     client = OpenAI(api_key=apikey)
 
     # beta models limitation: https://platform.openai.com/docs/guides/reasoning
@@ -19,12 +20,6 @@ def simpler_gpt_call(apikey, messages, model_engine, max_tokens, temperature, be
 
 #    with open("msg.json", 'w') as f:
 #        json.dump(messages, f, indent=4)
- 
-    if beta_model is True:
-        kwargs['max_completion_tokens'] = max_tokens
-    else:
-        kwargs['max_tokens'] = max_tokens
-        kwargs['temperature'] = temperature
 
     # Generate a response (20231108: Fixed for new API version)
     try:
@@ -332,8 +327,13 @@ class OAI_GPT:
         with open(msg_file, 'w') as f:
             json.dump(clean_messages, f, indent=4)
 
-        beta_model = self.beta_models[model_engine]
-        err, response = simpler_gpt_call(self.apikey, clean_messages, model_engine, max_tokens, temperature, beta_model=beta_model, **kwargs)
+        # Use kwargs to max_tokens and temperature
+        if self.beta_models[model_engine] is True:
+            kwargs['max_completion_tokens'] = max_tokens
+        else:
+            kwargs['max_tokens'] = max_tokens
+            kwargs['temperature'] = temperature
+        err, response = simpler_gpt_call(self.apikey, clean_messages, model_engine, **kwargs)
 
         if cf.isNotBlank(err):
             return err, ""
