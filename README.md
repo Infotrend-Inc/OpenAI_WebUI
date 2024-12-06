@@ -1,6 +1,6 @@
 <h1>OpenAI WebUI</h1>
 
-Latest version: 0.9.8 (20241007)
+Latest version: 0.9.9 (20241206)
 
 - [1. Description](#1-description)
   - [1.1. Supported models](#11-supported-models)
@@ -96,10 +96,14 @@ The following table shows the [models](https://platform.openai.com/docs/models/)
 | GPT | gpt-4o | active | vision | | 0.9.4 |
 | GPT | gpt-4o-2024-05-13 | active | vision | | 0.9.4 |
 | GPT | gpt-4o-2024-08-06 | active | vision | | 0.9.8 |
+| GPT | gpt-4o-2024-11-20 | active | vision | | 0.9.9 |
+| GPT | chatgpt-4o-latest | active | vision | | 0.9.9 |
 | GPT | gpt-4o-mini | active | vision | | 0.9.7 |
 | GPT | gpt-4o-mini-2024-07-18 | active | vision | | 0.9.7 |
 | GPT | o1-preview | active | | | 0.9.8 |
+| GPT | o1-preview-2024-09-12 | active | | | 0.9.9 |
 | GPT | o1-mini | active | | | 0.9.8 |
+| GPT | o1-mini-2024-09-12 | active | | | 0.9.9 |
 
 
 Once a model is `deprecated`, using it in your models list will have it discarded from the available list with a notification. 
@@ -346,6 +350,7 @@ For example, if your `appdata` location for the OpenAI WebUI was `/mnt/user/appd
 
 ##  3.2. Version information/Changelog
 
+- v0.9.9 (20241206): API changes to use `o1-mini`
 - v0.9.8 (20241010): Added `o1-preview` and `o1-mini` model (untested) + "prompt presets" functionalities 
 - v0.9.7 (20240718): Added `gpt-4o-mini` and `deprecated` older `32k` models
 - v0.9.6 (20240701): Added method to disable `vision` for capable models + added whole WebUI password protection using streamlit's `secrets.toml` method 
