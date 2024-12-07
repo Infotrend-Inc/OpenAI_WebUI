@@ -1,6 +1,6 @@
 <h1>OpenAI WebUI</h1>
 
-Latest version: 0.9.8 (20241007)
+Latest version: 0.9.9 (20241206)
 
 - [1. Description](#1-description)
   - [1.1. Supported models](#11-supported-models)
@@ -96,12 +96,16 @@ The following table shows the [models](https://platform.openai.com/docs/models/)
 | GPT | gpt-4o | active | vision | | 0.9.4 |
 | GPT | gpt-4o-2024-05-13 | active | vision | | 0.9.4 |
 | GPT | gpt-4o-2024-08-06 | active | vision | | 0.9.8 |
+| GPT | gpt-4o-2024-11-20 | active | vision | | 0.9.9 |
+| GPT | chatgpt-4o-latest | active | vision | | 0.9.9 |
 | GPT | gpt-4o-mini | active | vision | | 0.9.7 |
 | GPT | gpt-4o-mini-2024-07-18 | active | vision | | 0.9.7 |
-| GPT | o1-preview | active | vision | untested | 0.9.8 |
-| GPT | o1-mini | active | vision | untested | 0.9.8 |
+| GPT | o1-preview | active | | `beta` | 0.9.8 |
+| GPT | o1-preview-2024-09-12 | active | | `beta` | 0.9.9 |
+| GPT | o1-mini | active | | `beta` | 0.9.8 |
+| GPT | o1-mini-2024-09-12 | active | | `beta` | 0.9.9 |
 
-(MM) Note on "untested": we do not yet have access to the model (`... or you do not have access to it`)
+`beta` models provide limited control over features or capabilities. Those currently also do not support `system` role: if using `prompt presets` those might not work.
 
 Once a model is `deprecated`, using it in your models list will have it discarded from the available list with a notification. 
 
@@ -246,7 +250,7 @@ This setup prefers the use of environment variable, using `docker run ... -e VAR
 1. Run the built container, here specifying your `OAIWUI_SAVEDIR` to be `/iti`, which will be mounted from the current working directory's `savedir` and mounted to `/iti` within the container:
 
     ```bash
-    docker run --rm -it -p 8501:8501 -v `pwd`/savedir:/iti -e OPENAI_API_KEY="Your_OpenAI_API_Key" -e OAIWUI_SAVEDIR=/iti -e OAIWUI_GPT_ONLY=False -e OAIWUI_GPT_MODELS="gpt-4o-mini,gpt-4" -e OAIWUI_DALLE_MODELS="dall-e-3" openai_webui:latest
+    docker run --rm -it -p 8501:8501 -v `pwd`/savedir:/iti -e OPENAI_API_KEY="Your_OpenAI_API_Key" -e OAIWUI_SAVEDIR=/iti -e OAIWUI_GPT_ONLY=False -e OAIWUI_GPT_MODELS="gpt-4o-mini,gpt-4,o1-mini" -e OAIWUI_DALLE_MODELS="dall-e-3" openai_webui:latest
     ```
 
 If you want to use the "prompt presets" and its "prompt presets settings" environment variables, those can be added to the command line. For example to use the provided examples add the following to the command line (before the name of the container): 
@@ -347,6 +351,7 @@ For example, if your `appdata` location for the OpenAI WebUI was `/mnt/user/appd
 
 ##  3.2. Version information/Changelog
 
+- v0.9.9 (20241206): API changes to use `o1-mini`
 - v0.9.8 (20241010): Added `o1-preview` and `o1-mini` model (untested) + "prompt presets" functionalities 
 - v0.9.7 (20240718): Added `gpt-4o-mini` and `deprecated` older `32k` models
 - v0.9.6 (20240701): Added method to disable `vision` for capable models + added whole WebUI password protection using streamlit's `secrets.toml` method 

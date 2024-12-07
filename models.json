@@ -31,6 +31,16 @@
             "status_details": "",
             "capability": "vision"
         },
+        "gpt-4o-2024-11-20":
+        {
+            "label": "Latest gpt-4o snapshot from November 20th, 2024.",
+            "max_token": 16384,
+            "context_token": 128000,
+            "data": "Up to Oct 2023 (as of 20241206)",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision"
+        },
         "gpt-4o-2024-08-06":
         {
             "label": "Latest snapshot that supports Structured Outputs. gpt-4o currently points to this version.",
@@ -51,6 +61,16 @@
             "status_details": "",
             "capability": "vision"
         },
+        "chatgpt-4o-latest":
+        {
+            "label": "The chatgpt-4o-latest model version continuously points to the version of GPT-4o used in ChatGPT, and is updated frequently, when there are significant changes.",
+            "max_token": 16384,
+            "context_token": 128000,
+            "data": "Up to Oct 2023 (as of 20241206)",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision"
+        },
         "o1-preview":
         {
             "label": "o1 series of large language models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user. o1-preview: reasoning model designed to solve hard problems across domains. Points to the most recent snapshot of the o1 model: o1-preview-2024-09-12",
@@ -58,8 +78,20 @@
             "context_token": 128000,
             "data": "Up to Oct 2023 (as of 20240912)",
             "status": "active",
-            "status_details": "",
-            "capability": "vision"
+            "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
+            "capability": "",
+            "beta_model": true
+        },
+        "o1-preview-2024-09-12":
+        {
+            "label": "Latest o1 model snapshot",
+            "max_token": 32768,
+            "context_token": 128000,
+            "data": "Up to Oct 2023 (as of 20241206)",
+            "status": "active",
+            "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
+            "capability": "",
+            "beta_model": true
         },
         "o1-mini":
         {
@@ -68,8 +100,20 @@
             "context_token": 128000,
             "data": "Up to Oct 2023 (as of 20240912)",
             "status": "active",
-            "status_details": "",
-            "capability": "vision"
+            "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
+            "capability": "",
+            "beta_model": true
+        },
+        "o1-mini-2024-09-12":
+        {
+            "label": "Latest o1-mini model snapshot",
+            "max_token": 65536,
+            "context_token": 128000,
+            "data": "Up to Oct 2023 (as of 20240912)",
+            "status": "active",
+            "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
+            "capability": "",
+            "beta_model": true
         },
         "gpt-4-turbo":
         {

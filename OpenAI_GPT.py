@@ -11,16 +11,21 @@ import common_functions as cf
 
 
 #####
-def simpler_gpt_call(apikey, messages, model_engine, max_tokens, temperature, **kwargs):
+# 20241206: Removed temperature and max_tokens from the function call, those are now passed within kwargs
+def simpler_gpt_call(apikey, messages, model_engine, **kwargs):
     client = OpenAI(api_key=apikey)
+
+    # beta models limitation: https://platform.openai.com/docs/guides/reasoning
+    # o1 will may not provide an answer if the max_completion_tokens is lower than 2000
+
+#    with open("msg.json", 'w') as f:
+#        json.dump(messages, f, indent=4)
 
     # Generate a response (20231108: Fixed for new API version)
     try:
-        completion = client.chat.completions.create(
+        response = client.chat.completions.create(
             model=model_engine,
             messages = messages,
-            max_tokens=max_tokens,
-            temperature=temperature,
             **kwargs
         )
     # using list from venv/lib/python3.11/site-packages/openai/_exceptions.py
@@ -35,7 +40,9 @@ def simpler_gpt_call(apikey, messages, model_engine, max_tokens, temperature, **
     except openai.OpenAIError as e:
         return(f"OpenAI API request failed: {e}", "")
 
-    return "", completion.choices[0].message.content
+#    with open("response.txt", 'w') as f:
+#        f.write(f"{response}")
+    return "", response.choices[0].message.content
 
 ##########
 class OAI_GPT:
@@ -63,6 +70,7 @@ class OAI_GPT:
         self.gpt_roles = {}
         self.gpt_roles_help = ""
         self.model_capability = {}
+        self.beta_models = {}
 
 
 #####
@@ -95,6 +103,10 @@ class OAI_GPT:
 
     def get_save_location(self):
         return self.save_location
+
+    def get_beta_models(self):
+        return self.beta_models
+    
 
 #####
 # https://platform.openai.com/docs/models/continuous-model-upgrades
@@ -131,6 +143,10 @@ class OAI_GPT:
                 self.model_capability[key] = models[key]["capability"]
             else:
                 self.model_capability[key] = "None"
+            if 'beta_model' in models[key]:
+                self.beta_models[key] = models[key]['beta_model']
+            else:
+                self.beta_models[key] = False
             if cf.isNotBlank(models[key]["status_details"]):
                 per_model_help += " NOTE: " + models[key]["status_details"]
             self.per_model_help[key] = per_model_help
@@ -310,7 +326,14 @@ class OAI_GPT:
         msg_file = f"{dest_dir}/msg.json"
         with open(msg_file, 'w') as f:
             json.dump(clean_messages, f, indent=4)
-        err, response = simpler_gpt_call(self.apikey, clean_messages, model_engine, max_tokens, temperature, **kwargs)
+
+        # Use kwargs to max_tokens and temperature
+        if self.beta_models[model_engine] is True:
+            kwargs['max_completion_tokens'] = max_tokens
+        else:
+            kwargs['max_tokens'] = max_tokens
+            kwargs['temperature'] = temperature
+        err, response = simpler_gpt_call(self.apikey, clean_messages, model_engine, **kwargs)
 
         if cf.isNotBlank(err):
             return err, ""
