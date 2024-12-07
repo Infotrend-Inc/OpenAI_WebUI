@@ -100,11 +100,12 @@ The following table shows the [models](https://platform.openai.com/docs/models/)
 | GPT | chatgpt-4o-latest | active | vision | | 0.9.9 |
 | GPT | gpt-4o-mini | active | vision | | 0.9.7 |
 | GPT | gpt-4o-mini-2024-07-18 | active | vision | | 0.9.7 |
-| GPT | o1-preview | active | | | 0.9.8 |
-| GPT | o1-preview-2024-09-12 | active | | | 0.9.9 |
-| GPT | o1-mini | active | | | 0.9.8 |
-| GPT | o1-mini-2024-09-12 | active | | | 0.9.9 |
+| GPT | o1-preview | active | | `beta` | 0.9.8 |
+| GPT | o1-preview-2024-09-12 | active | | `beta` | 0.9.9 |
+| GPT | o1-mini | active | | `beta` | 0.9.8 |
+| GPT | o1-mini-2024-09-12 | active | | `beta` | 0.9.9 |
 
+`beta` models provide limited control over features or capabilities. Those currently also do not support `system` role: if using `prompt presets` those might not work.
 
 Once a model is `deprecated`, using it in your models list will have it discarded from the available list with a notification. 
 

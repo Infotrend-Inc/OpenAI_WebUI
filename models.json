@@ -78,7 +78,7 @@
             "context_token": 128000,
             "data": "Up to Oct 2023 (as of 20240912)",
             "status": "active",
-            "status_details": "beta model: limited control of features and capabilities. For details, see https://platform.openai.com/docs/guides/reasoning",
+            "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
             "capability": "",
             "beta_model": true
         },
@@ -89,7 +89,7 @@
             "context_token": 128000,
             "data": "Up to Oct 2023 (as of 20241206)",
             "status": "active",
-            "status_details": "beta model: limited control of features and capabilities. For details, see https://platform.openai.com/docs/guides/reasoning",
+            "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
             "capability": "",
             "beta_model": true
         },
@@ -100,7 +100,7 @@
             "context_token": 128000,
             "data": "Up to Oct 2023 (as of 20240912)",
             "status": "active",
-            "status_details": "beta model: limited control of features and capabilities. For details, see https://platform.openai.com/docs/guides/reasoning",
+            "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
             "capability": "",
             "beta_model": true
         },
@@ -111,7 +111,7 @@
             "context_token": 128000,
             "data": "Up to Oct 2023 (as of 20240912)",
             "status": "active",
-            "status_details": "beta model: limited control of features and capabilities. For details, see https://platform.openai.com/docs/guides/reasoning",
+            "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
             "capability": "",
             "beta_model": true
         },
