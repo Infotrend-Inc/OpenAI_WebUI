@@ -115,6 +115,28 @@
             "capability": "",
             "beta_model": true
         },
+        "o1":
+        {
+            "label": "o1: reasoning model designed to solve hard problems across domains. o1 series of large language models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user. o1 model supports both text and image inputs, and produces text outputs (including Structured Outputs). Points to: o1-2024-12-17",
+            "max_token": 100000,
+            "context_token": 200000,
+            "data": "Unlisted (as of 20241217)",
+            "status": "active",
+            "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
+            "capability": "vision",
+            "beta_model": true
+        },
+        "o1-2024-12-17":
+        {
+            "label": "o1: reasoning model designed to solve hard problems across domains. o1 series of large language models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user.",
+            "max_token": 100000,
+            "context_token": 200000,
+            "data": "Unlisted (as of 20241217)",
+            "status": "active",
+            "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
+            "capability": "vision",
+            "beta_model": true
+        },
         "gpt-4-turbo":
         {
             "label": "The latest GPT-4 Turbo model with vision capabilities. Currently points to gpt-4-turbo-2024-04-09.",

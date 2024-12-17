@@ -1,6 +1,6 @@
 <h1>OpenAI WebUI</h1>
 
-Latest version: 0.9.9 (20241206)
+Latest version: 0.9.10 (20241217)
 
 - [1. Description](#1-description)
   - [1.1. Supported models](#11-supported-models)
@@ -104,8 +104,13 @@ The following table shows the [models](https://platform.openai.com/docs/models/)
 | GPT | o1-preview-2024-09-12 | active | | `beta` | 0.9.9 |
 | GPT | o1-mini | active | | `beta` | 0.9.8 |
 | GPT | o1-mini-2024-09-12 | active | | `beta` | 0.9.9 |
+| GPT | o1 | active | | vision | `beta` + `untested` | 0.9.10 |
+| GPT | o1-2024-12-17 | active | | vision | `beta` + `untested` | 0.9.10 |
+
 
 `beta` models provide limited control over features or capabilities. Those currently also do not support `system` role: if using `prompt presets` those might not work.
+
+An `untested` model is added but is not able to be tested by the development team until we get access to the model (currently open to [Tier 5](https://platform.openai.com/docs/guides/rate-limits#usage-tiers) customers)
 
 Once a model is `deprecated`, using it in your models list will have it discarded from the available list with a notification. 
 
@@ -351,7 +356,8 @@ For example, if your `appdata` location for the OpenAI WebUI was `/mnt/user/appd
 
 ##  3.2. Version information/Changelog
 
-- v0.9.9 (20241206): API changes to use `o1-mini`
+- v0.9.10 (20241217): Added `o1` model (untested) following its API access availability
+- v0.9.9 (20241206): API changes to use `o1-mini` and `o1-preview` (tested)
 - v0.9.8 (20241010): Added `o1-preview` and `o1-mini` model (untested) + "prompt presets" functionalities 
 - v0.9.7 (20240718): Added `gpt-4o-mini` and `deprecated` older `32k` models
 - v0.9.6 (20240701): Added method to disable `vision` for capable models + added whole WebUI password protection using streamlit's `secrets.toml` method 
