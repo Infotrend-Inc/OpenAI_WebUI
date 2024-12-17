@@ -10,7 +10,7 @@ import json
 
 from datetime import datetime
 
-iti_version="0.9.9"
+iti_version="0.9.10"
 
 def isBlank (myString):
     return not (myString and myString.strip())
