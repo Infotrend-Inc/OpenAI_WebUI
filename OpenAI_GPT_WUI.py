@@ -432,13 +432,13 @@ class OAI_GPT_WUI:
                 stoggle('Chat History', chat_history)
 
             option_list = ('Text (wordwrap, may cause some visual inconsistencies)',
-                        'Text (no wordwrap)'
+                        'Text (no wordwrap)',
                         'Code (automatic highlighting for supported languages)')
             option = st.selectbox('Display mode:', option_list, index=0)
 
-            if option == option_list[0]:
+            if option == option_list[1]:
                 st.text(response)
-            elif option == option_list[1]:
+            elif option == option_list[0]:
                 st.markdown(response)
             elif option == option_list[2]:
                 st.code(response)
