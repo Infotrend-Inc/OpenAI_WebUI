@@ -137,9 +137,30 @@ class OAI_GPT:
 
         warning = ""
 
-        s_models_list = models_list.replace(",", " ").split()
-        s_models_list += perplexity_models.replace(",", " ").split()
-        s_models_list = [x.strip() for x in s_models_list]
+        s_models_list = []
+        t_oai_models = models_list.replace(",", " ").split()
+        for t_model in t_oai_models:
+            model = t_model.strip()
+            if model in av_models_list:
+                if 'provider' in av_models_list[model]:
+                    if 'OpenAI' in av_models_list[model]["provider"]:
+                        s_models_list.append(model)
+                    else:
+                        warning += f"Model {model} is not supported by OpenAI, discarding it. "
+                else:
+                    warning += f"Model {model} is missing provider information, discarding it. "
+        t_perp_models = perplexity_models.replace(",", " ").split()
+        for t_model in t_perp_models:
+            model = t_model.strip()
+            if model in av_models_list:
+                if 'provider' in av_models_list[model]:
+                    if 'Perplexity' in av_models_list[model]["provider"]:
+                        s_models_list.append(model)
+                    else:
+                        warning += f"Model {model} is not supported by OpenAI, discarding it. "
+                else:
+                    warning += f"Model {model} is missing provider information, discarding it. "
+
         known_models = list(av_models_list.keys())
         for t_model in s_models_list:
             model = t_model.strip()
