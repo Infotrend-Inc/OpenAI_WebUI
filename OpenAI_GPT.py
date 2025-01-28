@@ -12,8 +12,14 @@ import common_functions as cf
 
 #####
 # 20241206: Removed temperature and max_tokens from the function call, those are now passed within kwargs
-def simpler_gpt_call(apikey, messages, model_engine, **kwargs):
-    client = OpenAI(api_key=apikey)
+def simpler_gpt_call(apikey, messages, model_engine, base_url=None, model_mode=None, **kwargs):
+    client = None
+    if base_url is not None:
+        client = OpenAI(api_key=apikey, base_url=base_url)
+    else:
+        client = OpenAI(api_key=apikey)
+    if client is None:
+        return("Unable to create an OpenAI Client handler", "")
 
     # beta models limitation: https://platform.openai.com/docs/guides/reasoning
     # o1 will may not provide an answer if the max_completion_tokens is lower than 2000
@@ -42,11 +48,20 @@ def simpler_gpt_call(apikey, messages, model_engine, **kwargs):
 
 #    with open("response.txt", 'w') as f:
 #        f.write(f"{response}")
-    return "", response.choices[0].message.content
+    response_text = response.choices[0].message.content
+    if model_mode == "perplexity":
+        response_text += "\n\nCitations:\n"
+        for i in range(len(response.citations)):
+            response_text += f"\n[{i+1}] {response.citations[i]}\n"
+
+
+
+    return "", response_text
+#    return "", response.choices[0].message.content
 
 ##########
 class OAI_GPT:
-    def __init__(self, apikey, base_save_location, username):
+    def __init__(self, apikey, base_save_location, username, perplexity_apikey):
         print("---------- [INFO] In OAI_GPT __init__ ----------")
 
         if cf.isBlank(base_save_location):
@@ -71,7 +86,9 @@ class OAI_GPT:
         self.gpt_roles_help = ""
         self.model_capability = {}
         self.beta_models = {}
+        self.per_model_provider = {}
 
+        self.perplexity_apikey = perplexity_apikey
 
 #####
     def get_models(self):
@@ -88,6 +105,9 @@ class OAI_GPT:
 
     def get_per_model_help(self):
         return self.per_model_help
+
+    def get_per_model_provider(self):
+        return self.per_model_provider
 
     def get_gpt_presets(self):
         return self.gpt_presets
@@ -110,7 +130,7 @@ class OAI_GPT:
 
 #####
 # https://platform.openai.com/docs/models/continuous-model-upgrades
-    def set_parameters(self, models_list, av_models_list):
+    def set_parameters(self, models_list, av_models_list, perplexity_models):
         models = {}
         models_status = {}
         model_help = ""
@@ -118,6 +138,8 @@ class OAI_GPT:
         warning = ""
 
         s_models_list = models_list.replace(",", " ").split()
+        s_models_list += perplexity_models.replace(",", " ").split()
+        s_models_list = [x.strip() for x in s_models_list]
         known_models = list(av_models_list.keys())
         for t_model in s_models_list:
             model = t_model.strip()
@@ -133,7 +155,11 @@ class OAI_GPT:
 
         model_help = ""
         for key in models:
-            per_model_help = f"{key} (" + models[key]["status"] + "):\n"
+            extra = ""
+            if 'provider' in models[key]:
+                extra = f"provider: {models[key]['provider']}, "
+                self.per_model_provider[key] = models[key]['provider']
+            per_model_help = f"{key} ({extra}" + models[key]["status"] + "):\n"
             per_model_help += models[key]["label"] + "\n"
             per_model_help += "[Data: " + models[key]["data"] + " | "
             per_model_help += "Tokens -- max: " + str(models[key]["max_token"]) + " / "
@@ -272,6 +298,10 @@ class OAI_GPT:
         if cf.isNotBlank(err):
             return f"While checking {dest_dir}: {err}", ""
 
+        perplexity_mode = False
+        if self.model_capability[model_engine] == "perplexity":
+            perplexity_mode = True
+
         messages = []
         if msg_extra is not None:
             for msg in msg_extra:
@@ -280,7 +310,7 @@ class OAI_GPT:
                     msg_copy['oaiwui_skip'] = slug
                 messages.append(msg_copy)
 #                print(msg_copy['content'][0]['type'])
-
+        
         if clear_chat is False:
             # Obtain previous messages
             if cf.isNotBlank(self.last_runfile):
@@ -296,7 +326,14 @@ class OAI_GPT:
                             for msg in old_run_json['messages']:
                                 messages.append(msg)
 
-        to_add = { 'role': role, 'content': [ {'type': 'text', 'text': prompt} ] }
+        if len(messages) == 0:
+            if perplexity_mode is True:
+                messages.append({"role": "system", "content": ("You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user."), 'oaiwui_skip': slug})
+
+        if perplexity_mode is True:
+            to_add = { 'role': 'user', 'content': ( prompt ) }
+        else:
+            to_add = { 'role': role, 'content': [ {'type': 'text', 'text': prompt} ] }
         messages.append(to_add)
 
         clean_messages = []
@@ -328,12 +365,18 @@ class OAI_GPT:
             json.dump(clean_messages, f, indent=4)
 
         # Use kwargs to max_tokens and temperature
-        if self.beta_models[model_engine] is True:
-            kwargs['max_completion_tokens'] = max_tokens
+        apikey = self.apikey
+        base_url = None
+        if perplexity_mode is True:
+            apikey = self.perplexity_apikey
+            base_url = "https://api.perplexity.ai"
         else:
-            kwargs['max_tokens'] = max_tokens
-            kwargs['temperature'] = temperature
-        err, response = simpler_gpt_call(self.apikey, clean_messages, model_engine, **kwargs)
+            if self.beta_models[model_engine] is True:
+                kwargs['max_completion_tokens'] = max_tokens
+            else:
+                kwargs['max_tokens'] = max_tokens
+                kwargs['temperature'] = temperature
+        err, response = simpler_gpt_call(apikey, clean_messages, model_engine, base_url, 'perplexity' if perplexity_mode is True else None, **kwargs)
 
         if cf.isNotBlank(err):
             return err, ""
