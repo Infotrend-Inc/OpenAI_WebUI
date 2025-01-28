@@ -1,6 +1,6 @@
 <h1>OpenAI WebUI</h1>
 
-Latest version: 0.9.10 (20241217)
+Latest version: 0.9.11 (20241217)
 
 - [1. Description](#1-description)
   - [1.1. Supported models](#11-supported-models)
@@ -219,8 +219,9 @@ This mode is for use if you have `python3` and `poetry` installed and want to te
 
     ```bash
     $ poetry install
-    $ poetry shell
     ```
+
+If changes have been applied to the `pyproject.toml` from a previously existing installation, run `poetry lock` instead.
 
 
 1. Copy the default `.env.example` file as `.env`, and manually edit the copy to add your [OpenAI API key](https://beta.openai.com/account/api-keys) and the preferred save directory (which must exist before starting the program). 
@@ -235,7 +236,7 @@ Do not distribute that file.
 1. Edit the code if desired, and when you are ready to test, start the WebUI.
 
     ```bash
-    $ streamlit run ./OpenAI_WebUI.py --server.port=8501 --server.address=127.0.0.1 --logger.level=debug
+    $ poetry run streamlit run ./OpenAI_WebUI.py --server.port=8501 --server.address=127.0.0.1 --logger.level=debug
     ```
 
 1. You can now open your browser to http://127.0.0.1:8501 to test the WebUI.
