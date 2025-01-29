@@ -61,7 +61,7 @@ def simpler_gpt_call(apikey, messages, model_engine, base_url=None, model_mode=N
 
 ##########
 class OAI_GPT:
-    def __init__(self, apikey, base_save_location, username, perplexity_apikey):
+    def __init__(self, apikey, base_save_location, username, perplexity_apikey: str = ""):
         print("---------- [INFO] In OAI_GPT __init__ ----------")
 
         if cf.isBlank(base_save_location):
@@ -130,7 +130,7 @@ class OAI_GPT:
 
 #####
 # https://platform.openai.com/docs/models/continuous-model-upgrades
-    def set_parameters(self, models_list, av_models_list, perplexity_models):
+    def set_parameters(self, models_list, av_models_list):
         models = {}
         models_status = {}
         model_help = ""
@@ -138,26 +138,18 @@ class OAI_GPT:
         warning = ""
 
         s_models_list = []
-        t_oai_models = models_list.replace(",", " ").split()
-        for t_model in t_oai_models:
+        t_models = models_list.replace(",", " ").split()
+        for t_model in t_models:
             model = t_model.strip()
             if model in av_models_list:
                 if 'provider' in av_models_list[model]:
                     if 'OpenAI' in av_models_list[model]["provider"]:
                         s_models_list.append(model)
-                    else:
-                        warning += f"Model {model} is not supported by OpenAI, discarding it. "
-                else:
-                    warning += f"Model {model} is missing provider information, discarding it. "
-        t_perp_models = perplexity_models.replace(",", " ").split()
-        for t_model in t_perp_models:
-            model = t_model.strip()
-            if model in av_models_list:
-                if 'provider' in av_models_list[model]:
-                    if 'Perplexity' in av_models_list[model]["provider"]:
-                        s_models_list.append(model)
-                    else:
-                        warning += f"Model {model} is not supported by OpenAI, discarding it. "
+                    elif 'Perplexity' in av_models_list[model]["provider"]:
+                        if cf.isBlank(self.perplexity_apikey):
+                            warning += f"Model {model} is requested but no Perplexity AI API key provided, discarding it. "
+                        else:
+                            s_models_list.append(model)
                 else:
                     warning += f"Model {model} is missing provider information, discarding it. "
 

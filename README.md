@@ -120,9 +120,10 @@ Similarly, if a used model is listed as `legacy`, a notification of the upcoming
 
 The `.env.example` file contains the parameters needed to pass to the running tool:
 - `OPENAI_API_KEY` as obtained from https://platform.openai.com/account/api-keys
+- `PERPLEXITY_API_KEY` (optional) as obtained from https://docs.perplexity.ai/guides/getting-started
 - `OAIWUI_SAVEDIR`, the location to save content (make sure the directory exists)
 - `OAIWUI_GPT_ONLY`, to request only to show the GPT tab otherwise, shows both GPT and DallE (authorized value: `True` or `False`)
-- `OAIWUI_GPT_MODELS` is a comma-separated list of GPT model(s) your API key is authorized to use. See https://platform.openai.com/docs/api-reference/making-requests for more information.
+- `OAIWUI_GPT_MODELS` is a comma-separated list of GPT model(s) your API keys are authorized to use. For OpenAI, ee https://platform.openai.com/docs/api-reference/making-requests . For Perplexity AI, see https://docs.perplexity.ai/guides/pricing
 - `OAIWUI_DALLE_MODELS` is a comma-separated list of DallE model(s) your API key is authorized to use.
 - `OAIWUI_USERNAME` (optional) specifies a `username` and avoids being prompted at each re-run. The default mode is to run in multi-user settings so this is not enabled by default.
 - `OAIWUI_GPT_VISION` will, for compatible models, disable their vision capabilities if set to `False`
@@ -215,13 +216,18 @@ The virtualenv setup requires [`poetry`](https://python-poetry.org/) and the set
 
 This mode is for use if you have `python3` and `poetry` installed and want to test the tool.
 
+0. If changes have been made to the `pyproject.toml` from a previously existing installation, first run 
+
+  ```bash
+  poetry lock
+  ```
+
 1. Create and activate your virtual environment (in the directory where this `README.md` is located):
 
     ```bash
     $ poetry install
     ```
 
-If changes have been applied to the `pyproject.toml` from a previously existing installation, run `poetry lock` instead.
 
 
 1. Copy the default `.env.example` file as `.env`, and manually edit the copy to add your [OpenAI API key](https://beta.openai.com/account/api-keys) and the preferred save directory (which must exist before starting the program). 
