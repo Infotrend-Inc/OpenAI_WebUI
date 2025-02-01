@@ -61,7 +61,7 @@ def simpler_gpt_call(apikey, messages, model_engine, base_url=None, model_mode=N
 
 ##########
 class OAI_GPT:
-    def __init__(self, apikey, base_save_location, username, perplexity_apikey: str = ""):
+    def __init__(self, apikey, base_save_location, username, perplexity_apikey: str = "", gemini_apikey: str = ""):
         print("---------- [INFO] In OAI_GPT __init__ ----------")
 
         if cf.isBlank(base_save_location):
@@ -85,10 +85,13 @@ class OAI_GPT:
         self.gpt_roles = {}
         self.gpt_roles_help = ""
         self.model_capability = {}
+
         self.beta_models = {}
         self.per_model_provider = {}
+        self.per_model_url = ()
 
         self.perplexity_apikey = perplexity_apikey
+        self.gemini_apikey = gemini_apikey
 
 #####
     def get_models(self):
@@ -142,16 +145,26 @@ class OAI_GPT:
         for t_model in t_models:
             model = t_model.strip()
             if model in av_models_list:
-                if 'provider' in av_models_list[model]:
-                    if 'OpenAI' in av_models_list[model]["provider"]:
-                        s_models_list.append(model)
-                    elif 'Perplexity' in av_models_list[model]["provider"]:
-                        if cf.isBlank(self.perplexity_apikey):
-                            warning += f"Model {model} is requested but no Perplexity AI API key provided, discarding it. "
-                        else:
+                if "meta" in av_models_list[model]:
+                    if 'provider' in av_models_list[model]["meta"]:
+                        if 'OpenAI' in av_models_list[model]["meta"]["provider"]:
                             s_models_list.append(model)
+                        elif 'Perplexity' in av_models_list[model]["meta"]["provider"]:
+                            if cf.isBlank(self.perplexity_apikey):
+                                warning += f"Model {model} is requested but no PerplexityAI API key provided, discarding it. "
+                            else:
+                                s_models_list.append(model)
+                        elif 'Google' in av_models_list[model]["meta"]["provider"]:
+                            if cf.isBlank(self.gemini_apikey):
+                                warning += f"Model {model} is requested but no GoogleAI API key provided, discarding it. "
+                            else:
+                                s_models_list.append(model)
+                        else:
+                            warning += f"Model {model} has an unknown provider: " + av_models_list[model]["meta"]["provider"] + ", discarding it. "
+                    else:
+                        warning += f"Model {model} is missing provider information, discarding it. "
                 else:
-                    warning += f"Model {model} is missing provider information, discarding it. "
+                    warning += f"Model {model} is missing the meta information, discarding it. "
 
         known_models = list(av_models_list.keys())
         for t_model in s_models_list:
@@ -169,9 +182,9 @@ class OAI_GPT:
         model_help = ""
         for key in models:
             extra = ""
-            if 'provider' in models[key]:
-                extra = f"provider: {models[key]['provider']}, "
-                self.per_model_provider[key] = models[key]['provider']
+            if 'provider' in models[key]["meta"]:
+                extra = f"provider: {models[key]['meta']['provider']}, "
+                self.per_model_provider[key] = models[key]['meta']['provider']
             per_model_help = f"{key} ({extra}" + models[key]["status"] + "):\n"
             per_model_help += models[key]["label"] + "\n"
             per_model_help += "[Data: " + models[key]["data"] + " | "
@@ -182,10 +195,15 @@ class OAI_GPT:
                 self.model_capability[key] = models[key]["capability"]
             else:
                 self.model_capability[key] = "None"
-            if 'beta_model' in models[key]:
-                self.beta_models[key] = models[key]['beta_model']
+
+            if 'beta_model' in models[key]["meta"]:
+                self.beta_models[key] = models[key]['meta']['beta_model']
             else:
                 self.beta_models[key] = False
+
+            if 'apiurl' in models[key]["meta"]:
+                self.per_model_url[key] = models[key]['apiurl']
+
             if cf.isNotBlank(models[key]["status_details"]):
                 per_model_help += " NOTE: " + models[key]["status_details"]
             self.per_model_help[key] = per_model_help

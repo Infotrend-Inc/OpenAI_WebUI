@@ -1,6 +1,20 @@
 {
     "GPT": 
     {
+        "gemini-1.5-flash":
+        {
+            "label": "Lightweight offering with search grounding, quicker and cheaper than Sonar Pro",
+            "max_token": 4096,
+            "context_token": 127000,
+            "data": "Perplexity model",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision",
+            "meta": {
+                "provider": "GoogleAI",
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/"
+            }
+        },
         "sonar":
         {
             "label": "Lightweight offering with search grounding, quicker and cheaper than Sonar Pro",
@@ -9,8 +23,11 @@
             "data": "Perplexity model",
             "status": "active",
             "status_details": "",
-            "capability": "perplexity",
-            "provider": "Perplexity.ai"
+            "capability": "",
+            "meta": {
+                "provider": "PerplexityAI",
+                "apiurl": "https://api.perplexity.ai"
+            }
         },
         "sonar-pro":
         {
@@ -20,8 +37,11 @@
             "data": "Perplexity model",
             "status": "active",
             "status_details": "",
-            "capability": "perplexity",
-            "provider": "Perplexity.ai"
+            "capability": "",
+            "meta": {
+                "provider": "PerplexityAI",
+                "apiurl": "https://api.perplexity.ai"
+            }
         },
         "sonar-reasoning":
         {
@@ -31,8 +51,11 @@
             "data": "Perplexity model",
             "status": "active",
             "status_details": "",
-            "capability": "perplexity",
-            "provider": "Perplexity.ai"
+            "capability": "",
+            "meta": {
+                "provider": "PerplexityAI",
+                "apiurl": "https://api.perplexity.ai"
+            }
         },
         "gpt-4o-mini":
         {
@@ -43,7 +66,9 @@
             "status": "active",
             "status_details": "",
             "capability": "vision",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "gpt-4o-mini-2024-07-18":
         {
@@ -54,7 +79,9 @@
             "status": "active",
             "status_details": "",
             "capability": "vision",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "gpt-4o":
         {
@@ -65,7 +92,9 @@
             "status": "active",
             "status_details": "",
             "capability": "vision",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "gpt-4o-2024-11-20":
         {
@@ -76,7 +105,9 @@
             "status": "active",
             "status_details": "",
             "capability": "vision",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "gpt-4o-2024-08-06":
         {
@@ -87,7 +118,9 @@
             "status": "active",
             "status_details": "",
             "capability": "vision",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "gpt-4o-2024-05-13":
         {
@@ -98,7 +131,9 @@
             "status": "active",
             "status_details": "",
             "capability": "vision",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "chatgpt-4o-latest":
         {
@@ -109,7 +144,9 @@
             "status": "active",
             "status_details": "",
             "capability": "vision",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "o1-preview":
         {
@@ -120,8 +157,10 @@
             "status": "active",
             "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
             "capability": "",
-            "beta_model": true,
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI",
+                "beta_model": true
+            }
         },
         "o1-preview-2024-09-12":
         {
@@ -132,8 +171,10 @@
             "status": "active",
             "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
             "capability": "",
-            "beta_model": true,
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI",
+                "beta_model": true
+            }
         },
         "o1-mini":
         {
@@ -144,8 +185,10 @@
             "status": "active",
             "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
             "capability": "",
-            "beta_model": true,
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI",
+                "beta_model": true
+            }
         },
         "o1-mini-2024-09-12":
         {
@@ -156,8 +199,10 @@
             "status": "active",
             "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
             "capability": "",
-            "beta_model": true,
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI",
+                "beta_model": true
+            }
         },
         "o1":
         {
@@ -168,8 +213,10 @@
             "status": "active",
             "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
             "capability": "vision",
-            "beta_model": true,
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI",
+                "beta_model": true
+            }
         },
         "o1-2024-12-17":
         {
@@ -180,8 +227,10 @@
             "status": "active",
             "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
             "capability": "vision",
-            "beta_model": true,
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI",
+                "beta_model": true
+            }
         },
         "gpt-4-turbo":
         {
@@ -192,7 +241,9 @@
             "status": "active",
             "status_details": "",
             "capability": "vision",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "gpt-4-turbo-2024-04-09":
         {
@@ -203,7 +254,9 @@
             "status": "active",
             "status_details": "",
             "capability": "vision",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "gpt-4-turbo-preview":
         {
@@ -214,7 +267,9 @@
             "status": "active",
             "status_details": "",
             "capability": "",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "gpt-4-0125-preview":
         {
@@ -225,7 +280,9 @@
             "status": "active",
             "status_details": "",
             "capability": "",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "gpt-4-1106-preview":
         {
@@ -236,7 +293,9 @@
             "status": "active",
             "status_details": "",
             "capability": "",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "gpt-4":
         {
@@ -247,7 +306,9 @@
             "status": "active",
             "status_details": "",
             "capability": "",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "gpt-4-0613":
         {
@@ -258,7 +319,9 @@
             "status": "active",
             "status_details": "",
             "capability": "",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "gpt-4-32k":
         {
@@ -269,7 +332,9 @@
             "status": "deprecated",
             "status_details": "",
             "capability": "",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "gpt-4-32k-0613":
         {
@@ -280,7 +345,9 @@
             "status": "deprecated",
             "status_details": "",
             "capability": "",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "gpt-3.5-turbo-0125":
         {
@@ -291,7 +358,9 @@
             "status": "active",
             "status_details": "",
             "capability": "",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "gpt-3.5-turbo":
         {
@@ -302,7 +371,9 @@
             "status": "active",
             "status_details": "",
             "capability": "",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "gpt-3.5-turbo-1106":
         {
@@ -313,7 +384,9 @@
             "status": "active",
             "status_details": "",
             "capability": "",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "gpt-3.5-turbo-16k":
         {
@@ -324,7 +397,9 @@
             "status": "deprecated",
             "status_details": "Will be deprecated on June 13, 2024.",
             "capability": "",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "gpt-3.5-turbo-0613":
         {
@@ -335,7 +410,9 @@
             "status": "deprecated",
             "status_details": "Will be deprecated on June 13, 2024.",
             "capability": "",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         },
         "gpt-3.5-turbo-16k-0613":
         {
@@ -346,7 +423,9 @@
             "status": "deprecated",
             "status_details": "Will be deprecated on June 13, 2024.",
             "capability": "",
-            "provider": "OpenAI.com"
+            "meta": {
+                "provider": "OpenAI"
+            }
         }
     },
     "DallE":
@@ -358,7 +437,7 @@
             "max_prompt_length": 4000,
             "status": "active",
             "status_details": "",
-            "provider": "OpenAI.com"
+            "provider": "OpenAI"
         },
         "dall-e-2":
         {
@@ -367,7 +446,7 @@
             "max_prompt_length": 1000,
             "status": "active",
             "status_details": "",
-            "provider": "OpenAI.com"
+            "provider": "OpenAI"
         }
     }
 }
