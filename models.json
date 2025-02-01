@@ -1,12 +1,12 @@
 {
     "GPT": 
     {
-        "gemini-1.5-flash":
+        "gemini-2.0-flash-exp":
         {
-            "label": "Lightweight offering with search grounding, quicker and cheaper than Sonar Pro",
-            "max_token": 4096,
-            "context_token": 127000,
-            "data": "Perplexity model",
+            "label": "Next generation features, speed, and multimodal generation for a diverse variety of tasks",
+            "max_token": 32000,
+            "context_token": 1000000,
+            "data": "Latest update: Dec 2024, Knowledge cutoff: Aug 2024",
             "status": "active",
             "status_details": "",
             "capability": "vision",
@@ -15,6 +15,34 @@
                 "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/"
             }
         },
+        "gemini-1.5-flash":
+        {
+            "label": "Fast and versatile performance across a diverse variety of tasks",
+            "max_token": 32000,
+            "context_token": 1000000,
+            "data": "Latest update: Sep 2024",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision",
+            "meta": {
+                "provider": "GoogleAI",
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/"
+            }
+        },
+        "gemini-1.5-pro":
+        {
+            "label": "Complex reasoning tasks requiring more intelligence",
+            "max_token": 32000,
+            "context_token": 2000000,
+            "data": "Latest update: Sep 2024",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision",
+            "meta": {
+                "provider": "GoogleAI",
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/"
+            }
+        },        
         "sonar":
         {
             "label": "Lightweight offering with search grounding, quicker and cheaper than Sonar Pro",
