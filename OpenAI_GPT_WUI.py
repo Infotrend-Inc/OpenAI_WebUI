@@ -191,7 +191,6 @@ class OAI_GPT_WUI:
         st.sidebar.empty()
         vision_capable = False
         vision_mode = False
-        perplexity_mode = False
         disable_preset_prompts = False
         clear_chat = False
         prompt_preset = None
@@ -232,18 +231,20 @@ class OAI_GPT_WUI:
                     st.info(f"{model}: {self.models_status[model]}")
                 if self.model_capability[model] == "vision":
                     vision_capable = True
-                if self.model_capability[model] == "perplexity":
-                    perplexity_mode = True
+
+                if "Perplexity" in self.per_model_provider[model]:
                     role_selector = False
                     temperature_selector = False
                     tokens_selector = False
                     max_tokens_selector = False
                     prompt_preset_selector = False
                     preset_selector = False
+
                 if model in self.beta_models and self.beta_models[model] is True:
                     beta_model = True
                     temperature_selector = False
                     preset_selector = False
+
                 m_token = self.models[model]['max_token']
 
                 # vision mode bypass
