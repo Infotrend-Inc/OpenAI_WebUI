@@ -12,9 +12,9 @@ import common_functions as cf
 
 #####
 # 20241206: Removed temperature and max_tokens from the function call, those are now passed within kwargs
-def simpler_gpt_call(apikey, messages, model_engine, base_url=None, model_mode=None, **kwargs):
+def simpler_gpt_call(apikey, messages, model_engine, base_url:str='', model_provider:str='OpenAI', resp_file:str='', **kwargs):
     client = None
-    if base_url is not None:
+    if cf.isNotBlank(base_url):
         client = OpenAI(api_key=apikey, base_url=base_url)
     else:
         client = OpenAI(api_key=apikey)
@@ -36,28 +36,33 @@ def simpler_gpt_call(apikey, messages, model_engine, base_url=None, model_mode=N
         )
     # using list from venv/lib/python3.11/site-packages/openai/_exceptions.py
     except openai.APIConnectionError as e:
-        return(f"OpenAI API request failed to connect: {e}", "")
+        return(f"{model_provider} API request failed to connect: {e}", "")
     except openai.AuthenticationError as e:
-        return(f"OpenAI API request was not authorized: {e}", "")
+        return(f"{model_provider} API request was not authorized: {e}", "")
     except openai.RateLimitError as e:
-        return(f"OpenAI API request exceeded rate limit: {e}", "")
+        return(f"{model_provider} API request exceeded rate limit: {e}", "")
     except openai.APIError as e:
-        return(f"OpenAI API returned an API Error: {e}", "")
+        return(f"{model_provider} API returned an API Error: {e}", "")
     except openai.OpenAIError as e:
-        return(f"OpenAI API request failed: {e}", "")
+        return(f"{model_provider} API request failed: {e}", "")
 
-#    with open("response.txt", 'w') as f:
-#        f.write(f"{response}")
+    if cf.isNotBlank(resp_file):
+        with open(resp_file, 'w') as f:
+            # Convert response to dict using model_dump() for Pydantic models
+            try:
+                response_dict = response.model_dump()
+            except AttributeError:
+                # Fallback for objects that don't support model_dump
+                response_dict = vars(response)
+            json.dump(response_dict, f, indent=4)
+
     response_text = response.choices[0].message.content
-    if model_mode == "perplexity":
+    if "Perplexity" in model_provider:
         response_text += "\n\nCitations:\n"
         for i in range(len(response.citations)):
             response_text += f"\n[{i+1}] {response.citations[i]}\n"
 
-
-
     return "", response_text
-#    return "", response.choices[0].message.content
 
 ##########
 class OAI_GPT:
@@ -88,7 +93,7 @@ class OAI_GPT:
 
         self.beta_models = {}
         self.per_model_provider = {}
-        self.per_model_url = ()
+        self.per_model_url = {}
 
         self.perplexity_apikey = perplexity_apikey
         self.gemini_apikey = gemini_apikey
@@ -202,7 +207,7 @@ class OAI_GPT:
                 self.beta_models[key] = False
 
             if 'apiurl' in models[key]["meta"]:
-                self.per_model_url[key] = models[key]['apiurl']
+                self.per_model_url[key] = models[key]['meta']['apiurl']
 
             if cf.isNotBlank(models[key]["status_details"]):
                 per_model_help += " NOTE: " + models[key]["status_details"]
@@ -329,9 +334,13 @@ class OAI_GPT:
         if cf.isNotBlank(err):
             return f"While checking {dest_dir}: {err}", ""
 
-        perplexity_mode = False
-        if self.model_capability[model_engine] == "perplexity":
-            perplexity_mode = True
+        apikey = self.apikey
+        provider = '' if model_engine not in self.per_model_provider else self.per_model_provider[model_engine]
+        base_url = '' if model_engine not in self.per_model_url else self.per_model_url[model_engine]
+        if 'Perplexity' in provider:
+            apikey = self.perplexity_apikey
+        if 'Google' in provider:
+            apikey = self.gemini_apikey
 
         messages = []
         if msg_extra is not None:
@@ -358,10 +367,10 @@ class OAI_GPT:
                                 messages.append(msg)
 
         if len(messages) == 0:
-            if perplexity_mode is True:
+            if 'Perplexity' in provider:
                 messages.append({"role": "system", "content": ("You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user."), 'oaiwui_skip': slug})
 
-        if perplexity_mode is True:
+        if 'Perplexity' in provider:
             to_add = { 'role': 'user', 'content': ( prompt ) }
         else:
             to_add = { 'role': role, 'content': [ {'type': 'text', 'text': prompt} ] }
@@ -395,23 +404,22 @@ class OAI_GPT:
         with open(msg_file, 'w') as f:
             json.dump(clean_messages, f, indent=4)
 
-        # Use kwargs to max_tokens and temperature
-        apikey = self.apikey
-        base_url = None
-        if perplexity_mode is True:
-            apikey = self.perplexity_apikey
-            base_url = "https://api.perplexity.ai"
+        # Use kwargs to hold max_tokens and temperature
+        if self.beta_models[model_engine] is True:
+            kwargs['max_completion_tokens'] = max_tokens
         else:
-            if self.beta_models[model_engine] is True:
-                kwargs['max_completion_tokens'] = max_tokens
-            else:
-                kwargs['max_tokens'] = max_tokens
-                kwargs['temperature'] = temperature
-        err, response = simpler_gpt_call(apikey, clean_messages, model_engine, base_url, 'perplexity' if perplexity_mode is True else None, **kwargs)
+            kwargs['max_tokens'] = max_tokens
+            kwargs['temperature'] = temperature
+
+        if 'Perplexity' in provider:
+            del kwargs['max_tokens']
+            del kwargs['temperature']
+
+        resp_file = f"{dest_dir}/resp.json"
+        err, response = simpler_gpt_call(apikey, clean_messages, model_engine, base_url, provider, resp_file, **kwargs)
 
         if cf.isNotBlank(err):
             return err, ""
-        os.remove(msg_file)
 
         # Add the response to the messages
         stored_messages.append({ 'role': 'assistant', 'content': [ {'type': 'text', 'text': response} ] })
@@ -442,4 +450,3 @@ class OAI_GPT:
 #####
     def get_history(self):
         return cf.get_history(self.save_location)
-
