@@ -105,6 +105,10 @@ def main():
     if 'PERPLEXITY_API_KEY' in os.environ:
         perplexity_apikey = os.environ.get('PERPLEXITY_API_KEY')
 
+    gemini_apikey = ''
+    if 'GEMINI_API_KEY' in os.environ:
+        gemini_apikey = os.environ.get('GEMINI_API_KEY')
+
     save_location = ""
     if 'OAIWUI_SAVEDIR' in os.environ:
         save_location = os.environ.get('OAIWUI_SAVEDIR')
@@ -231,7 +235,7 @@ def main():
         long_save_location = os.path.join(save_location, iti_version)
         cf.make_wdir_error(os.path.join(long_save_location))
 
-        set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir, prompt_presets_file, perplexity_apikey)
+        set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir, prompt_presets_file, perplexity_apikey, gemini_apikey)
 
 #####
 
@@ -245,8 +249,8 @@ def process_error_warning(err, warn):
 
 #####
 
-def set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir: str = None, prompt_presets_file: str = None, perplexity_apikey: str = '',):
-    oai_gpt = OAI_GPT(apikey, long_save_location, username, perplexity_apikey)
+def set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir: str = None, prompt_presets_file: str = None, perplexity_apikey: str = '', gemini_apikey: str = ''):
+    oai_gpt = OAI_GPT(apikey, long_save_location, username, perplexity_apikey, gemini_apikey)
     err, warn = oai_gpt.set_parameters(gpt_models, av_gpt_models)
     process_error_warning(err, warn)
     oai_gpt_st = OAI_GPT_WUI(oai_gpt, gpt_vision, prompt_presets_dir, prompt_presets_file)
