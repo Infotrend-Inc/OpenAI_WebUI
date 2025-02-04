@@ -85,6 +85,20 @@
                 "apiurl": "https://api.perplexity.ai"
             }
         },
+        "sonar-reasoning-pro":
+        {
+            "label": "Premier search offering outputs CoT in its response as well with search grounding, supporting advanced queries and follow-ups.",
+            "max_token": 4096,
+            "context_token": 127000,
+            "data": "Perplexity model",
+            "status": "active",
+            "status_details": "",
+            "capability": "",
+            "meta": {
+                "provider": "PerplexityAI",
+                "apiurl": "https://api.perplexity.ai"
+            }
+        },
         "gpt-4o-mini":
         {
             "label": "Our affordable and intelligent small model for fast, lightweight tasks. GPT-4o mini is cheaper and more capable than GPT-3.5 Turbo. Currently points to gpt-4o-mini-2024-07-18.",
