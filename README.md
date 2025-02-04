@@ -1,4 +1,4 @@
-<h1>OpenAI WebUI</h1>
+<h1>OpenAI API-compatible WebUI</h1>
 
 Latest version: 0.9.11 (20241217)
 
@@ -19,18 +19,19 @@ Latest version: 0.9.11 (20241217)
   - [3.2. Version information/Changelog](#32-version-informationchangelog)
   - [3.3. Acknowledgments](#33-acknowledgments)
 
-WebUI ([streamlit](https://streamlit.io/)-based) to ChatGPT and Dall-E's API (requires an OpenAI API key).
+A tool to enable a self-hosted WebUI ([streamlit](https://streamlit.io/)-based) to ChatGPT and Dall-E's API (requires an OpenAI API key).
+The tool also supports a few OpenAI API-compatible providers, such as Perplexity AI, Gemini AI and the self-hosted Ollama.
 
-The tool's purpose is to enable a company to install a self-hosted version of a WebUI to access the capabilities of OpenAI's ChatGPT and DallE and share access to the tool's capabilities while consolidating billing through the [OpenAI API](https://pypi.org/project/openai/) key. Access to [models](https://platform.openai.com/docs/models/) is limited to those enabled with your API key.
+The tool's purpose is to enable a company to install a self-hosted version of a WebUI to access the capabilities of OpenAI's API-compatible GPT and Dall-E and share access to the tool's capabilities while consolidating billing through the [OpenAI API](https://pypi.org/project/openai/) key. Access to [models](https://platform.openai.com/docs/models/) is limited to those enabled with your API key.
 
 Click on the links to see a screenshot of the [GPT WebUI](./assets/Screenshot-OAI_WebUI_GPT.jpg) and the [DallE WebUI](./assets/Screenshot-OAI_WebUI_DallE.jpg).
 
-Please see https://github.com/Infotrend-Inc/OpenAI_WebUI/blob/main/.env.example for details of possible values for the environment variables. 
+Please see https://github.com/Infotrend-Inc/OpenAI_WebUI/blob/main/.env.example for details of possible values for the environment variables. 
 Unless specified, even if a feature is not used, its environment variable should be set.
 
 A pre-built container is available from our Docker account at https://hub.docker.com/r/infotrend/openai_webui
 
-An [Unraid](https://unraid.net/)-ready version is available directly from Unraid's `Community Applications``.
+An [Unraid](https://unraid.net/)-ready version is available directly from Unraid's `Community Applications`.
 
 Note: this tool was initially developed in February 2023 and released to help end-users.
 
@@ -46,7 +47,7 @@ Depending on your deployment solution (*python virtualenv*, *docker image*, or *
 Once started, the WebUI will prompt the end user with a `username`. 
 This username is here to make finding past conversations/images easier if you seek those; no authentication is associated with it.
 
-ChatGPT (Text Generation) sidebar options (see "?" mark for specific details):
+GPT (Text Generation) sidebar options (see "?" mark for specific details):
 - model: choose between the different ChatGPT models that are enabled.
 - role (user, system, assistant): define the role of the input text for tailored responses.
 - max tokens: controls the length of generated text with a maximum token setting (dependent on the model)
@@ -74,43 +75,52 @@ Please update your model selection accordingly.
 The [models.json](models.json) file contains the list of models supported by each release (as introduced in v0.9.3).
 The following table shows the [models](https://platform.openai.com/docs/models/) listed in this file as well as the release it was added to:
 
-| Mode | Model | Status | Capability | Notes | From |
-| --- | --- | --- | --- | --- | --- |
-| DallE | dalle-e-2 | active | | | 0.9.3 |
-| DallE | dalle-e-3 | active | | | 0.9.3 |
-| GPT | gpt-3.5-turbo | active | | | 0.9.3 |
-| GPT | gpt-3.5-turbo-0125 | active | | | 0.9.3 |
-| GPT | gpt-3.5-turbo-0613 | deprecated | | Deprecated on June 13, 2024 | 0.9.3 |
-| GPT | gpt-3.5-turbo-1106 | active | | | 0.9.3 |
-| GPT | gpt-3.5-turbo-16k | deprecated | | Deprecated on June 13, 2024 | 0.9.3 |
-| GPT | gpt-3.5-turbo-16k-0613 | deprecated | |  Deprecated on June 13, 2024 | 0.9.3 |
-| GPT | gpt-4 | active | | | 0.9.3 |
-| GPT | gpt-4-0125-preview | active | | | 0.9.3 |
-| GPT | gpt-4-0613 | active | | | 0.9.3 |
-| GPT | gpt-4-1106-preview | active | | | 0.9.3 |
-| GPT | gpt-4-32k | deprecated | | | 0.9.3 |
-| GPT | gpt-4-32k-0613 | deprecated | | |  0.9.3 |
-| GPT | gpt-4-turbo-preview | active | | | 0.9.3 |
-| GPT | gpt-4-turbo | active | vision | | 0.9.5 |
-| GPT | gpt-4-turbo-2024-04-09 | active | vision | | 0.9.5 |
-| GPT | gpt-4o | active | vision | | 0.9.4 |
-| GPT | gpt-4o-2024-05-13 | active | vision | | 0.9.4 |
-| GPT | gpt-4o-2024-08-06 | active | vision | | 0.9.8 |
-| GPT | gpt-4o-2024-11-20 | active | vision | | 0.9.9 |
-| GPT | chatgpt-4o-latest | active | vision | | 0.9.9 |
-| GPT | gpt-4o-mini | active | vision | | 0.9.7 |
-| GPT | gpt-4o-mini-2024-07-18 | active | vision | | 0.9.7 |
-| GPT | o1-preview | active | | `beta` | 0.9.8 |
-| GPT | o1-preview-2024-09-12 | active | | `beta` | 0.9.9 |
-| GPT | o1-mini | active | | `beta` | 0.9.8 |
-| GPT | o1-mini-2024-09-12 | active | | `beta` | 0.9.9 |
-| GPT | o1 | active | | vision | `beta` + `untested` | 0.9.10 |
-| GPT | o1-2024-12-17 | active | | vision | `beta` + `untested` | 0.9.10 |
-
+| Mode | Model | Provider | Status | Capability | Notes | From |
+| --- | --- | --- | --- | --- | --- | --- |
+| DallE | dalle-e-2 | OpenAI | active | | | 0.9.3 |
+| DallE | dalle-e-3 | OpenAI | active | | | 0.9.3 |
+| GPT | gpt-3.5-turbo | OpenAI | active | | | 0.9.3 |
+| GPT | gpt-3.5-turbo-0125 | OpenAI | active | | | 0.9.3 |
+| GPT | gpt-3.5-turbo-0613 | OpenAI | deprecated | | Deprecated on June 13, 2024 | 0.9.3 |
+| GPT | gpt-3.5-turbo-1106 | OpenAI | active | | | 0.9.3 |
+| GPT | gpt-3.5-turbo-16k | OpenAI | deprecated | | Deprecated on June 13, 2024 | 0.9.3 |
+| GPT | gpt-3.5-turbo-16k-0613 | OpenAI | deprecated | | Deprecated on June 13, 2024 | 0.9.3 |
+| GPT | gpt-4 | OpenAI | active | | | 0.9.3 |
+| GPT | gpt-4-0125-preview | OpenAI | active | | | 0.9.3 |
+| GPT | gpt-4-0613 | OpenAI | active | | | 0.9.3 |
+| GPT | gpt-4-1106-preview | OpenAI | active | | | 0.9.3 |
+| GPT | gpt-4-32k | OpenAI | deprecated | | | 0.9.3 |
+| GPT | gpt-4-32k-0613 | OpenAI | deprecated | | | 0.9.3 |
+| GPT | gpt-4-turbo-preview | OpenAI | active | | | 0.9.3 |
+| GPT | gpt-4-turbo | OpenAI | vision | | | 0.9.5 |
+| GPT | gpt-4-turbo-2024-04-09 | OpenAI | vision | | | 0.9.5 |
+| GPT | gpt-4o | OpenAI | active | vision | | 0.9.4 |
+| GPT | gpt-4o-2024-05-13 | OpenAI | active | vision | | 0.9.4 |
+| GPT | gpt-4o-2024-08-06 | OpenAI | active | vision | | 0.9.8 |
+| GPT | gpt-4o-2024-11-20 | OpenAI | active | vision | | 0.9.9 |
+| GPT | chatgpt-4o-latest | OpenAI | active | vision | | 0.9.9 |
+| GPT | gpt-4o-mini | OpenAI | active | vision | | 0.9.7 |
+| GPT | gpt-4o-mini-2024-07-18 | OpenAI | active | vision | | 0.9.7 |
+| GPT | o1-preview | OpenAI | active | | `beta` | 0.9.8 |
+| GPT | o1-preview-2024-09-12 | OpenAI | active | | `beta` | 0.9.9 |
+| GPT | o1-mini | OpenAI | active | | `beta` | 0.9.8 |
+| GPT | o1-mini-2024-09-12 | OpenAI | active | | `beta` | 0.9.9 |
+| GPT | o1 | OpenAI | active | vision | `beta` + `untested` | 0.9.10 |
+| GPT | o1-2024-12-17 | OpenAI | active | vision | `beta` + `untested` | 0.9.10 |
+| GPT | sonar | PerplexityAI | active | WebSearch | | 0.9.11 |
+| GPT | sonar-pro | PerplexityAI | active | WebSearch | | 0.9.11 |
+| GPT | sonar-reasoning | PerplexityAI | active | WebSearch | | 0.9.11 |
+| GPT | sonar-reasoning-pro | PerplexityAI | active | WebSearch | | 0.9.11 |
+| GPT | gemini-1.5-flash | GoogleAI | active | vision | | 0.9.11 |
+| GPT | gemini-1.5-pro | GoogleAI | active | vision | | 0.9.11 |
+| GPT | gemini-2.0-flash-exp | GoogleAI | active | vision | | 0.9.11 |
+| GPT | `ollama` | SelfHosted | active | vision`?` | | 0.9.11 |
 
 `beta` models provide limited control over features or capabilities. Those currently also do not support `system` role: if using `prompt presets` those might not work.
 
 An `untested` model is added but is not able to be tested by the development team until we get access to the model (currently open to [Tier 5](https://platform.openai.com/docs/guides/rate-limits#usage-tiers) customers)
+
+`ollama` is a self-hosted solution; the name is here for illustration prupose (`ollama` is not a recognized model value). At initialization, the tool will use the `OLLAMA_HOME` environment variable to attempt tofind the server; then list and add all available hosted models. Capabilties of the hosted models are various: by default we will authorize `vision` and set a defauklt `max_tokens`; it is advised to check the model information for details on its actual capabilities. Find more information about [Ollama](https://github.com/oollama/ollama)
 
 Once a model is `deprecated`, using it in your models list will have it discarded from the available list with a notification. 
 
