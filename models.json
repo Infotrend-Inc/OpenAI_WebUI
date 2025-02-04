@@ -218,6 +218,34 @@
                 "beta_model": true
             }
         },
+        "o3-mini":
+        {
+            "label": "o3-mini is our most recent small reasoning model, providing high intelligence at the same cost and latency targets of o1-mini. Points to the most recent o3-mini snapshot: o3-mini-2025-01-31",
+            "max_token": 100000,
+            "context_token": 208000,
+            "data": "Up to Oct 2023 (as of 20250131)",
+            "status": "active",
+            "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
+            "capability": "",
+            "meta": {
+                "provider": "OpenAI",
+                "beta_model": true
+            }
+        },
+        "o3-mini-2025-01-31":
+        {
+            "label": "Latest o3-mini model snapshot",
+            "max_token": 100000,
+            "context_token": 208000,
+            "data": "Up to Oct 2023 (as of 20250131)",
+            "status": "active",
+            "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
+            "capability": "",
+            "meta": {
+                "provider": "OpenAI",
+                "beta_model": true
+            }
+        },
         "o1-mini":
         {
             "label": "o1 series of large language models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user. o1-mini: faster and cheaper reasoning model particularly good at coding, math, and science. Points to the most recent o1-mini snapshot: o1-mini-2024-09-12",

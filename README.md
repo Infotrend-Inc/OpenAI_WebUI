@@ -79,6 +79,9 @@ The following table shows the [models](https://platform.openai.com/docs/models/)
 | --- | --- | --- | --- | --- | --- | --- |
 | DallE | dalle-e-2 | OpenAI | active | | | 0.9.3 |
 | DallE | dalle-e-3 | OpenAI | active | | | 0.9.3 |
+| GPT | gemini-1.5-flash | GoogleAI | active | vision | | 0.9.11 |
+| GPT | gemini-1.5-pro | GoogleAI | active | vision | | 0.9.11 |
+| GPT | gemini-2.0-flash-exp | GoogleAI | active | vision | | 0.9.11 |
 | GPT | gpt-3.5-turbo | OpenAI | active | | | 0.9.3 |
 | GPT | gpt-3.5-turbo-0125 | OpenAI | active | | | 0.9.3 |
 | GPT | gpt-3.5-turbo-0613 | OpenAI | deprecated | | Deprecated on June 13, 2024 | 0.9.3 |
@@ -107,14 +110,13 @@ The following table shows the [models](https://platform.openai.com/docs/models/)
 | GPT | o1-mini-2024-09-12 | OpenAI | active | | `beta` | 0.9.9 |
 | GPT | o1 | OpenAI | active | vision | `beta` + `untested` | 0.9.10 |
 | GPT | o1-2024-12-17 | OpenAI | active | vision | `beta` + `untested` | 0.9.10 |
+| GPT | o3-mini | OpenAI | active | | `beta` + `untested` | 0.9.11 |
+| GPT | o3-mini-2025-01-31 | OpenAI | active | | `beta` + `untested` | 0.9.11 |
+| GPT | `ollama` | SelfHosted | active | vision`?` | | 0.9.11 |
 | GPT | sonar | PerplexityAI | active | WebSearch | | 0.9.11 |
 | GPT | sonar-pro | PerplexityAI | active | WebSearch | | 0.9.11 |
 | GPT | sonar-reasoning | PerplexityAI | active | WebSearch | | 0.9.11 |
 | GPT | sonar-reasoning-pro | PerplexityAI | active | WebSearch | | 0.9.11 |
-| GPT | gemini-1.5-flash | GoogleAI | active | vision | | 0.9.11 |
-| GPT | gemini-1.5-pro | GoogleAI | active | vision | | 0.9.11 |
-| GPT | gemini-2.0-flash-exp | GoogleAI | active | vision | | 0.9.11 |
-| GPT | `ollama` | SelfHosted | active | vision`?` | | 0.9.11 |
 
 `beta` models provide limited control over features or capabilities. Those currently also do not support `system` role: if using `prompt presets` those might not work.
 
