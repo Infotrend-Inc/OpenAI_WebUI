@@ -204,6 +204,8 @@ class OAI_GPT_WUI:
         preset_selector = True
         prompt_preset_selector = True
 
+        model_list = list(self.models.keys())
+
         if 'gpt_last_prompt' in st.session_state:
             if st.session_state['gpt_last_prompt'] != "":
                 disable_preset_prompts = True
@@ -226,13 +228,13 @@ class OAI_GPT_WUI:
 
             if self.prompt_presets_settings == {}:
                 # Only available if not in "preset only" mode
-                model = st.selectbox("model", options=list(self.models.keys()), index=0, key="model", help=self.model_help)
-                if model in self.models_status:
-                    st.info(f"{model}: {self.models_status[model]}")
-                if self.model_capability[model] == "vision":
+                model_name = st.selectbox("model", options=model_list, index=0, key="model_name", help=self.model_help)
+                if model_name in self.models_status:
+                    st.info(f"{model_name}: {self.models_status[model_name]}")
+                if self.model_capability[model_name] == "vision":
                     vision_capable = True
 
-                if "Perplexity" in self.per_model_provider[model]:
+                if "Perplexity" in self.per_model_provider[model_name]:
                     role_selector = False
                     temperature_selector = False
                     tokens_selector = False
@@ -240,12 +242,12 @@ class OAI_GPT_WUI:
                     prompt_preset_selector = False
                     preset_selector = False
 
-                if model in self.beta_models and self.beta_models[model] is True:
+                if model_name in self.beta_models and self.beta_models[model_name] is True:
                     beta_model = True
                     temperature_selector = False
                     preset_selector = False
 
-                m_token = self.models[model]['max_token']
+                m_token = self.models[model_name]['max_token']
 
                 # vision mode bypass
                 if self.enable_vision is False:
@@ -285,13 +287,13 @@ class OAI_GPT_WUI:
                     presets = list(self.gpt_presets.keys())[0]
             
             else: # "preset only" mode
-                model = self.prompt_presets_settings['model']
+                model_name = self.prompt_presets_settings['model']
                 max_tokens = self.prompt_presets_settings['tokens']
                 temperature = self.prompt_presets_settings['temperature']
                 presets = list(self.gpt_presets.keys())[0]
                 role = list(self.gpt_roles.keys())[0]
 
-            model_provider = self.per_model_provider[model] if model in self.per_model_provider else "Unknown"
+            model_provider = self.per_model_provider[model_name] if model_name in self.per_model_provider else "Unknown"
 
             # use the location of the placeholder now that we have the vision settings
             if prompt_preset_selector is True:
@@ -335,7 +337,7 @@ class OAI_GPT_WUI:
         if 'gpt_last_prompt' not in st.session_state:
             st.session_state['gpt_last_prompt'] = ''
 
-        prompt_value=f"Model: {model} ({model_provider}) "
+        prompt_value=f"Model: {model_name} ({model_provider}) "
         prompt_value += f"[role: {role} "
         if tokens_selector is True:
             prompt_value += f"max_tokens: {max_tokens} "
@@ -352,7 +354,7 @@ class OAI_GPT_WUI:
             prompt_value += " | Clear Chat"
         prompt_value += f" ]"
 
-        help_text = self.per_model_help[model] if model in self.per_model_help else "No help available for this model"
+        help_text = self.per_model_help[model_name] if model_name in self.per_model_help else "No help available for this model"
         prompt = st.empty().text_area(prompt_value, st.session_state['gpt_last_prompt'], placeholder="Enter your prompt", key="input", help=help_text)
         st.session_state['gpt_last_prompt'] = prompt
 
@@ -394,14 +396,14 @@ class OAI_GPT_WUI:
             prompt = self.gpt_presets[presets]["pre"] + prompt + self.gpt_presets[presets]["post"]
             prompt_token_count = self.oai_gpt.estimate_tokens(prompt)
             requested_token_count = prompt_token_count + max_tokens
-            if requested_token_count > self.models[model]["context_token"]:
-                st.warning("You requested an estimated %i tokens, which might exceed the model's context window of %i tokens. We are still proceeding with the request, but an error return is possible." % (requested_token_count, self.models[model]["context_token"]))
+            if requested_token_count > self.models[model_name]["context_token"]:
+                st.warning("You requested an estimated %i tokens, which might exceed the model's context window of %i tokens. We are still proceeding with the request, but an error return is possible." % (requested_token_count, self.models[model_name]["context_token"]))
 
             if max_tokens > 0:
                 tmp_txt1 = "" if tokens_selector is False else f" for max_tokens: {max_tokens}"
                 tmp_txt2 = "" if temperature_selector is False else f" (temperature: {temperature})"
-                st.toast(f"Requesting {model_provider} with model: {model}{tmp_txt1}{tmp_txt2}")
-                with st.spinner(f"Asking {model_provider} with model: {model} {tmp_txt1}{tmp_txt2}. Prompt est. tokens : {prompt_token_count}"):
+                st.toast(f"Requesting {model_provider} with model: {model_name}{tmp_txt1}{tmp_txt2}")
+                with st.spinner(f"Asking {model_provider} with model: {model_name} {tmp_txt1}{tmp_txt2}. Prompt est. tokens : {prompt_token_count}"):
                     if 'gpt_clear_chat' in st.session_state:
                         clear_chat = True
                         del st.session_state['gpt_clear_chat']
@@ -413,7 +415,7 @@ class OAI_GPT_WUI:
                             tmp = msg_extra
                             msg_extra = copy.deepcopy(st.session_state['gpt_msg_extra'])
                             msg_extra.append(tmp[0])
-                    err, run_file = self.oai_gpt.chatgpt_it(model, prompt, max_tokens, temperature, clear_chat, role, msg_extra, **self.gpt_presets[presets]["kwargs"])
+                    err, run_file = self.oai_gpt.chatgpt_it(model_name, prompt, max_tokens, temperature, clear_chat, role, msg_extra, **self.gpt_presets[presets]["kwargs"])
                     if cf.isNotBlank(err):
                         st.error(err)
                     if cf.isNotBlank(run_file):
