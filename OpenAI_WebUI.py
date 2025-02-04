@@ -17,6 +17,7 @@ import re
 import os.path
 
 import common_functions as cf
+import ollama_helper as oll
 
 from dotenv import load_dotenv
 from datetime import datetime
@@ -77,9 +78,9 @@ def check_password():
         st.error("😕 Password incorrect")
     return False
 
-
-#####
-def main():
+@st.cache_data
+def get_ui_params(runid):
+    print(f"---------- [INFO] Main get_ui_params ({runid}) ----------")
     # Load all supported models (need the status field to decide or prompt if we can use that model or not)
     av_gpt_models, av_dalle_models = load_models()    
 
@@ -151,6 +152,18 @@ def main():
         st.error(f"OAIWUI_DALLE_MODELS environment variable is empty")
         cf.error_exit("OAIWUI_DALLE_MODELS environment variable is empty")
 
+    if 'OLLAMA_HOME' in os.environ:
+        ollama_home = os.environ.get('OLLAMA_HOME')
+        err, ollama_models = oll.get_all_ollama_models_and_infos(ollama_home)
+        if cf.isNotBlank(err):
+            st.error(f"While testing OLLAMA_HOME {ollama_home}: {err}")
+            cf.error_exit(f"{err}")
+        for oll_model in ollama_models:
+            # We are going to extend the GPT models with the Ollama models
+            err, modeljson = oll.ollama_to_modelsjson(ollama_home, oll_model, ollama_models[oll_model])
+            av_gpt_models[oll_model] = modeljson
+            gpt_models += f" {oll_model}"
+
     # variable to not fail on empy values, and just ignore those type of errors
     ignore_empty = False
     if 'OAIWUI_IGNORE_EMPTY' in os.environ: # values does not matter, just need to be present
@@ -209,8 +222,44 @@ def main():
         st.session_state.visibility = "visible"
         st.session_state.disabled = False
 
+    return apikey, save_location, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir, prompt_presets_file, perplexity_apikey, gemini_apikey
+
+
+#####
+
+@st.cache_data
+def set_ui_core(long_save_location, username, apikey, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir: str = None, prompt_presets_file: str = None, perplexity_apikey: str = '', gemini_apikey: str = ''):
+    oai_gpt = OAI_GPT(apikey, long_save_location, username, perplexity_apikey, gemini_apikey)
+    err, warn = oai_gpt.set_parameters(gpt_models, av_gpt_models)
+    process_error_warning(err, warn)
+    oai_gpt_st = OAI_GPT_WUI(oai_gpt, gpt_vision, prompt_presets_dir, prompt_presets_file)
+    oai_dalle = None
+    oai_dalle_st = None
+    if 'OAIWUI_GPT_ONLY' in os.environ:
+        tmp = os.environ.get('OAIWUI_GPT_ONLY')
+        if tmp.lower() == "true":
+            oai_dalle = None
+        elif tmp.lower() == "false":
+            oai_dalle = OAI_DallE(apikey, long_save_location, username)
+            err, warn = oai_dalle.set_parameters(dalle_models, av_dalle_models)
+            process_error_warning(err, warn)
+            oai_dalle_st = OAI_DallE_WUI(oai_dalle)
+#            dalle_process_error_warning_info(oai_dalle)
+        else:
+            st.error(f"OAIWUI_GPT_ONLY environment variable must be set to 'True' or 'False'")
+            cf.error_exit("OAIWUI_GPT_ONLY environment variable must be set to 'True' or 'False'")
+
+    return oai_gpt, oai_gpt_st, oai_dalle, oai_dalle_st
+
+
+#####
+def main():
+    print("---------- [INFO] Main __main__ ----------")
+
     if 'webui_runid' not in st.session_state:
         st.session_state['webui_runid'] = datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    apikey, save_location, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir, prompt_presets_file, perplexity_apikey, gemini_apikey = get_ui_params(st.session_state['webui_runid'])
 
     st.empty()
 
@@ -235,7 +284,9 @@ def main():
         long_save_location = os.path.join(save_location, iti_version)
         cf.make_wdir_error(os.path.join(long_save_location))
 
-        set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir, prompt_presets_file, perplexity_apikey, gemini_apikey)
+        oai_gpt, oai_gpt_st, oai_dalle, oai_dalle_st = set_ui_core(long_save_location, username, apikey, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir, prompt_presets_file, perplexity_apikey, gemini_apikey)
+
+        set_ui(oai_gpt, oai_gpt_st, oai_dalle, oai_dalle_st)
 
 #####
 
@@ -247,29 +298,7 @@ def process_error_warning(err, warn):
         st.warning(warn)
 
 
-#####
-
-def set_ui(long_save_location, username, apikey, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir: str = None, prompt_presets_file: str = None, perplexity_apikey: str = '', gemini_apikey: str = ''):
-    oai_gpt = OAI_GPT(apikey, long_save_location, username, perplexity_apikey, gemini_apikey)
-    err, warn = oai_gpt.set_parameters(gpt_models, av_gpt_models)
-    process_error_warning(err, warn)
-    oai_gpt_st = OAI_GPT_WUI(oai_gpt, gpt_vision, prompt_presets_dir, prompt_presets_file)
-    oai_dalle = None
-    oai_dalle_st = None
-    if 'OAIWUI_GPT_ONLY' in os.environ:
-        tmp = os.environ.get('OAIWUI_GPT_ONLY')
-        if tmp.lower() == "true":
-            oai_dalle = None
-        elif tmp.lower() == "false":
-            oai_dalle = OAI_DallE(apikey, long_save_location, username)
-            err, warn = oai_dalle.set_parameters(dalle_models, av_dalle_models)
-            process_error_warning(err, warn)
-            oai_dalle_st = OAI_DallE_WUI(oai_dalle)
-#            dalle_process_error_warning_info(oai_dalle)
-        else:
-            st.error(f"OAIWUI_GPT_ONLY environment variable must be set to 'True' or 'False'")
-            cf.error_exit("OAIWUI_GPT_ONLY environment variable must be set to 'True' or 'False'")
-
+def set_ui(oai_gpt, oai_gpt_st, oai_dalle, oai_dalle_st):
     if oai_dalle is None:
         oai_gpt_st.set_ui()
     else:
