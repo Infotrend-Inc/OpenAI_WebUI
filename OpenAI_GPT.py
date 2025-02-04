@@ -97,6 +97,7 @@ class OAI_GPT:
 
         self.perplexity_apikey = perplexity_apikey
         self.gemini_apikey = gemini_apikey
+        self.ollama_apikey = 'ollama' # required but ignored
 
 #####
     def get_models(self):
@@ -162,6 +163,11 @@ class OAI_GPT:
                         elif 'Google' in av_models_list[model]["meta"]["provider"]:
                             if cf.isBlank(self.gemini_apikey):
                                 warning += f"Model {model} is requested but no GoogleAI API key provided, discarding it. "
+                            else:
+                                s_models_list.append(model)
+                        elif 'Ollama' in av_models_list[model]["meta"]["provider"]:
+                            if cf.isBlank(self.ollama_apikey):
+                                warning += f"Model {model} is requested but no OllamaAI API key provided, discarding it. "
                             else:
                                 s_models_list.append(model)
                         else:
