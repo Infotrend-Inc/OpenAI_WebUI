@@ -105,18 +105,18 @@ def ollama_to_modelsjson(ollama_home, model_name, info):
         info['architecture'] = 'Unknown'
     if 'context_length' not in info:
         info['context_length'] = 4096
-
+    max_token = 16000 if info['context_length'] > 16000 else info['context_length']
 
     label = f"[Ollama] Architecture: {info['architecture']}, Format: {info['format']}, License: {info['license']}, Family: {info['family']}, Parameter size: {info['parameter_size']}, Quantization level: {info['quantization_level']}"
 
     return "", {
         "label": label,
-        "max_token": 4096,
+        "max_token": max_token,
         "context_token": info['context_length'],
         "data": "Ollama model",
         "status": "active",
-        "status_details": "",
-        "capability": "",
+        "status_details": f"using Ollama: allowing vision and using a default value for max_token. See https://ollama.com/library/{model_name} for actual model capabilities.",
+        "capability": "vision",
         "meta": {
             "provider": "Ollama",
             "apiurl": f"{ollama_home}/v1/"
