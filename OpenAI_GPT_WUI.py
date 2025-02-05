@@ -36,9 +36,11 @@ class OAI_GPT_WUI:
         self.gpt_roles_help = oai_gpt.get_gpt_roles_help()
         self.gpt_presets = oai_gpt.get_gpt_presets()
         self.gpt_presets_help = oai_gpt.get_gpt_presets_help()
+
         self.per_model_help = oai_gpt.get_per_model_help()
         self.beta_models = oai_gpt.get_beta_models()
         self.per_model_provider = oai_gpt.get_per_model_provider()
+        self.per_model_meta = oai_gpt.get_per_model_meta()
 
         self.enable_vision = enable_vision
 
@@ -234,18 +236,27 @@ class OAI_GPT_WUI:
                 if self.model_capability[model_name] == "vision":
                     vision_capable = True
 
-                if "Perplexity" in self.per_model_provider[model_name]:
-                    role_selector = False
-                    temperature_selector = False
-                    tokens_selector = False
-                    max_tokens_selector = False
-                    prompt_preset_selector = False
-                    preset_selector = False
+                roles_toremove = []
+                if model_name in self.per_model_meta and "removed_roles" in self.per_model_meta[model_name]:
+                    roles_toremove = self.per_model_meta[model_name]["removed_roles"]
 
+                if model_name in self.per_model_meta and "disabled_features" in self.per_model_meta[model_name]:
+                    disabled_features = self.per_model_meta[model_name]["disabled_features"]
+                    if "prompt_preset" in disabled_features:
+                        prompt_preset_selector = False
+                    if "preset" in disabled_features:
+                        preset_prompts = False
+                    if "role" in disabled_features:
+                        role_selector = False
+                    if "temperature" in disabled_features:
+                        temperature_selector = False
+                    if "max_tokens" in disabled_features:
+                        max_tokens_selector = False
+                    if "tokens" in disabled_features:
+                        tokens_selector = False
+                        
                 if model_name in self.beta_models and self.beta_models[model_name] is True:
                     beta_model = True
-                    temperature_selector = False
-                    preset_selector = False
 
                 m_token = self.models[model_name]['max_token']
 
@@ -265,8 +276,8 @@ class OAI_GPT_WUI:
                 role = list(self.gpt_roles.keys())[0]
                 if role_selector is True:
                     tmp_roles = self.gpt_roles.copy()
-                    if beta_model is True:
-                        tmp_roles.pop("system")
+                    for r in roles_toremove:
+                        tmp_roles.pop(r)
                     tmp_txt = "" if beta_model is False else "\n\nBeta models do not support the 'system' role"
                     role = st.selectbox("Role", options=tmp_roles, index=0, key="input_role", help = "Role of the input text\n\n" + self.gpt_roles_help + tmp_txt)
 

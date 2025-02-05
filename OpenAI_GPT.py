@@ -90,8 +90,10 @@ class OAI_GPT:
         self.model_capability = {}
 
         self.beta_models = {}
+
         self.per_model_provider = {}
         self.per_model_url = {}
+        self.per_model_meta = {}
 
 #####
     def get_models(self):
@@ -130,6 +132,8 @@ class OAI_GPT:
     def get_beta_models(self):
         return self.beta_models
     
+    def get_per_model_meta(self):
+        return self.per_model_meta
 
     def check_apikeys(self, meta):
         if 'provider' in meta:
@@ -165,6 +169,7 @@ class OAI_GPT:
                     if cf.isNotBlank(err):
                         warning += f"Discarding Model {model}: {err}. "
                     s_models_list.append(model)
+                    self.per_model_meta[model] = av_models_list[model]["meta"]
                 else:
                     warning += f"Discarding Model {model}: Missing the meta information. "
 
@@ -360,11 +365,13 @@ class OAI_GPT:
                                 messages.append(msg)
 
         if len(messages) == 0:
-            if 'Perplexity' in provider:
-                messages.append({"role": "system", "content": ("You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user."), 'oaiwui_skip': slug})
+            if 'init_msg' in self.per_model_meta[model_engine]:
+                init_msg = self.per_model_meta[model_engine]['init_msg']
+                init_msg['oaiwui_skip'] = slug
+                messages.append(init_msg)
 
-        if 'Perplexity' in provider:
-            to_add = { 'role': 'user', 'content': ( prompt ) }
+        if 'msg_format' in self.per_model_meta[model_engine] and self.per_model_meta[model_engine]['msg_format'] == 'role_content':
+            to_add = { 'role': 'user', 'content': prompt }
         else:
             to_add = { 'role': role, 'content': [ {'type': 'text', 'text': prompt} ] }
         messages.append(to_add)
@@ -403,10 +410,6 @@ class OAI_GPT:
         else:
             kwargs['max_tokens'] = max_tokens
             kwargs['temperature'] = temperature
-
-        if 'Perplexity' in provider:
-            del kwargs['max_tokens']
-            del kwargs['temperature']
 
         resp_file = f"{dest_dir}/resp.json"
         err, response = simpler_gpt_call(apikey, clean_messages, model_engine, base_url, provider, resp_file, **kwargs)

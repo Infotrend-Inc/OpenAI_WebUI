@@ -58,7 +58,10 @@
             "meta": {
                 "provider": "PerplexityAI",
                 "apikey-env": "PERPLEXITY_API_KEY",
-                "apiurl": "https://api.perplexity.ai"
+                "apiurl": "https://api.perplexity.ai",
+                "msg_format": "role_content",
+                "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user." },
+                "disabled_features": ["role", "prompt_preset", "preset"]
             }
         },
         "sonar-pro":
@@ -73,8 +76,10 @@
             "meta": {
                 "provider": "PerplexityAI",
                 "apikey-env": "PERPLEXITY_API_KEY",
-                "apiurl": "https://api.perplexity.ai"
-            }
+                "apiurl": "https://api.perplexity.ai",
+                "msg_format": "role_content",
+                "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user." },
+                "disabled_features": ["role", "prompt_preset", "preset"]}
         },
         "sonar-reasoning":
         {
@@ -88,7 +93,10 @@
             "meta": {
                 "provider": "PerplexityAI",
                 "apikey-env": "PERPLEXITY_API_KEY",
-                "apiurl": "https://api.perplexity.ai"
+                "apiurl": "https://api.perplexity.ai",
+                "msg_format": "role_content",
+                "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user." },
+                "disabled_features": ["role", "prompt_preset", "preset"]
             }
         },
         "sonar-reasoning-pro":
@@ -102,7 +110,11 @@
             "capability": "",
             "meta": {
                 "provider": "PerplexityAI",
-                "apiurl": "https://api.perplexity.ai"
+                "apikey-env": "PERPLEXITY_API_KEY",
+                "apiurl": "https://api.perplexity.ai",
+                "msg_format": "role_content",
+                "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user." },
+                "disabled_features": ["role", "prompt_preset", "preset"]
             }
         },
         "gpt-4o-mini":
@@ -215,7 +227,9 @@
             "meta": {
                 "provider": "OpenAI",
                 "apikey-env": "OPENAI_API_KEY",
-                "beta_model": true
+                "beta_model": true,
+                "removed_roles": ["system"],
+                "disabled_features": ["temperature", "preset"]
             }
         },
         "o1-preview-2024-09-12":
@@ -230,7 +244,9 @@
             "meta": {
                 "provider": "OpenAI",
                 "apikey-env": "OPENAI_API_KEY",
-                "beta_model": true
+                "beta_model": true,
+                "removed_roles": ["system"],
+                "disabled_features": ["temperature", "preset"]
             }
         },
         "o3-mini":
@@ -245,7 +261,9 @@
             "meta": {
                 "provider": "OpenAI",
                 "apikey-env": "OPENAI_API_KEY",
-                "beta_model": true
+                "beta_model": true,
+                "removed_roles": ["system"],
+                "disabled_features": ["temperature", "preset"]
             }
         },
         "o3-mini-2025-01-31":
@@ -260,7 +278,9 @@
             "meta": {
                 "provider": "OpenAI",
                 "apikey-env": "OPENAI_API_KEY",
-                "beta_model": true
+                "beta_model": true,
+                "removed_roles": ["system"],
+                "disabled_features": ["temperature", "preset"]
             }
         },
         "o1-mini":
@@ -275,7 +295,9 @@
             "meta": {
                 "provider": "OpenAI",
                 "apikey-env": "OPENAI_API_KEY",
-                "beta_model": true
+                "beta_model": true,
+                "removed_roles": ["system"],
+                "disabled_features": ["temperature", "preset"]
             }
         },
         "o1-mini-2024-09-12":
@@ -290,7 +312,9 @@
             "meta": {
                 "provider": "OpenAI",
                 "apikey-env": "OPENAI_API_KEY",
-                "beta_model": true
+                "beta_model": true,
+                "removed_roles": ["system"],
+                "disabled_features": ["temperature", "preset"]
             }
         },
         "o1":
@@ -305,7 +329,9 @@
             "meta": {
                 "provider": "OpenAI",
                 "apikey-env": "OPENAI_API_KEY",
-                "beta_model": true
+                "beta_model": true,
+                "removed_roles": ["system"],
+                "disabled_features": ["temperature", "preset"]
             }
         },
         "o1-2024-12-17":
@@ -320,7 +346,9 @@
             "meta": {
                 "provider": "OpenAI",
                 "apikey-env": "OPENAI_API_KEY",
-                "beta_model": true
+                "beta_model": true,
+                "removed_roles": ["system"],
+                "disabled_features": ["temperature", "preset"]
             }
         },
         "gpt-4-turbo":
