@@ -212,3 +212,21 @@ def read_json(file, txt=''):
         file_contents = simple_file.read()
         parsed_json = json.loads(file_contents)
         return parsed_json
+
+#####
+
+def check_apikeys(provider, meta):
+    if 'apikey' in meta: # apikey hardcoded (for the likes of ollama who ignore the value)
+        return "", meta["apikey"]
+
+    apikey_env = ''
+    if 'apikey-env' in meta: # apikey in an environment variable
+        apikey_env = meta["apikey-env"]
+    if isBlank(apikey_env):
+        return "Missing information about environment variable to check for apikey", ""
+
+    if apikey_env not in os.environ:
+        return f"Environment variable {apikey_env} not set", ""
+
+    apikey = os.environ[apikey_env]
+    return "", apikey

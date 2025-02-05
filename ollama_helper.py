@@ -119,6 +119,7 @@ def ollama_to_modelsjson(ollama_home, model_name, info):
         "capability": "vision",
         "meta": {
             "provider": "Ollama",
+            "apikey": "ollama",
             "apiurl": f"{ollama_home}/v1/"
         }
     }

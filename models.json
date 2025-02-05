@@ -12,6 +12,7 @@
             "capability": "vision",
             "meta": {
                 "provider": "GoogleAI",
+                "apikey-env": "GEMINI_API_KEY",
                 "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/"
             }
         },
@@ -26,6 +27,7 @@
             "capability": "vision",
             "meta": {
                 "provider": "GoogleAI",
+                "apikey-env": "GEMINI_API_KEY",
                 "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/"
             }
         },
@@ -40,6 +42,7 @@
             "capability": "vision",
             "meta": {
                 "provider": "GoogleAI",
+                "apikey-env": "GEMINI_API_KEY",
                 "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/"
             }
         },        
@@ -54,6 +57,7 @@
             "capability": "",
             "meta": {
                 "provider": "PerplexityAI",
+                "apikey-env": "PERPLEXITY_API_KEY",
                 "apiurl": "https://api.perplexity.ai"
             }
         },
@@ -68,6 +72,7 @@
             "capability": "",
             "meta": {
                 "provider": "PerplexityAI",
+                "apikey-env": "PERPLEXITY_API_KEY",
                 "apiurl": "https://api.perplexity.ai"
             }
         },
@@ -82,6 +87,7 @@
             "capability": "",
             "meta": {
                 "provider": "PerplexityAI",
+                "apikey-env": "PERPLEXITY_API_KEY",
                 "apiurl": "https://api.perplexity.ai"
             }
         },
@@ -109,7 +115,8 @@
             "status_details": "",
             "capability": "vision",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "gpt-4o-mini-2024-07-18":
@@ -122,7 +129,8 @@
             "status_details": "",
             "capability": "vision",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "gpt-4o":
@@ -135,7 +143,8 @@
             "status_details": "",
             "capability": "vision",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "gpt-4o-2024-11-20":
@@ -148,7 +157,8 @@
             "status_details": "",
             "capability": "vision",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI", 
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "gpt-4o-2024-08-06":
@@ -161,7 +171,8 @@
             "status_details": "",
             "capability": "vision",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "gpt-4o-2024-05-13":
@@ -174,7 +185,8 @@
             "status_details": "",
             "capability": "vision",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "chatgpt-4o-latest":
@@ -187,7 +199,8 @@
             "status_details": "",
             "capability": "vision",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "o1-preview":
@@ -201,6 +214,7 @@
             "capability": "",
             "meta": {
                 "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
                 "beta_model": true
             }
         },
@@ -215,6 +229,7 @@
             "capability": "",
             "meta": {
                 "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
                 "beta_model": true
             }
         },
@@ -229,6 +244,7 @@
             "capability": "",
             "meta": {
                 "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
                 "beta_model": true
             }
         },
@@ -243,6 +259,7 @@
             "capability": "",
             "meta": {
                 "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
                 "beta_model": true
             }
         },
@@ -257,6 +274,7 @@
             "capability": "",
             "meta": {
                 "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
                 "beta_model": true
             }
         },
@@ -271,6 +289,7 @@
             "capability": "",
             "meta": {
                 "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
                 "beta_model": true
             }
         },
@@ -285,6 +304,7 @@
             "capability": "vision",
             "meta": {
                 "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
                 "beta_model": true
             }
         },
@@ -299,6 +319,7 @@
             "capability": "vision",
             "meta": {
                 "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
                 "beta_model": true
             }
         },
@@ -312,7 +333,8 @@
             "status_details": "",
             "capability": "vision",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "gpt-4-turbo-2024-04-09":
@@ -325,7 +347,8 @@
             "status_details": "",
             "capability": "vision",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "gpt-4-turbo-preview":
@@ -338,7 +361,8 @@
             "status_details": "",
             "capability": "",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "gpt-4-0125-preview":
@@ -351,7 +375,8 @@
             "status_details": "",
             "capability": "",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "gpt-4-1106-preview":
@@ -364,7 +389,8 @@
             "status_details": "",
             "capability": "",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "gpt-4":
@@ -377,7 +403,8 @@
             "status_details": "",
             "capability": "",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "gpt-4-0613":
@@ -390,7 +417,8 @@
             "status_details": "",
             "capability": "",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "gpt-4-32k":
@@ -403,7 +431,8 @@
             "status_details": "",
             "capability": "",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "gpt-4-32k-0613":
@@ -416,7 +445,8 @@
             "status_details": "",
             "capability": "",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "gpt-3.5-turbo-0125":
@@ -429,7 +459,8 @@
             "status_details": "",
             "capability": "",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "gpt-3.5-turbo":
@@ -442,7 +473,8 @@
             "status_details": "",
             "capability": "",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "gpt-3.5-turbo-1106":
@@ -455,7 +487,8 @@
             "status_details": "",
             "capability": "",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "gpt-3.5-turbo-16k":
@@ -468,7 +501,8 @@
             "status_details": "Will be deprecated on June 13, 2024.",
             "capability": "",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "gpt-3.5-turbo-0613":
@@ -481,7 +515,8 @@
             "status_details": "Will be deprecated on June 13, 2024.",
             "capability": "",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "gpt-3.5-turbo-16k-0613":
@@ -494,7 +529,8 @@
             "status_details": "Will be deprecated on June 13, 2024.",
             "capability": "",
             "meta": {
-                "provider": "OpenAI"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         }
     },
@@ -507,7 +543,10 @@
             "max_prompt_length": 4000,
             "status": "active",
             "status_details": "",
-            "provider": "OpenAI"
+            "meta": {
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"                    
+            }
         },
         "dall-e-2":
         {
@@ -516,7 +555,10 @@
             "max_prompt_length": 1000,
             "status": "active",
             "status_details": "",
-            "provider": "OpenAI"
+            "meta": {
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"                    
+            }
         }
     }
 }

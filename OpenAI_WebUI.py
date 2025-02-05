@@ -95,20 +95,7 @@ def get_ui_params(runid):
         load_dotenv()
     # If the file is not present, hopefully the variable was set in the Docker environemnt
 
-    apikey = ''
-    if 'OPENAI_API_KEY' in os.environ:
-        apikey = os.environ.get('OPENAI_API_KEY')
-    if cf.isBlank(apikey):
-        st.error(f"Could not find the OPENAI_API_KEY environment variable")
-        cf.error_exit(f"Could not find the OPENAI_API_KEY environment variable")
-
-    perplexity_apikey = ''
-    if 'PERPLEXITY_API_KEY' in os.environ:
-        perplexity_apikey = os.environ.get('PERPLEXITY_API_KEY')
-
-    gemini_apikey = ''
-    if 'GEMINI_API_KEY' in os.environ:
-        gemini_apikey = os.environ.get('GEMINI_API_KEY')
+    # Deffering apikey check to the GPT class
 
     save_location = ""
     if 'OAIWUI_SAVEDIR' in os.environ:
@@ -222,14 +209,14 @@ def get_ui_params(runid):
         st.session_state.visibility = "visible"
         st.session_state.disabled = False
 
-    return apikey, save_location, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir, prompt_presets_file, perplexity_apikey, gemini_apikey
+    return save_location, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir, prompt_presets_file
 
 
 #####
 
 @st.cache_data
-def set_ui_core(long_save_location, username, apikey, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir: str = None, prompt_presets_file: str = None, perplexity_apikey: str = '', gemini_apikey: str = ''):
-    oai_gpt = OAI_GPT(apikey, long_save_location, username, perplexity_apikey, gemini_apikey)
+def set_ui_core(long_save_location, username, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir: str = None, prompt_presets_file: str = None):
+    oai_gpt = OAI_GPT(long_save_location, username)
     err, warn = oai_gpt.set_parameters(gpt_models, av_gpt_models)
     process_error_warning(err, warn)
     oai_gpt_st = OAI_GPT_WUI(oai_gpt, gpt_vision, prompt_presets_dir, prompt_presets_file)
@@ -240,11 +227,10 @@ def set_ui_core(long_save_location, username, apikey, gpt_models, av_gpt_models,
         if tmp.lower() == "true":
             oai_dalle = None
         elif tmp.lower() == "false":
-            oai_dalle = OAI_DallE(apikey, long_save_location, username)
+            oai_dalle = OAI_DallE(long_save_location, username)
             err, warn = oai_dalle.set_parameters(dalle_models, av_dalle_models)
             process_error_warning(err, warn)
             oai_dalle_st = OAI_DallE_WUI(oai_dalle)
-#            dalle_process_error_warning_info(oai_dalle)
         else:
             st.error(f"OAIWUI_GPT_ONLY environment variable must be set to 'True' or 'False'")
             cf.error_exit("OAIWUI_GPT_ONLY environment variable must be set to 'True' or 'False'")
@@ -259,7 +245,7 @@ def main():
     if 'webui_runid' not in st.session_state:
         st.session_state['webui_runid'] = datetime.now().strftime("%Y%m%d-%H%M%S")
 
-    apikey, save_location, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir, prompt_presets_file, perplexity_apikey, gemini_apikey = get_ui_params(st.session_state['webui_runid'])
+    save_location, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir, prompt_presets_file = get_ui_params(st.session_state['webui_runid'])
 
     st.empty()
 
@@ -284,7 +270,7 @@ def main():
         long_save_location = os.path.join(save_location, iti_version)
         cf.make_wdir_error(os.path.join(long_save_location))
 
-        oai_gpt, oai_gpt_st, oai_dalle, oai_dalle_st = set_ui_core(long_save_location, username, apikey, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir, prompt_presets_file, perplexity_apikey, gemini_apikey)
+        oai_gpt, oai_gpt_st, oai_dalle, oai_dalle_st = set_ui_core(long_save_location, username, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir, prompt_presets_file)
 
         set_ui(oai_gpt, oai_gpt_st, oai_dalle, oai_dalle_st)
 

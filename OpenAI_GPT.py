@@ -66,7 +66,7 @@ def simpler_gpt_call(apikey, messages, model_engine, base_url:str='', model_prov
 
 ##########
 class OAI_GPT:
-    def __init__(self, apikey, base_save_location, username, perplexity_apikey: str = "", gemini_apikey: str = ""):
+    def __init__(self, base_save_location, username):
         print("---------- [INFO] In OAI_GPT __init__ ----------")
 
         if cf.isBlank(base_save_location):
@@ -74,7 +74,7 @@ class OAI_GPT:
         if cf.isBlank(username):
             username = "test"
 
-        self.apikey = apikey
+        self.apikeys = {}
         self.save_location = os.path.join(base_save_location, username, "gpt")
         err = cf.make_wdir_recursive(self.save_location)
         if cf.isNotBlank(err):
@@ -94,10 +94,6 @@ class OAI_GPT:
         self.beta_models = {}
         self.per_model_provider = {}
         self.per_model_url = {}
-
-        self.perplexity_apikey = perplexity_apikey
-        self.gemini_apikey = gemini_apikey
-        self.ollama_apikey = 'ollama' # required but ignored
 
 #####
     def get_models(self):
@@ -137,8 +133,23 @@ class OAI_GPT:
         return self.beta_models
     
 
+    def check_apikeys(self, meta):
+        if 'provider' in meta:
+            provider = meta["provider"]
+        else:
+            return "Missing provider"
+
+        if provider in self.apikeys:
+            return "" # no need to continue, we have it
+
+        warn, apikey = cf.check_apikeys(provider, meta)
+        if cf.isNotBlank(warn):
+            return warn
+
+        self.apikeys[provider] = apikey
+        return ""
+
 #####
-# https://platform.openai.com/docs/models/continuous-model-upgrades
     def set_parameters(self, models_list, av_models_list):
         models = {}
         models_status = {}
@@ -152,30 +163,12 @@ class OAI_GPT:
             model = t_model.strip()
             if model in av_models_list:
                 if "meta" in av_models_list[model]:
-                    if 'provider' in av_models_list[model]["meta"]:
-                        if 'OpenAI' in av_models_list[model]["meta"]["provider"]:
-                            s_models_list.append(model)
-                        elif 'Perplexity' in av_models_list[model]["meta"]["provider"]:
-                            if cf.isBlank(self.perplexity_apikey):
-                                warning += f"Model {model} is requested but no PerplexityAI API key provided, discarding it. "
-                            else:
-                                s_models_list.append(model)
-                        elif 'Google' in av_models_list[model]["meta"]["provider"]:
-                            if cf.isBlank(self.gemini_apikey):
-                                warning += f"Model {model} is requested but no GoogleAI API key provided, discarding it. "
-                            else:
-                                s_models_list.append(model)
-                        elif 'Ollama' in av_models_list[model]["meta"]["provider"]:
-                            if cf.isBlank(self.ollama_apikey):
-                                warning += f"Model {model} is requested but no OllamaAI API key provided, discarding it. "
-                            else:
-                                s_models_list.append(model)
-                        else:
-                            warning += f"Model {model} has an unknown provider: " + av_models_list[model]["meta"]["provider"] + ", discarding it. "
-                    else:
-                        warning += f"Model {model} is missing provider information, discarding it. "
+                    err = self.check_apikeys(av_models_list[model]["meta"])
+                    if cf.isNotBlank(err):
+                        warning += f"Discarding Model {model}: {err}. "
+                    s_models_list.append(model)
                 else:
-                    warning += f"Model {model} is missing the meta information, discarding it. "
+                    warning += f"Discarding Model {model}: Missing the meta information. "
 
         known_models = list(av_models_list.keys())
         for t_model in s_models_list:
@@ -340,13 +333,9 @@ class OAI_GPT:
         if cf.isNotBlank(err):
             return f"While checking {dest_dir}: {err}", ""
 
-        apikey = self.apikey
+        apikey = self.apikeys[self.per_model_provider[model_engine]]
         provider = '' if model_engine not in self.per_model_provider else self.per_model_provider[model_engine]
         base_url = '' if model_engine not in self.per_model_url else self.per_model_url[model_engine]
-        if 'Perplexity' in provider:
-            apikey = self.perplexity_apikey
-        if 'Google' in provider:
-            apikey = self.gemini_apikey
 
         messages = []
         if msg_extra is not None:

@@ -44,12 +44,12 @@ def dalle_call(apikey, model, prompt, img_size, img_count, **kwargs):
 
 ##########
 class OAI_DallE:
-    def __init__(self, apikey, base_save_location, username):
+    def __init__(self, base_save_location, username):
         print("---------- [INFO] In OAI_DallE __init__ ----------")
 
         self.last_dalle_query = 'last_dalle_query'
 
-        self.apikey = apikey
+        self.apikeys = {}
         self.save_location = os.path.join(base_save_location, username)
         err = cf.make_wdir_recursive(self.save_location)
         if cf.isNotBlank(err):
@@ -67,6 +67,26 @@ class OAI_DallE:
             self.dalle_help += key + ":\n"
             self.dalle_help += self.dalle_modes[key] + "\n"
 
+        self.per_model_provider = {}
+
+
+#####
+    def check_apikeys(self, model, meta):
+        if 'provider' in meta:
+            provider = meta["provider"]
+        else:
+            return "Missing provider"
+
+        if provider in self.apikeys:
+            return "" # no need to continue, we have it
+
+        warn, apikey = cf.check_apikeys(provider, meta)
+        if cf.isNotBlank(warn):
+            return warn
+
+        self.apikeys[provider] = apikey
+        self.per_model_provider[model] = provider
+        return ""
 
 #####
     def set_parameters(self, models_list, av_models_list):
@@ -76,11 +96,20 @@ class OAI_DallE:
 
         warning = ""
 
-        s_models_list = models_list.replace(",", " ").split()
+        t_models_list = models_list.replace(",", " ").split()
         known_models = list(av_models_list.keys())
-        for t_model in s_models_list:
+        for t_model in t_models_list:
             model = t_model.strip()
             if model in av_models_list:
+                if "meta" in av_models_list[model]:
+                    err = self.check_apikeys(model, av_models_list[model]["meta"])
+                    if cf.isNotBlank(err):
+                        warning += f"Discarding Model {model}: {err}. "
+                        continue
+                else:
+                    warning += f"Discarding Model {model}: Missing the meta information. "
+                    continue
+
                 if av_models_list[model]["status"] == "deprecated":
                     warning += f"Model [{model}] is deprecated (" + av_models_list[model]['status_details'] + "), discarding it"
                 else:
@@ -144,7 +173,7 @@ class OAI_DallE:
         if cf.isNotBlank(err):
             return f"While checking {dest_dir}: {err}", ""
 
-        err, response = dalle_call(self.apikey, model, prompt, img_size, img_count, **kwargs)
+        err, response = dalle_call(self.apikeys[self.per_model_provider[model]], model, prompt, img_size, img_count, **kwargs)
         if cf.isNotBlank(err):
             return err, ""
 
