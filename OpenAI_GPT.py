@@ -24,9 +24,6 @@ def simpler_gpt_call(apikey, messages, model_engine, base_url:str='', model_prov
     # beta models limitation: https://platform.openai.com/docs/guides/reasoning
     # o1 will may not provide an answer if the max_completion_tokens is lower than 2000
 
-#    with open("msg.json", 'w') as f:
-#        json.dump(messages, f, indent=4)
-
     # Generate a response (20231108: Fixed for new API version)
     try:
         response = client.chat.completions.create(
@@ -57,7 +54,8 @@ def simpler_gpt_call(apikey, messages, model_engine, base_url:str='', model_prov
             json.dump(response_dict, f, indent=4)
 
     response_text = response.choices[0].message.content
-    if "Perplexity" in model_provider:
+    # Add citations if the key is present in the response, irrelevant of the model provider
+    if "citations" in response:
         response_text += "\n\nCitations:\n"
         for i in range(len(response.citations)):
             response_text += f"\n[{i+1}] {response.citations[i]}\n"
