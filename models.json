@@ -1,12 +1,27 @@
 {
     "GPT": 
     {
-        "gemini-2.0-flash-exp":
+        "gemini-2.0-flash-001":
         {
             "label": "Next generation features, speed, and multimodal generation for a diverse variety of tasks",
             "max_token": 32000,
             "context_token": 1000000,
-            "data": "Latest update: Dec 2024, Knowledge cutoff: Aug 2024",
+            "data": "Latest update: Feb 2025, Knowledge cutoff: Aug 2024",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision",
+            "meta": {
+                "provider": "GoogleAI",
+                "apikey-env": "GEMINI_API_KEY",
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/"
+            }
+        },
+        "gemini-2.0-flash-lite-preview-02-05":
+        {
+            "label": "Reason over the most complex problems, Show the thinking process of the model, Tackle difficult code and math problems",
+            "max_token": 32000,
+            "context_token": 1000000,
+            "data": "Latest update: Feb 2025, Knowledge cutoff: Aug 2024",
             "status": "active",
             "status_details": "",
             "capability": "vision",
@@ -22,6 +37,21 @@
             "max_token": 32000,
             "context_token": 1000000,
             "data": "Latest update: Sep 2024",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision",
+            "meta": {
+                "provider": "GoogleAI",
+                "apikey-env": "GEMINI_API_KEY",
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/"
+            }
+        },
+        "gemini-1.5-flash-8b":
+        {
+            "label": "Fast and versatile performance across a diverse variety of tasks",
+            "max_token": 32000,
+            "context_token": 1000000,
+            "data": "Latest update: Oct 2024",
             "status": "active",
             "status_details": "",
             "capability": "vision",
