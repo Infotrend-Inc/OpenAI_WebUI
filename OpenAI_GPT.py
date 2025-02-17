@@ -95,6 +95,8 @@ class OAI_GPT:
         self.per_model_url = {}
         self.per_model_meta = {}
 
+        self.last_dest_dir = None
+
 #####
     def get_models(self):
         return self.models
@@ -326,7 +328,12 @@ class OAI_GPT:
 
 #####
     def chatgpt_it(self, model_engine, prompt, max_tokens, temperature, clear_chat, role, msg_extra=None, **kwargs):
-        dest_dir = self.get_dest_dir()
+        # Unless we clear_chat, check for the last_dest_dir
+        dest_dir = self.last_dest_dir
+        if clear_chat is True or dest_dir is None:
+            dest_dir = self.get_dest_dir()
+            self.last_dest_dir = dest_dir
+
         err = cf.make_wdir_recursive(dest_dir)
         if cf.isNotBlank(err):
             return f"While checking {dest_dir}: {err}", ""
@@ -418,7 +425,10 @@ class OAI_GPT:
             return err, ""
 
         # Add the response to the messages
-        stored_messages.append({ 'role': 'assistant', 'content': [ {'type': 'text', 'text': response} ] })
+        if 'msg_format' in self.per_model_meta[model_engine] and self.per_model_meta[model_engine]['msg_format'] == 'role_content':
+            stored_messages.append({ 'role': 'assistant', 'content': response})
+        else:
+            stored_messages.append({ 'role': 'assistant', 'content': [ {'type': 'text', 'text': response} ] })
 
         run_file = f"{dest_dir}/run.json"
         run_json = {

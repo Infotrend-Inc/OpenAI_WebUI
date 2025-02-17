@@ -90,7 +90,7 @@
                 "apikey-env": "PERPLEXITY_API_KEY",
                 "apiurl": "https://api.perplexity.ai",
                 "msg_format": "role_content",
-                "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user." },
+                "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user.", "oaiwui_skip": "" },
                 "disabled_features": ["role", "prompt_preset", "preset"]
             }
         },
