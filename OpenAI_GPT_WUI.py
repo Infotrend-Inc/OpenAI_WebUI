@@ -208,20 +208,19 @@ class OAI_GPT_WUI:
 
         model_list = list(self.models.keys())
 
-        if 'gpt_last_prompt' in st.session_state:
-            if st.session_state['gpt_last_prompt'] != "":
-                disable_preset_prompts = True
+        if 'gpt_messages' not in st.session_state:
+            st.session_state.gpt_messages = []
+        else:
+            disable_preset_prompts = False
 
         with st.sidebar:
             st.text("Check the various ? for help", help=f"[Run Details]\n\nRunID: {cfw.get_runid()}\n\nSave location: {self.save_location}\n\nUTC time: {cf.get_timeUTC()}\n")
 
             if st.button("Clear Chat"):
-                clear_chat = True
-                st.session_state['gpt_last_prompt'] = ''
+                st.session_state.gpt_messages = []
+                disable_preset_prompts = False
                 if self.last_gpt_query in st.session_state:
                     del st.session_state[self.last_gpt_query]
-                disable_preset_prompts = False
-                st.session_state['gpt_clear_chat'] = True
                 if 'gpt_msg_extra' in st.session_state:
                     del st.session_state['gpt_msg_extra'] # only a clear will allow us to set msg_extra again
 
@@ -245,7 +244,7 @@ class OAI_GPT_WUI:
                     if "prompt_preset" in disabled_features:
                         prompt_preset_selector = False
                     if "preset" in disabled_features:
-                        preset_prompts = False
+                        preset_selector = False
                     if "role" in disabled_features:
                         role_selector = False
                     if "temperature" in disabled_features:
@@ -364,10 +363,7 @@ class OAI_GPT_WUI:
         if 'gpt_clear_chat' in st.session_state or clear_chat is True:
             prompt_value += " | Clear Chat"
         prompt_value += f" ]"
-
-        help_text = self.per_model_help[model_name] if model_name in self.per_model_help else "No help available for this model"
-        prompt = st.empty().text_area(prompt_value, st.session_state['gpt_last_prompt'], placeholder="Enter your prompt", key="input", help=help_text)
-        st.session_state['gpt_last_prompt'] = prompt
+        st.write(prompt_value)
 
         img_file = None
         if vision_mode:
@@ -399,12 +395,21 @@ class OAI_GPT_WUI:
                 if os.path.exists(img_file):
                     os.remove(img_file)
 
-        if st.button("Request Answer", key="request_answer"):
+        for message in st.session_state.gpt_messages:
+            with st.chat_message(message['role']):
+                st.markdown(message["content"])
+
+        if prompt := st.chat_input("Enter your prompt"):
+            # Display user message in chat message container
+            with st.chat_message(role):
+                st.markdown(prompt)
+
             if cf.isBlank(prompt) or len(prompt) < 10:
                 st.error("Please provide a prompt of at least 10 characters before requesting an answer", icon="✋")
                 return ()
 
             prompt = self.gpt_presets[presets]["pre"] + prompt + self.gpt_presets[presets]["post"]
+
             prompt_token_count = self.oai_gpt.estimate_tokens(prompt)
             requested_token_count = prompt_token_count + max_tokens
             if requested_token_count > self.models[model_name]["context_token"]:
@@ -415,9 +420,6 @@ class OAI_GPT_WUI:
                 tmp_txt2 = "" if temperature_selector is False else f" (temperature: {temperature})"
                 st.toast(f"Requesting {model_provider} with model: {model_name}{tmp_txt1}{tmp_txt2}")
                 with st.spinner(f"Asking {model_provider} with model: {model_name} {tmp_txt1}{tmp_txt2}. Prompt est. tokens : {prompt_token_count}"):
-                    if 'gpt_clear_chat' in st.session_state:
-                        clear_chat = True
-                        del st.session_state['gpt_clear_chat']
                     if msg_extra is None:
                         if 'gpt_msg_extra' in st.session_state:
                             msg_extra = st.session_state['gpt_msg_extra']
@@ -426,7 +428,10 @@ class OAI_GPT_WUI:
                             tmp = msg_extra
                             msg_extra = copy.deepcopy(st.session_state['gpt_msg_extra'])
                             msg_extra.append(tmp[0])
-                    err, run_file = self.oai_gpt.chatgpt_it(model_name, prompt, max_tokens, temperature, clear_chat, role, msg_extra, **self.gpt_presets[presets]["kwargs"])
+
+                    st.session_state.gpt_messages.append({"role": role, "content": prompt})
+
+                    err, run_file = self.oai_gpt.chatgpt_it(model_name, st.session_state.gpt_messages, max_tokens, temperature, role, msg_extra, **self.gpt_presets[presets]["kwargs"])
                     if cf.isNotBlank(err):
                         st.error(err)
                     if cf.isNotBlank(run_file):
@@ -437,30 +442,33 @@ class OAI_GPT_WUI:
             run_file = st.session_state[self.last_gpt_query]
             run_json = cf.get_run_file(run_file)
 
-            prompt = run_json["prompt"]
-            response = run_json["response"]
+#            prompt = run_json["prompt"]
+            response = run_json[-1]["content"]
+            st.chat_message("assistant").write(response)
+            st.session_state.gpt_messages.append({"role": "assistant", "content": response})
+            del st.session_state[self.last_gpt_query]
 
-            chat_history = self.oai_gpt.get_chat_history(run_file)
-            if vision_mode is False:
-                stoggle('Original Prompt', prompt)
-                stoggle('Chat History', chat_history)
-
-            option_list = ('Text (wordwrap, may cause some visual inconsistencies)',
-                        'Text (no wordwrap)',
-                        'Code (automatic highlighting for supported languages)')
-            option = st.selectbox('Display mode:', option_list, index=0)
-
-            if option == option_list[1]:
-                st.text(response)
-            elif option == option_list[0]:
-                st.markdown(response)
-            elif option == option_list[2]:
-                st.code(response)
-            else:
-                st.error("Unknown display mode")
-
-            query_output = prompt + "\n\n--------------------------\n\n" + response
-            col1, col2, col3 = st.columns(3)
-            col1.download_button(label="Download Latest Result", data=response)
-            col2.download_button(label="Download Latest Query+Result", data=query_output)
-            col3.download_button(label="Download Chat Query+Result", data=chat_history)
+#            chat_history = self.oai_gpt.get_chat_history(run_file)
+#            if vision_mode is False:
+#                stoggle('Original Prompt', prompt)
+#                stoggle('Chat History', chat_history)
+#
+#            option_list = ('Text (wordwrap, may cause some visual inconsistencies)',
+#                        'Text (no wordwrap)',
+#                        'Code (automatic highlighting for supported languages)')
+#            option = st.selectbox('Display mode:', option_list, index=0)
+#
+#            if option == option_list[1]:
+#                st.text(response)
+#            elif option == option_list[0]:
+#                st.markdown(response)
+#            elif option == option_list[2]:
+#                st.code(response)
+#            else:
+#                st.error("Unknown display mode")
+#
+#            query_output = prompt + "\n\n--------------------------\n\n" + response
+#            col1, col2, col3 = st.columns(3)
+#            col1.download_button(label="Download Latest Result", data=response)
+#            col2.download_button(label="Download Latest Query+Result", data=query_output)
+#            col3.download_button(label="Download Chat Query+Result", data=chat_history)

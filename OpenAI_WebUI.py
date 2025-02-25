@@ -289,8 +289,8 @@ def set_ui(oai_gpt, oai_gpt_st, oai_dalle, oai_dalle_st):
         oai_gpt_st.set_ui()
     else:
         chosen_id = stx.tab_bar(data=[
-            stx.TabBarItemData(id="gpt_tab", title="GPT", description="Text generation using OpenAI's GPT"),
-            stx.TabBarItemData(id="dalle_tab", title="Dall-E", description="Image generation using OpenAI's Dall-E")
+            stx.TabBarItemData(id="gpt_tab", title="GPT", description="OpenAI API Compatible GPTs"),
+            stx.TabBarItemData(id="dalle_tab", title="Dall-E", description="OpenAI Dall-E")
             ])
         if chosen_id == "dalle_tab":
             oai_dalle_st.set_ui()

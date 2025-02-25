@@ -327,10 +327,25 @@ class OAI_GPT:
 
 
 #####
-    def chatgpt_it(self, model_engine, prompt, max_tokens, temperature, clear_chat, role, msg_extra=None, **kwargs):
-        # Unless we clear_chat, check for the last_dest_dir
+    def check_msg_content(self, msg):
+        if 'role' not in msg:
+            return "role not found in message"
+        if 'content' not in msg:
+            return "content not found in message"
+
+        return ""
+
+    def chatgpt_it(self, model_engine, chat_messages, max_tokens, temperature, role, msg_extra=None, **kwargs):
+        last_runfile = self.last_runfile
+        if cf.isNotBlank(last_runfile):
+            err = cf.check_file_r(last_runfile)
+            if cf.isBlank(err):
+                last_run_json = cf.get_run_file(last_runfile)
+                if 'last_destdir' in last_run_json:
+                    self.last_dest_dir = last_run_json['last_destdir']
+
         dest_dir = self.last_dest_dir
-        if clear_chat is True or dest_dir is None:
+        if len(chat_messages) < 2 or cf.isBlank(dest_dir):
             dest_dir = self.get_dest_dir()
             self.last_dest_dir = dest_dir
 
@@ -347,66 +362,46 @@ class OAI_GPT:
         provider = '' if model_engine not in self.per_model_provider else self.per_model_provider[model_engine]
         base_url = '' if model_engine not in self.per_model_url else self.per_model_url[model_engine]
 
-        messages = []
+        unformatted_messages = []
+
+        # load any oaiwui_skip messages from previous chat on disk
+        if cf.isNotBlank(self.last_runfile):
+            run_file = ""
+            if cf.check_file_r(self.last_runfile) == "":
+                tmp = cf.read_json(self.last_runfile)
+                if 'last_runfile' in tmp:
+                    run_file = tmp['last_runfile']
+            if cf.isNotBlank(run_file): # We can only load previous messages if the file exists
+                if cf.check_file_r(run_file) == "":
+                    old_run_json = cf.get_run_file(run_file)
+                    if 'messages' in old_run_json:
+                        for msg in old_run_json['messages']:
+                            if 'oaiwui_skip' in msg:
+                                unformatted_messages.append(copy.deepcopy(msg))
+
         if msg_extra is not None:
             for msg in msg_extra:
-                msg_copy = copy.deepcopy(msg)
-                if 'oaiwui_skip' in msg_copy:
-                    msg_copy['oaiwui_skip'] = slug
-                messages.append(msg_copy)
-#                print(msg_copy['content'][0]['type'])
+                unformatted_messages.append(copy.deepcopy(msg))
         
-        if clear_chat is False:
-            # Obtain previous messages
-            if cf.isNotBlank(self.last_runfile):
-                run_file = ""
-                if cf.check_file_r(self.last_runfile) == "":
-                    tmp = cf.read_json(self.last_runfile)
-                    if 'last_runfile' in tmp:
-                        run_file = tmp['last_runfile']
-                if cf.isNotBlank(run_file): # We can only load previous messages if the file exists
-                    if cf.check_file_r(run_file) == "":
-                        old_run_json = cf.get_run_file(run_file)
-                        if 'messages' in old_run_json:
-                            for msg in old_run_json['messages']:
-                                messages.append(msg)
-
-        if len(messages) == 0:
+        if len(unformatted_messages) == 0:
             if 'init_msg' in self.per_model_meta[model_engine]:
                 init_msg = self.per_model_meta[model_engine]['init_msg']
                 init_msg['oaiwui_skip'] = slug
-                messages.append(init_msg)
+                unformatted_messages.append(init_msg)
 
-        if 'msg_format' in self.per_model_meta[model_engine] and self.per_model_meta[model_engine]['msg_format'] == 'role_content':
-            to_add = { 'role': 'user', 'content': prompt }
-        else:
-            to_add = { 'role': role, 'content': [ {'type': 'text', 'text': prompt} ] }
-        messages.append(to_add)
+        for msg in chat_messages:
+            unformatted_messages.append(copy.deepcopy(msg))
 
         clean_messages = []
-        stored_messages = []
-        msg_count = 0
-        for msg in messages:
-            if 'oaiwui_skip' in msg:
-                if msg['oaiwui_skip'] == slug:
-                    # keep a copy of the original message
-                    stored_messages.append(copy.deepcopy(msg))
-                    # delete the 'oaiwui_skip' to pass to the API
-                    del msg['oaiwui_skip']
-                    clean_messages.append(msg)
-                else:
-                    # remove the message
-                    continue
-            else:
-                # keep the message
-                stored_messages.append(msg)
-                clean_messages.append(msg)
+        for msg in unformatted_messages:
+            err = self.check_msg_content(msg)
+            if cf.isNotBlank(err):
+                return err, ""
+            to_add = { 'role': role, 'content': [ {'type': 'text', 'text': msg['content']} ] }
+            if 'msg_format' in self.per_model_meta[model_engine] and self.per_model_meta[model_engine]['msg_format'] == 'role_content':
+                to_add = { 'role': msg['role'], 'content': msg['content'] }
+            clean_messages.append(to_add)
 
-            msg_count += 1
-#        print(f"##### clean messages: {clean_messages}")
-#        print(f"##### clear_chat: {clear_chat} msg_count: {msg_count}")
-
-        # Call the GPT API
         msg_file = f"{dest_dir}/msg.json"
         with open(msg_file, 'w') as f:
             json.dump(clean_messages, f, indent=4)
@@ -424,23 +419,13 @@ class OAI_GPT:
         if cf.isNotBlank(err):
             return err, ""
 
-        # Add the response to the messages
-        if 'msg_format' in self.per_model_meta[model_engine] and self.per_model_meta[model_engine]['msg_format'] == 'role_content':
-            stored_messages.append({ 'role': 'assistant', 'content': response})
-        else:
-            stored_messages.append({ 'role': 'assistant', 'content': [ {'type': 'text', 'text': response} ] })
+        unformatted_messages.append({ 'role': 'assistant', 'content': response})
 
         run_file = f"{dest_dir}/run.json"
-        run_json = {
-            "role": role,
-            "prompt": prompt,
-            "response": response,
-            'messages': stored_messages,
-        }
         with open(run_file, 'w') as f:
-            json.dump(run_json, f, indent=4)
+            json.dump(unformatted_messages, f, indent=4)
         with open(self.last_runfile, 'w') as f:
-            json.dump({'last_runfile': run_file}, f, indent=4)
+            json.dump({'last_destdir': dest_dir, 'last_runfile': run_file}, f, indent=4)
 
         return "", run_file
 
