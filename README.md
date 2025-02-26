@@ -119,6 +119,9 @@ The following table shows the [models](https://platform.openai.com/docs/models/)
 | GPT | [sonar-pro](https://docs.perplexity.ai/guides/model-cards) | PerplexityAI | active | WebSearch | | 0.9.11 |
 | GPT | [sonar-reasoning](https://docs.perplexity.ai/guides/model-cards) | PerplexityAI | active | WebSearch | | 0.9.11 |
 | GPT | [sonar-reasoning-pro](https://docs.perplexity.ai/guides/model-cards) | PerplexityAI | active | WebSearch | | 0.9.11 |
+| GPT | [sonar-deep-research](https://docs.perplexity.ai/guides/model-cards) | PerplexityAI | active | WebSearch | | 0.9.11 |
+| GPT | [r1-1776](https://docs.perplexity.ai/guides/model-cards) | PerplexityAI | active | | | 0.9.11 |
+
 
 `beta` models provide limited control over features or capabilities. Those currently also do not support `system` role: if using `prompt presets` those might not work.
 
@@ -253,10 +256,10 @@ Do not distribute that file.
    $ code .env
    ```
 
-1. Edit the code if desired, and when you are ready to test, start the WebUI.
+1. Edit the code if desired, and when you are ready to test, start the WebUI (remove `--server.headless=true` to automatically open a browser window)
 
     ```bash
-    $ poetry run streamlit run ./OpenAI_WebUI.py --server.port=8501 --server.address=127.0.0.1 --logger.level=debug
+    $ poetry run streamlit run ./OpenAI_WebUI.py --server.port=8501 --server.address=127.0.0.1 --logger.level=debug --server.headless=true
     ```
 
 1. You can now open your browser to http://127.0.0.1:8501 to test the WebUI.
