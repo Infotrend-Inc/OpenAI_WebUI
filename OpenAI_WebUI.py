@@ -87,12 +87,6 @@ def get_ui_params(runid):
 
     warnings = [ ]
 
-    err = cf.check_file_r(".streamlit/secrets.toml", "Secrets file")
-    if cf.isBlank(err):
-        if not check_password():
-            st.error("Required password incorrect, can not continue")
-            st.stop()
-
     err = cf.check_file_r(".env", "Environment file")
     if cf.isBlank(err):
         load_dotenv()
@@ -248,6 +242,12 @@ def set_ui_core(long_save_location, username, gpt_models, av_gpt_models, gpt_vis
 #####
 def main():
     print("---------- [INFO] Main __main__ ----------")
+
+    err = cf.check_file_r(".streamlit/secrets.toml", "Secrets file")
+    if cf.isBlank(err):
+        if not check_password():
+            st.error("Required password incorrect, can not continue")
+            st.stop()
 
     if 'webui_runid' not in st.session_state:
         st.session_state['webui_runid'] = datetime.now().strftime("%Y%m%d-%H%M%S")
