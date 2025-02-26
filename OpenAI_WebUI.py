@@ -21,6 +21,7 @@ import ollama_helper as oll
 
 from dotenv import load_dotenv
 from datetime import datetime
+import time
 
 import hmac
 
@@ -84,6 +85,8 @@ def get_ui_params(runid):
     # Load all supported models (need the status field to decide or prompt if we can use that model or not)
     av_gpt_models, av_dalle_models = load_models()    
 
+    warnings = [ ]
+
     err = cf.check_file_r(".streamlit/secrets.toml", "Secrets file")
     if cf.isBlank(err):
         if not check_password():
@@ -132,24 +135,27 @@ def get_ui_params(runid):
     dalle_models = ""
     if 'OAIWUI_DALLE_MODELS' in os.environ:
         dalle_models = os.environ.get('OAIWUI_DALLE_MODELS')
+        if cf.isBlank(dalle_models):
+            st.error(f"OAIWUI_DALLE_MODELS environment variable is empty")
+            cf.error_exit("OAIWUI_DALLE_MODELS environment variable is empty")
     else:
-        st.error(f"Could not find the OAIWUI_DALLE_MODELS environment variable")
-        cf.error_exit("Could not find the OAIWUI_DALLE_MODELS environment variable")
-    if cf.isBlank(dalle_models):
-        st.error(f"OAIWUI_DALLE_MODELS environment variable is empty")
-        cf.error_exit("OAIWUI_DALLE_MODELS environment variable is empty")
+        warnings.append(f"Disabling DallE -- Could not find the OAIWUI_DALLE_MODELS environment variable")
+        os.environ['OAIWUI_GPT_ONLY'] = "True"
 
     if 'OLLAMA_HOME' in os.environ:
         ollama_home = os.environ.get('OLLAMA_HOME')
         err, ollama_models = oll.get_all_ollama_models_and_infos(ollama_home)
         if cf.isNotBlank(err):
-            st.error(f"While testing OLLAMA_HOME {ollama_home}: {err}")
-            cf.error_exit(f"{err}")
-        for oll_model in ollama_models:
-            # We are going to extend the GPT models with the Ollama models
-            err, modeljson = oll.ollama_to_modelsjson(ollama_home, oll_model, ollama_models[oll_model])
-            av_gpt_models[oll_model] = modeljson
-            gpt_models += f" {oll_model}"
+            warnings.append(f"Disabling OLLAMA -- While testing OLLAMA_HOME {ollama_home}: {err}")
+        else:
+            for oll_model in ollama_models:
+                # We are going to extend the GPT models with the Ollama models
+                err, modeljson = oll.ollama_to_modelsjson(ollama_home, oll_model, ollama_models[oll_model])
+                if cf.isNotBlank(err):
+                    warnings.append(f"Disalbing OLLAMA model -- while obtaining OLLAMA model {oll_model} details: {err}")
+                    continue
+                av_gpt_models[oll_model] = modeljson
+                gpt_models += f" {oll_model}"
 
     # variable to not fail on empy values, and just ignore those type of errors
     ignore_empty = False
@@ -161,7 +167,7 @@ def get_ui_params(runid):
         username = os.environ.get('OAIWUI_USERNAME')
         if cf.isBlank(username):
             if not ignore_empty:
-                st.warning(f"OAIWUI_USERNAME provided but empty, will ask for username")
+                warnings.append(f"OAIWUI_USERNAME provided but empty, will ask for username")
         else:
             st.session_state['username'] = username
 
@@ -170,12 +176,12 @@ def get_ui_params(runid):
         tmp = os.environ.get('OAIWUI_PROMPT_PRESETS_DIR')
         if cf.isBlank(tmp):
             if not ignore_empty:
-                st.warning(f"OAIWUI_PROMPT_PRESETS_DIR provided but empty, will not use prompt presets")
+                warnings.append(f"OAIWUI_PROMPT_PRESETS_DIR provided but empty, will not use prompt presets")
 
         else:
             err = cf.check_dir(tmp, "OAIWUI_PROMPT_PRESETS_DIR directory")
             if cf.isNotBlank(err):
-                st.warning(f"While checking OAIWUI_PROMPT_PRESETS_DIR: {err}")
+                warnings.append(f"While checking OAIWUI_PROMPT_PRESETS_DIR: {err}")
             else:
                 has_json = False
                 for file in os.listdir(tmp):
@@ -183,7 +189,7 @@ def get_ui_params(runid):
                         has_json = True
                         break
                 if not has_json:
-                    st.warning(f"OAIWUI_PROMPT_PRESETS_DIR provided but appears to not contain prompts, will not use prompt presets")
+                    warnings.append(f"OAIWUI_PROMPT_PRESETS_DIR provided but appears to not contain prompts, will not use prompt presets")
                 else: # all the conditions are met
                     prompt_presets_dir = tmp
 
@@ -192,15 +198,15 @@ def get_ui_params(runid):
         tmp = os.environ.get('OAIWUI_PROMPT_PRESETS_ONLY')
         if cf.isBlank(tmp):
             if not ignore_empty:
-                st.warning(f"OAIWUI_PROMPT_PRESETS_ONLY provided but empty, will not use prompt presets")
+                warnings.append(f"OAIWUI_PROMPT_PRESETS_ONLY provided but empty, will not use prompt presets")
 
         else:
             err = cf.check_file_r(tmp)
             if cf.isNotBlank(err):
-                st.warning(f"While checking OAIWUI_PROMPT_PRESETS_ONLY: {err}")
+                warnings.append(f"While checking OAIWUI_PROMPT_PRESETS_ONLY: {err}")
             else:
                 if prompt_presets_dir is None:
-                    st.warning(f"OAIWUI_PROMPT_PRESETS_ONLY provided but no OAIWUI_PROMPT_PRESETS_DIR, will not use prompt presets")
+                    warnings.append(f"OAIWUI_PROMPT_PRESETS_ONLY provided but no OAIWUI_PROMPT_PRESETS_DIR, will not use prompt presets")
                 else: # all the conditions are met
                     prompt_presets_file = tmp
 
@@ -209,7 +215,8 @@ def get_ui_params(runid):
         st.session_state.visibility = "visible"
         st.session_state.disabled = False
 
-    return save_location, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir, prompt_presets_file
+
+    return warnings, save_location, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir, prompt_presets_file
 
 
 #####
@@ -245,7 +252,19 @@ def main():
     if 'webui_runid' not in st.session_state:
         st.session_state['webui_runid'] = datetime.now().strftime("%Y%m%d-%H%M%S")
 
-    save_location, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir, prompt_presets_file = get_ui_params(st.session_state['webui_runid'])
+    warnings, save_location, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir, prompt_presets_file = get_ui_params(st.session_state['webui_runid'])
+
+    if len(warnings) > 0:
+        if 'warning_shown' not in st.session_state:
+            phl = []
+            for w in warnings:
+                ph = st.empty()
+                ph.warning(w)
+                phl.append(ph)
+            st.session_state['warning_shown'] = True
+            time.sleep(7)
+            for ph in phl:
+                ph.empty()
 
     st.empty()
 
