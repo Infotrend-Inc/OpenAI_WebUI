@@ -272,6 +272,37 @@ class OAI_GPT_WUI:
                     role_selector = False
                     preset_selector = False
 
+                img_file = None
+                if vision_mode:
+                    img_file = self.file_uploader(vision_details)
+                    img_type = "png" # convert everything to PNG for processing
+                    if img_file is not None:
+                        img_b64 = None
+                        img_bytes = io.BytesIO()
+                        with Image.open(img_file) as image:
+                            image.save(img_bytes, format=img_type)
+                            img_b64 = base64.b64encode(img_bytes.getvalue()).decode('utf-8')
+                        if img_b64 is not None:
+                            img_str = f"data:image/{img_type};base64,{img_b64}"
+                            msg_extra = [ 
+                                { 
+                                    "role": "user", 
+                                    "content": [
+                                        {
+                                            "type": "image_url",
+                                            "image_url": {
+                                                "url": img_str,
+                                                "details": vision_details
+                                            }
+                                        }
+                                    ],
+                                    "oaiwui_skip": True,
+                                    "oaiwui_vision": True
+                                }
+                            ]
+                        if os.path.exists(img_file):
+                            os.remove(img_file)
+
                 role = list(self.gpt_roles.keys())[0]
                 if role_selector is True:
                     tmp_roles = self.gpt_roles.copy()
@@ -317,22 +348,36 @@ class OAI_GPT_WUI:
                                 if 'gpt_msg_extra' not in st.session_state:
                                     msg_extra = self.prompt_presets[prompt_preset]["messages"]
                                     st.session_state['gpt_msg_extra'] = msg_extra
-                                    # msg_extra is also set for vision mode but this check is only needed if not in vision mode to avoid passing the msg_extra each time
-                                    st.session_state['gpt_clear_chat'] = True
                                     # clear the chat history in the GPT call as well
                     else:
                         if 'gpt_msg_extra' in st.session_state:
                             del st.session_state['gpt_msg_extra']
 
-            gpt_show_tooltip = st.toggle(label="Show Tips", value=False, help="Show some tips on how to use the tool", key="gpt_show_tooltip")
-            gpt_show_history = st.toggle(label='Show Prompt History', value=False, help="Show a list of prompts that you have used in the past (most recent first). Loading a selected prompt does not load the parameters used for the generation.", key="gpt_show_history")
+            # Temporarily removig the history toggle
+            gpt_show_history = False
+#            gpt_show_history = st.toggle(label='Show Prompt History', value=False, help="Show a list of prompts that you have used in the past (most recent first). Loading a selected prompt does not load the parameters used for the generation.", key="gpt_show_history")
             if gpt_show_history:
                 gpt_allow_history_deletion = st.toggle('Allow Prompt History Deletion', value=False, help="This will allow you to delete a prompt from the history. This will delete the prompt and all its associated files. This cannot be undone.", key="gpt_allow_history_deletion")
 
+            download_placeholder = st.empty()
+
+            prompt_value=f"Model: {model_name} ({model_provider}) "
+            prompt_value += f"[role: {role} "
+            if tokens_selector is True:
+                prompt_value += f"| max_tokens: {max_tokens} "
+            if temperature_selector is True:
+                prompt_value += f"| temperature: {temperature}"
+            if vision_mode:
+                prompt_value += f" | vision details: {vision_details}"
+            if preset_selector is True:
+                prompt_value += f" | preset: {presets}"
+            if prompt_preset_selector is True:
+                if prompt_preset is not None:
+                    prompt_value += f" | prompt preset: {prompt_preset}"
+            prompt_value += f" ]"
+            st.text(prompt_value, help=f'GPT provides a simple but powerful interface to any models. You input some text as a prompt, and the model will generate a text completion that attempts to match whatever context or pattern you gave it:\n\n - The tool works on text to: answer questions, provide definitions, translate, summarize, and analyze sentiments.\n\n- Keep your prompts clear and specific. The tool works best when it has a clear understanding of what you\'re asking it, so try to avoid vague or open-ended prompts.\n\n- Use complete sentences and provide context or background information as needed.\n\n- Some presets are available in the sidebar, check their details for more information.\n\nA few example prompts (to use with "None" preset):\n\n- Create a list of 8 questions for a data science interview\n\n- Generate an outline for a blog post on MFT\n\n- Translate "bonjour comment allez vous" in 1. English 2. German 3. Japanese\n\n- write python code to display with an image selector from a local directory using OpenCV\n\n- Write a creative ad and find a name  for a container to run machine learning and computer vision algorithms by providing access to many common ML frameworks\n\n- some models support "Chat" conversations. If you see the "Clear Chat" button, this will be one such model. They also support different max tokens, so adapt accordingly. The "Clear Chat" is here to allow you to start a new "Chat". Chat models can be given writing styles using the "system" "role"\n\nMore examples and hints can be found at https://platform.openai.com/examples')
 
         # Main window
-        if gpt_show_tooltip:
-            stoggle('Tips', 'GPT provides a simple but powerful interface to any models. You input some text as a prompt, and the model will generate a text completion that attempts to match whatever context or pattern you gave it:<br>- The tool works on text to: answer questions, provide definitions, translate, summarize, and analyze sentiments.<br>- Keep your prompts clear and specific. The tool works best when it has a clear understanding of what you\'re asking it, so try to avoid vague or open-ended prompts.<br>- Use complete sentences and provide context or background information as needed.<br>- Some presets are available in the sidebar, check their details for more information.<br>A few example prompts (to use with "None" preset):<br>- Create a list of 8 questions for a data science interview<br>- Generate an outline for a blog post on MFT<br>- Translate "bonjour comment allez vous" in 1. English 2. German 3. Japanese<br>- write python code to display with an image selector from a local directory using OpenCV<br>- Write a creative ad and find a name  for a container to run machine learning and computer vision algorithms by providing access to many common ML frameworks<br>- some models support "Chat" conversations. If you see the "Clear Chat" button, this will be one such model. They also support different max tokens, so adapt accordingly. The "Clear Chat" is here to allow you to start a new "Chat". Chat models can be given writing styles using the "system" "role"<br>More examples and hints can be found at https://platform.openai.com/examples')
 
         if gpt_show_history:
             err, hist = self.oai_gpt.get_history()
@@ -346,54 +391,6 @@ class OAI_GPT_WUI:
 
         if 'gpt_last_prompt' not in st.session_state:
             st.session_state['gpt_last_prompt'] = ''
-
-        prompt_value=f"Model: {model_name} ({model_provider}) "
-        prompt_value += f"[role: {role} "
-        if tokens_selector is True:
-            prompt_value += f"max_tokens: {max_tokens} "
-        if temperature_selector is True:
-            prompt_value += f"| temperature: {temperature}"
-        if vision_mode:
-            prompt_value += f" | vision details: {vision_details}"
-        if preset_selector is True:
-            prompt_value += f" | preset: {presets}"
-        if prompt_preset_selector is True:
-            if prompt_preset is not None:
-                prompt_value += f" | prompt preset: {prompt_preset}"
-        if 'gpt_clear_chat' in st.session_state or clear_chat is True:
-            prompt_value += " | Clear Chat"
-        prompt_value += f" ]"
-        st.write(prompt_value)
-
-        img_file = None
-        if vision_mode:
-            img_file = self.file_uploader(vision_details)
-            img_type = "png" # convert everything to PNG for processing
-            if img_file is not None:
-                img_b64 = None
-                img_bytes = io.BytesIO()
-                with Image.open(img_file) as image:
-                    image.save(img_bytes, format=img_type)
-                    img_b64 = base64.b64encode(img_bytes.getvalue()).decode('utf-8')
-                if img_b64 is not None:
-                    img_str = f"data:image/{img_type};base64,{img_b64}"
-                    msg_extra = [ 
-                        { 
-                            "role": "user", 
-                            "content": [
-                                {
-                                    "type": "image_url",
-                                    "image_url": {
-                                        "url": img_str,
-                                        "details": vision_details
-                                    }
-                                }
-                            ],
-                            "oaiwui_skip": True
-                        }
-                    ]
-                if os.path.exists(img_file):
-                    os.remove(img_file)
 
         for message in st.session_state.gpt_messages:
             with st.chat_message(message['role']):
@@ -431,7 +428,7 @@ class OAI_GPT_WUI:
 
                     st.session_state.gpt_messages.append({"role": role, "content": prompt})
 
-                    err, run_file = self.oai_gpt.chatgpt_it(model_name, st.session_state.gpt_messages, max_tokens, temperature, role, msg_extra, **self.gpt_presets[presets]["kwargs"])
+                    err, run_file = self.oai_gpt.chatgpt_it(model_name, st.session_state.gpt_messages, max_tokens, temperature, msg_extra, **self.gpt_presets[presets]["kwargs"])
                     if cf.isNotBlank(err):
                         st.error(err)
                     if cf.isNotBlank(run_file):
@@ -442,33 +439,13 @@ class OAI_GPT_WUI:
             run_file = st.session_state[self.last_gpt_query]
             run_json = cf.get_run_file(run_file)
 
-#            prompt = run_json["prompt"]
             response = run_json[-1]["content"]
             st.chat_message("assistant").write(response)
             st.session_state.gpt_messages.append({"role": "assistant", "content": response})
             del st.session_state[self.last_gpt_query]
 
-#            chat_history = self.oai_gpt.get_chat_history(run_file)
-#            if vision_mode is False:
-#                stoggle('Original Prompt', prompt)
-#                stoggle('Chat History', chat_history)
-#
-#            option_list = ('Text (wordwrap, may cause some visual inconsistencies)',
-#                        'Text (no wordwrap)',
-#                        'Code (automatic highlighting for supported languages)')
-#            option = st.selectbox('Display mode:', option_list, index=0)
-#
-#            if option == option_list[1]:
-#                st.text(response)
-#            elif option == option_list[0]:
-#                st.markdown(response)
-#            elif option == option_list[2]:
-#                st.code(response)
-#            else:
-#                st.error("Unknown display mode")
-#
-#            query_output = prompt + "\n\n--------------------------\n\n" + response
-#            col1, col2, col3 = st.columns(3)
-#            col1.download_button(label="Download Latest Result", data=response)
-#            col2.download_button(label="Download Latest Query+Result", data=query_output)
-#            col3.download_button(label="Download Chat Query+Result", data=chat_history)
+        if download_placeholder is not None:
+            chat_text = ""
+            for msg in st.session_state.gpt_messages:
+                chat_text += msg["role"] + ": " + msg["content"] + "\n"
+            download_placeholder.download_button(label="Download Chat", data=chat_text)
