@@ -43,22 +43,29 @@ def simpler_gpt_call(apikey, messages, model_engine, base_url:str='', model_prov
     except openai.OpenAIError as e:
         return(f"{model_provider} API request failed: {e}", "")
 
+    response_dict = {}
+    # Convert response to dict using model_dump() for Pydantic models
+    try:
+        response_dict = response.model_dump()
+    except AttributeError:
+        # Fallback for objects that don't support model_dump
+        response_dict = vars(response)
+
     if cf.isNotBlank(resp_file):
         with open(resp_file, 'w') as f:
-            # Convert response to dict using model_dump() for Pydantic models
-            try:
-                response_dict = response.model_dump()
-            except AttributeError:
-                # Fallback for objects that don't support model_dump
-                response_dict = vars(response)
             json.dump(response_dict, f, indent=4)
 
     response_text = response.choices[0].message.content
+
     # Add citations if the key is present in the response, irrelevant of the model provider
-    if "citations" in response:
-        response_text += "\n\nCitations:\n"
-        for i in range(len(response.citations)):
-            response_text += f"\n[{i+1}] {response.citations[i]}\n"
+    citations_text = ""
+    if 'citations' in response_dict:
+        print("[INFO] Found citations-----------------------------------------------------------")
+        citations_text += "\n\nCitations:\n"
+        for i in range(len(response_dict['citations'])):
+            citations_text += f"\n[{i+1}] {response_dict['citations'][i]}\n"
+    response_text += citations_text
+
 
     return "", response_text
 
@@ -335,7 +342,17 @@ class OAI_GPT:
 
         return ""
 
-    def chatgpt_it(self, model_engine, chat_messages, max_tokens, temperature, role, msg_extra=None, **kwargs):
+    def chatgpt_it(self, model_engine, chat_messages, max_tokens, temperature, msg_extra=None, **kwargs):
+        vision_capable = False
+        if model_engine in self.model_capability:
+            capability = self.model_capability[model_engine]
+            if 'vision' in capability:
+                vision_capable = True
+
+        beta_model = False
+        if model_engine in self.beta_models:
+            beta_model = self.beta_models[model_engine]
+
         last_runfile = self.last_runfile
         if cf.isNotBlank(last_runfile):
             err = cf.check_file_r(last_runfile)
@@ -397,7 +414,20 @@ class OAI_GPT:
             err = self.check_msg_content(msg)
             if cf.isNotBlank(err):
                 return err, ""
-            to_add = { 'role': role, 'content': [ {'type': 'text', 'text': msg['content']} ] }
+
+            # skip vision messages when the model is not vision-capable
+            if 'oaiwui_vision' in msg:
+                if vision_capable is False:
+                    continue # skip this message
+                clean_messages.append(msg)
+                continue
+
+            # skip messages with roles that are removed in beta models
+            if beta_model is True:
+                if msg['role'] in self.per_model_meta[model_engine]['removed_roles']:
+                    continue
+
+            to_add = { 'role': msg['role'], 'content': [ {'type': 'text', 'text': msg['content']} ] }
             if 'msg_format' in self.per_model_meta[model_engine] and self.per_model_meta[model_engine]['msg_format'] == 'role_content':
                 to_add = { 'role': msg['role'], 'content': msg['content'] }
             clean_messages.append(to_add)
