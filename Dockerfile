@@ -32,7 +32,7 @@ RUN pip3 --trusted-host pypi.org --trusted-host files.pythonhosted.org install p
 
 RUN mkdir /app/.streamlit /app/assets /iti
 RUN streamlit cache clear
-COPY OpenAI_WebUI.py common_functions.py common_functions_WUI.py OpenAI_DallE.py OpenAI_DallE_WUI.py OpenAI_GPT.py OpenAI_GPT_WUI.py models.json /app/
+COPY OpenAI_WebUI.py common_functions.py common_functions_WUI.py OpenAI_DallE.py OpenAI_DallE_WUI.py OpenAI_GPT.py OpenAI_GPT_WUI.py ollama_helper.py models.json /app/
 COPY assets/Infotrend_Logo.png /app/assets/
 
 EXPOSE 8501
