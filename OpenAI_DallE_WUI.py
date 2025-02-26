@@ -77,17 +77,10 @@ class OAI_DallE_WUI:
                 style = st.selectbox("style", options=["vivid", "natural"], index=0, key="dalle_style", help="The style of the generated images. Vivid causes the model to lean towards generating hyper-real and dramatic images. Natural causes the model to produce more natural, less hyper-real looking images.")
                 kwargs = {"quality": quality, "style": style}
 
-            dalle_show_tooltip = st.toggle(label="Show Tips", value=False, key="dalle_show_tooltip", help="Show tips on how to use this tool")
             dalle_show_history = st.toggle(label='Show Prompt History', value=False, help="Show a list of prompts that you have used in the past (most recent first). Loading a selected prompt does not load the parameters used for the generation.", key="dalle_show_history")
             if dalle_show_history:
                 dalle_allow_history_deletion = st.toggle('Allow Prompt History Deletion', value=False, help="This will allow you to delete a prompt from the history. This will delete the prompt and all its associated files. This cannot be undone.", key="dalle_allow_history_deletion")
 
-
-        if dalle_show_tooltip:
-            stoggle(
-                'Tips',
-                'DALL·E is an AI system that creates realistic images and art from a description in natural language.<br>- The more detailed the description, the more likely you are to get the result that you or your end user want'
-            )
 
         if dalle_show_history:
             err, hist = self.oai_dalle.get_history()
@@ -102,7 +95,7 @@ class OAI_DallE_WUI:
         if 'dalle_last_prompt' not in st.session_state:
             st.session_state['dalle_last_prompt'] = ""
         prompt_value=f"DallE {model} Input [image size: {img_size} | image count: {img_count} | Extra: {kwargs}]"
-        help_text = self.per_model_help[model] if model in self.per_model_help else "No help available for this model"
+        help_text = '\n\nDALL·E is an AI system that creates realistic images and art from a description in natural language.\n\n- The more detailed the description, the more likely you are to get the result that you or your end user want'
         prompt = st.empty().text_area(prompt_value, st.session_state["dalle_last_prompt"], placeholder="Enter your prompt", key="dalle_input", help=help_text)
         st.session_state['dalle_last_prompt'] = prompt
 
