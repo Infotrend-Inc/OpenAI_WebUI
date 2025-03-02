@@ -183,6 +183,20 @@
                 "disabled_features": ["role", "prompt_preset", "preset"]
             }
         },
+        "gpt-4.5-preview":
+        {
+            "label": "Oresearch preview of GPT-4.5, our largest and most capable GPT model yet.",
+            "max_token": 16384,
+            "context_token": 128000,
+            "data": "Up to Oct 2023 (as of 20250302)",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision",
+            "meta": {
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
+            }
+        },
         "gpt-4o-mini":
         {
             "label": "Our affordable and intelligent small model for fast, lightweight tasks. GPT-4o mini is cheaper and more capable than GPT-3.5 Turbo. Currently points to gpt-4o-mini-2024-07-18.",
