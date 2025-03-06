@@ -102,6 +102,7 @@ class OAI_GPT_WUI:
             im.save(tfilen, format="png")
             return new_x, new_y
 
+
     def file_uploader(self, details_selection):
         # File uploader: [OpenAI supports] PNG (.png), JPEG (.jpeg and .jpg), WEBP (.webp), and non-animated GIF (.gif).
         uploaded_file = st.file_uploader("Upload a PNG/JPEG/WebP image (automatic resize to a value closer to the selected \"details\" selected, see its \"?\")", type=['png','jpg','jpeg','webp'])
@@ -194,7 +195,6 @@ class OAI_GPT_WUI:
         vision_capable = False
         vision_mode = False
         disable_preset_prompts = False
-        clear_chat = False
         prompt_preset = None
         msg_extra = None
         beta_model = False
@@ -203,7 +203,7 @@ class OAI_GPT_WUI:
         tokens_selector = True
         max_tokens_selector = True
         role_selector = True
-        preset_selector = True
+        preset_selector = False
         prompt_preset_selector = True
 
         model_list = list(self.models.keys())
@@ -353,9 +353,7 @@ class OAI_GPT_WUI:
                         if 'gpt_msg_extra' in st.session_state:
                             del st.session_state['gpt_msg_extra']
 
-            # Temporarily removig the history toggle
-            gpt_show_history = False
-#            gpt_show_history = st.toggle(label='Show Prompt History', value=False, help="Show a list of prompts that you have used in the past (most recent first). Loading a selected prompt does not load the parameters used for the generation.", key="gpt_show_history")
+            gpt_show_history = st.toggle(label='Show Prompt History', value=False, help="Show a list of prompts that you have used in the past (most recent first). Loading a selected prompt does not load the parameters used for the generation.", key="gpt_show_history")
             if gpt_show_history:
                 gpt_allow_history_deletion = st.toggle('Allow Prompt History Deletion', value=False, help="This will allow you to delete a prompt from the history. This will delete the prompt and all its associated files. This cannot be undone.", key="gpt_allow_history_deletion")
 
@@ -387,10 +385,7 @@ class OAI_GPT_WUI:
             if len(hist) == 0:
                 st.warning("No prompt history found")
             else:
-                cfw.show_history(hist, gpt_allow_history_deletion, 'gpt_last_prompt', self.last_gpt_query)
-
-        if 'gpt_last_prompt' not in st.session_state:
-            st.session_state['gpt_last_prompt'] = ''
+                cfw.show_gpt_history(hist, gpt_allow_history_deletion)
 
         for message in st.session_state.gpt_messages:
             with st.chat_message(message['role']):

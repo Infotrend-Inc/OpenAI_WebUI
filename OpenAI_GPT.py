@@ -293,47 +293,6 @@ class OAI_GPT:
 
 
 #####
-    def format_rpr(self, role, text):
-        return (f"\n\n--------------------------\n\n -- role: {role}\n\n -- text: {text}\n\n")
-
-#####
-    def get_chat_history_core(self, run_file):
-        # return: array of multple set of 5 elements: err, len(messages), role, prompt, response
-        err = cf.check_file_r(run_file)
-        if cf.isNotBlank(err):
-            return f"run file {run_file} issue ({err}), truncating chat history", []
-
-        run_json = cf.get_run_file(run_file)
-        if 'messages' not in run_json:
-            return f"run file {run_file} does not contain messages", []
-
-        return "", run_json['messages']
-
-
-    def get_chat_history(self, run_file):
-        err, dict_array = self.get_chat_history_core(run_file)
-        if cf.isNotBlank(err):
-            return err
-        
-        txt = ""
-        # process each dict in the array
-        if len(dict_array) == 0:
-            return "No messages in chat history"
-        for msg in dict_array:
-            if 'oaiwui_skip' in msg:
-                continue
-            if 'content' not in msg:
-                continue
-            if 'type' not in msg['content'][0]:
-                continue
-
-            if msg['content'][0]['type'] == 'text':
-                txt += self.format_rpr(msg['role'], msg['content'][0]['text'])
-
-        return(txt)
-
-
-#####
     def check_msg_content(self, msg):
         if 'role' not in msg:
             return "role not found in message"
@@ -470,4 +429,4 @@ class OAI_GPT:
 
 #####
     def get_history(self):
-        return cf.get_history(self.save_location)
+        return cf.get_gpt_history(self.save_location)

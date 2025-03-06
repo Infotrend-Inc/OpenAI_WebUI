@@ -180,7 +180,7 @@ def get_dirname(path):
 
 #####
 
-def get_history(search_dir):
+def get_history_core(search_dir, mode: str = "GPT"):
     hist = {}
     err, listing = get_dirlist(search_dir, "save location")
     if isNotBlank(err):
@@ -195,11 +195,21 @@ def get_history(search_dir):
                 if fnmatch.fnmatch(file, 'run.json'):
                     run_file = os.path.join(entry_dir, file)
                     run_json = get_run_file(run_file)
-                    if 'prompt' in run_json:
-                        prompt = run_json['prompt']
+                    if mode is "GPT":
+                        prompt = run_json[-1]['content']
                         hist[entry] = [prompt, run_file]
+                    else:
+                        if 'prompt' in run_json:
+                            prompt = run_json['prompt']
+                            hist[entry] = [prompt, run_file]
                     break
     return "", hist
+
+def get_history(search_dir):
+    return get_history_core(search_dir, "DallE")
+
+def get_gpt_history(search_dir):
+    return get_history_core(search_dir, "GPT")
 
 #####
 
