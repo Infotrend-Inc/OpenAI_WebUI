@@ -1,25 +1,58 @@
 {
     "GPT": 
     {
-        "gemini-2.0-flash-001":
+        "gemini-2.5-flash-preview-04-17":
         {
-            "label": "Next generation features, speed, and multimodal generation for a diverse variety of tasks",
-            "max_token": 32000,
+            "label": "Google's best model in terms of price-performance, offering well-rounded capabilities. Gemini 2.5 Flash rate limits are more restricted since it is an experimental / preview model",
+            "max_token": 65000,
             "context_token": 1000000,
-            "data": "Latest update: Feb 2025, Knowledge cutoff: Aug 2024",
+            "data": "Latest update: Apr 2025, Knowledge cutoff: Jan 2025",
             "status": "active",
             "status_details": "",
             "capability": "vision",
             "meta": {
                 "provider": "GoogleAI",
                 "apikey-env": "GEMINI_API_KEY",
-                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/"
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
+                "url": "https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash-preview"
             }
         },
-        "gemini-2.0-flash-lite-preview-02-05":
+        "gemini-2.5-pro-preview-03-25":
         {
-            "label": "Reason over the most complex problems, Show the thinking process of the model, Tackle difficult code and math problems",
-            "max_token": 32000,
+            "label": "State-of-the-art thinking model, capable of reasoning over complex problems in code, math, and STEM, as well as analyzing large datasets, codebases, and documents using long context.",
+            "max_token": 65000,
+            "context_token": 1000000,
+            "data": "Latest update: Mar 2025, Knowledge cutoff: Jan 2025",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision",
+            "meta": {
+                "provider": "GoogleAI",
+                "apikey-env": "GEMINI_API_KEY",
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
+                "url": "https://ai.google.dev/gemini-api/docs/models#gemini-2.5-pro-preview-03-25"
+            }
+        },
+        "gemini-2.5-pro-exp-03-25":
+        {
+            "label": "State-of-the-art thinking model, capable of reasoning over complex problems in code, math, and STEM, as well as analyzing large datasets, codebases, and documents using long context.",
+            "max_token": 65000,
+            "context_token": 1000000,
+            "data": "Latest update: Mar 2025, Knowledge cutoff: Jan 2025",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision",
+            "meta": {
+                "provider": "GoogleAI",
+                "apikey-env": "GEMINI_API_KEY",
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
+                "url": "https://ai.google.dev/gemini-api/docs/models#gemini-2.5-pro-preview-03-25"
+            }
+        },
+        "gemini-2.0-flash":
+        {
+            "label": "Next generation features, speed, and multimodal generation for a diverse variety of tasks (Latest)",
+            "max_token": 8000,
             "context_token": 1000000,
             "data": "Latest update: Feb 2025, Knowledge cutoff: Aug 2024",
             "status": "active",
@@ -28,13 +61,62 @@
             "meta": {
                 "provider": "GoogleAI",
                 "apikey-env": "GEMINI_API_KEY",
-                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/"
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
+                "url": "https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash"
+            }
+        },
+        "gemini-2.0-flash-001":
+        {
+            "label": "Next generation features, speed, and multimodal generation for a diverse variety of tasks (Stable)",
+            "max_token": 8000,
+            "context_token": 1000000,
+            "data": "Latest update: Feb 2025, Knowledge cutoff: Aug 2024",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision",
+            "meta": {
+                "provider": "GoogleAI",
+                "apikey-env": "GEMINI_API_KEY",
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
+                "url": "https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash-001"
+            }
+        },
+        "gemini-2.0-flash-lite":
+        {
+            "label": "Reason over the most complex problems, Show the thinking process of the model, Tackle difficult code and math problems (Latest)",
+            "max_token": 8000,
+            "context_token": 1000000,
+            "data": "Latest update: Feb 2025, Knowledge cutoff: Aug 2024",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision",
+            "meta": {
+                "provider": "GoogleAI",
+                "apikey-env": "GEMINI_API_KEY",
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
+                "url": "https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash-lite"
+            }
+        },
+        "gemini-2.0-flash-lite-001":
+        {
+            "label": "Reason over the most complex problems, Show the thinking process of the model, Tackle difficult code and math problems (Stable)",
+            "max_token": 8000,
+            "context_token": 1000000,
+            "data": "Latest update: Feb 2025, Knowledge cutoff: Aug 2024",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision",
+            "meta": {
+                "provider": "GoogleAI",
+                "apikey-env": "GEMINI_API_KEY",
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
+                "url": "https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash-lite-001"
             }
         },
         "gemini-1.5-flash":
         {
             "label": "Fast and versatile performance across a diverse variety of tasks",
-            "max_token": 32000,
+            "max_token": 8000,
             "context_token": 1000000,
             "data": "Latest update: Sep 2024",
             "status": "active",
@@ -43,13 +125,14 @@
             "meta": {
                 "provider": "GoogleAI",
                 "apikey-env": "GEMINI_API_KEY",
-                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/"
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
+                "url": "https://ai.google.dev/gemini-api/docs/models#gemini-1.5-flash"
             }
         },
         "gemini-1.5-flash-8b":
         {
             "label": "Fast and versatile performance across a diverse variety of tasks",
-            "max_token": 32000,
+            "max_token": 8000,
             "context_token": 1000000,
             "data": "Latest update: Oct 2024",
             "status": "active",
@@ -58,13 +141,14 @@
             "meta": {
                 "provider": "GoogleAI",
                 "apikey-env": "GEMINI_API_KEY",
-                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/"
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
+                "url": "https://ai.google.dev/gemini-api/docs/models#gemini-1.5-flash-8b"
             }
         },
         "gemini-1.5-pro":
         {
             "label": "Complex reasoning tasks requiring more intelligence",
-            "max_token": 32000,
+            "max_token": 8000,
             "context_token": 2000000,
             "data": "Latest update: Sep 2024",
             "status": "active",
@@ -73,7 +157,8 @@
             "meta": {
                 "provider": "GoogleAI",
                 "apikey-env": "GEMINI_API_KEY",
-                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/"
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
+                "url": "https://ai.google.dev/gemini-api/docs/models#gemini-1.5-pro"
             }
         },        
         "sonar":
@@ -91,7 +176,8 @@
                 "apiurl": "https://api.perplexity.ai",
                 "msg_format": "role_content",
                 "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user.", "oaiwui_skip": "" },
-                "disabled_features": ["role", "prompt_preset", "preset"]
+                "disabled_features": ["role", "prompt_preset", "preset"],
+                "url": "https://docs.perplexity.ai/models/models/sonar"
             }
         },
         "sonar-pro":
@@ -109,11 +195,13 @@
                 "apiurl": "https://api.perplexity.ai",
                 "msg_format": "role_content",
                 "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user." },
-                "disabled_features": ["role", "prompt_preset", "preset"]}
+                "disabled_features": ["role", "prompt_preset", "preset"],
+                "url": "https://docs.perplexity.ai/models/models/sonar-pro"
+            }
         },
         "sonar-reasoning":
         {
-            "label": "Premier search offering outputs CoT in its response as well.",
+            "label": "Premier search offering outputs Chain-of-Thought (CoT) in its response as well.",
             "max_token": 4096,
             "context_token": 127000,
             "data": "Perplexity model",
@@ -126,12 +214,13 @@
                 "apiurl": "https://api.perplexity.ai",
                 "msg_format": "role_content",
                 "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user." },
-                "disabled_features": ["role", "prompt_preset", "preset"]
+                "disabled_features": ["role", "prompt_preset", "preset"],
+                "url": "https://docs.perplexity.ai/models/models/sonar-reasoning"
             }
         },
         "sonar-reasoning-pro":
         {
-            "label": "Premier search offering outputs CoT in its response as well with search grounding, supporting advanced queries and follow-ups.",
+            "label": "Premier search offering leveraging advanced multi-step Chain-of-Thought (CoT) in its response as well with search grounding, supporting advanced queries and follow-ups.",
             "max_token": 8192,
             "context_token": 127000,
             "data": "Perplexity model",
@@ -144,7 +233,8 @@
                 "apiurl": "https://api.perplexity.ai",
                 "msg_format": "role_content",
                 "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user." },
-                "disabled_features": ["role", "prompt_preset", "preset"]
+                "disabled_features": ["role", "prompt_preset", "preset"],
+                "url": "https://docs.perplexity.ai/models/models/sonar-reasoning-pro"
             }
         },
         "sonar-deep-research":
@@ -162,12 +252,13 @@
                 "apiurl": "https://api.perplexity.ai",
                 "msg_format": "role_content",
                 "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user." },
-                "disabled_features": ["role", "prompt_preset", "preset"]
+                "disabled_features": ["role", "prompt_preset", "preset"],
+                "url": "https://docs.perplexity.ai/models/models/sonar-deep-research"
             }
         },
         "r1-1776":
         {
-            "label": "Premier search offering outputs CoT in its response in an offline chat model that does not use Perplexity search subsystem.",
+            "label": "Offline AI model that provides uncensored, unbiased responses without relying on real-time search.",
             "max_token": 4096,
             "context_token": 127000,
             "data": "Perplexity model",
@@ -180,12 +271,27 @@
                 "apiurl": "https://api.perplexity.ai",
                 "msg_format": "role_content",
                 "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user." },
-                "disabled_features": ["role", "prompt_preset", "preset"]
+                "disabled_features": ["role", "prompt_preset", "preset"],
+                "url": "https://docs.perplexity.ai/models/models/r1-1776"
+            }
+        },
+        "gpt-4.1":
+        {
+            "label": "OpenAI's flagship model for complex tasks. It is well suited for problem solving across domains.",
+            "max_token": 32000,
+            "context_token": 1000000,
+            "data": "Up to May 2024",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision",
+            "meta": {
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY"
             }
         },
         "gpt-4.5-preview":
         {
-            "label": "Oresearch preview of GPT-4.5, our largest and most capable GPT model yet.",
+            "label": "Research preview of GPT-4.5, our largest and most capable GPT model yet.",
             "max_token": 16384,
             "context_token": 128000,
             "data": "Up to Oct 2023 (as of 20250302)",

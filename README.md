@@ -73,7 +73,12 @@ Similarly, the tool will note when a model is `legacy`.
 Please update your model selection accordingly.
 
 The [models.json](models.json) file contains the list of models supported by each release (as introduced in v0.9.3).
-The following table shows the [models](https://platform.openai.com/docs/models/) listed in this file as well as the release it was added to:
+For additional details, see:
+- OpenAI Models & API price: https://platform.openai.com/docs/models
+- Google Models & API price: https://ai.google.dev/gemini-api/docs/models
+- Perplexity AI Models & API price: https://docs.perplexity.ai/guides/models
+ 
+The following table shows the models listed in this file as well as the release it was added to:
 
 | Mode | Model | Provider | Status | Capability | Notes | From |
 | --- | --- | --- | --- | --- | --- | --- |
