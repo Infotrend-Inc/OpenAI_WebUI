@@ -127,7 +127,7 @@ The following table shows the [models](https://platform.openai.com/docs/models/)
 
 An `untested` model is added but is not able to be tested by the development team until we get access to the model (currently open to [Tier 5](https://platform.openai.com/docs/guides/rate-limits#usage-tiers) customers)
 
-`ollama` is a self-hosted solution; the name is here for illustration prupose (`ollama` is not a recognized model value). At initialization, the tool will use the `OLLAMA_HOME` environment variable to attempt tofind the server; then list and add all available hosted models. Capabilties of the hosted models are various: by default we will authorize `vision` and set a defauklt `max_tokens`; it is advised to check the model information for details on its actual capabilities. Find more information about [Ollama](https://github.com/oollama/ollama)
+`ollama` is a self-hosted solution; the name is here for illustration prupose (`ollama` is not a recognized model value). At initialization, the tool will use the `OLLAMA_HOST` environment variable to attempt tofind the server; then list and add all available hosted models. Capabilties of the hosted models are various: by default we will authorize `vision` and set a defauklt `max_tokens`; it is advised to check the model information for details on its actual capabilities. Find more information about [Ollama](https://github.com/oollama/ollama)
 
 Once a model is `deprecated`, using it in your models list will have it discarded from the available list with a notification. 
 

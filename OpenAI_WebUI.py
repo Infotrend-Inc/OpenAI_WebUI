@@ -136,15 +136,15 @@ def get_ui_params(runid):
         warnings.append(f"Disabling DallE -- Could not find the OAIWUI_DALLE_MODELS environment variable")
         os.environ['OAIWUI_GPT_ONLY'] = "True"
 
-    if 'OLLAMA_HOME' in os.environ:
-        ollama_home = os.environ.get('OLLAMA_HOME')
-        err, ollama_models = oll.get_all_ollama_models_and_infos(ollama_home)
+    if 'OLLAMA_HOST' in os.environ:
+        OLLAMA_HOST = os.environ.get('OLLAMA_HOST')
+        err, ollama_models = oll.get_all_ollama_models_and_infos(OLLAMA_HOST)
         if cf.isNotBlank(err):
-            warnings.append(f"Disabling OLLAMA -- While testing OLLAMA_HOME {ollama_home}: {err}")
+            warnings.append(f"Disabling OLLAMA -- While testing OLLAMA_HOST {OLLAMA_HOST}: {err}")
         else:
             for oll_model in ollama_models:
                 # We are going to extend the GPT models with the Ollama models
-                err, modeljson = oll.ollama_to_modelsjson(ollama_home, oll_model, ollama_models[oll_model])
+                err, modeljson = oll.ollama_to_modelsjson(OLLAMA_HOST, oll_model, ollama_models[oll_model])
                 if cf.isNotBlank(err):
                     warnings.append(f"Disalbing OLLAMA model -- while obtaining OLLAMA model {oll_model} details: {err}")
                     continue
