@@ -206,7 +206,11 @@ class OAI_GPT_WUI:
         preset_selector = False
         prompt_preset_selector = True
 
-        model_list = list(self.models.keys())
+        base_model_list = list(self.models.keys())
+        model_list = []
+        for model_name in base_model_list:
+            model_provider = self.per_model_provider[model_name] if model_name in self.per_model_provider else "Unknown"
+            model_list.append(f"{model_name} ({model_provider})")
 
         if 'gpt_messages' not in st.session_state:
             st.session_state.gpt_messages = []
@@ -229,7 +233,8 @@ class OAI_GPT_WUI:
 
             if self.prompt_presets_settings == {}:
                 # Only available if not in "preset only" mode
-                model_name = st.selectbox("model", options=model_list, index=0, key="model_name", help=self.model_help)
+                tmp_model_name = st.selectbox("model", options=model_list, index=0, key="model_name", help=self.model_help)
+                model_name = tmp_model_name.split(" ")[0]
                 if model_name in self.models_status:
                     st.info(f"{model_name}: {self.models_status[model_name]}")
                 if self.model_capability[model_name] == "vision":
