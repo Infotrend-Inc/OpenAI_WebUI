@@ -4,6 +4,14 @@
 # https://platform.openai.com/docs/quickstart/build-your-application
 # https://github.com/openai/openai-python
 
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["openai==1.77.0", "streamlit>=1.45.0", "extra-streamlit-components>=0.1.80", "streamlit-extras>=0.6.0", "streamlit_image_select>=0.6.0", "requests>=2.32.0", "python-dotenv>=1.0.1", "pillow>=10.4.0", "watchdog>=5.0.0" ]
+# ///
+
+# uv tool run --with 'openai==1.77.0,streamlit>=1.45.0,extra-streamlit-components>=0.1.80,streamlit-extras>=0.6.0,streamlit_image_select>=0.6.0,requests>=2.32.0,python-dotenv>=1.0.1,pillow>=10.4.0,watchdog>=5.0.0' streamlit run ./OpenAI_WebUI.py --server.port=8501 --server.address=127.0.0.1 --logger.level=debug --server.headless=true
+
+
 import streamlit as st
 import extra_streamlit_components as stx
 
