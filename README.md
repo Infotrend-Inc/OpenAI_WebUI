@@ -75,62 +75,11 @@ Please update your model selection accordingly.
 The [models.json](models.json) file contains the list of models supported by each release (as introduced in v0.9.3).
 For additional details, see:
 - OpenAI Models & API price: https://platform.openai.com/docs/models
+  - To see the list of authorized models for your account, see https://platform.openai.com/settings/organization/limits
 - Google Models & API price: https://ai.google.dev/gemini-api/docs/models
 - Perplexity AI Models & API price: https://docs.perplexity.ai/guides/models
  
-The following table shows the models listed in this file as well as the release it was added to:
-
-| Mode | Model | Provider | Status | Capability | Notes | From |
-| --- | --- | --- | --- | --- | --- | --- |
-| DallE | [dalle-e-2](https://platform.openai.com/docs/models#dall-e) | OpenAI | active | | | 0.9.3 |
-| DallE | [dalle-e-3](https://platform.openai.com/docs/models#dall-e) | OpenAI | active | | | 0.9.3 |
-| GPT | [gemini-1.5-flash](https://ai.google.dev/gemini-api/docs/models/gemini#gemini-1.5-flash) | GoogleAI | active | vision | | 0.9.11 |
-| GPT | [gemini-1.5-flash-8b](https://ai.google.dev/gemini-api/docs/models/gemini#gemini-1.5-flash-8b) | GoogleAI | active | vision | | 0.9.11 |
-| GPT | [gemini-1.5-pro](https://ai.google.dev/gemini-api/docs/models/gemini#gemini-1.5-pro) | GoogleAI | active | vision | | 0.9.11 |
-| GPT | [gemini-2.0-flash-001](https://ai.google.dev/gemini-api/docs/models/gemini#gemini-2.0-flash) | GoogleAI | active | vision | | 0.9.11 |
-| GPT | [gemini-2.0-flash-lite-preview-02-05](https://ai.google.dev/gemini-api/docs/models/gemini#gemini-2.0-flash-lite) | GoogleAI | active | vision | | 0.9.11 | 
-| GPT | [gpt-3.5-turbo](https://platform.openai.com/docs/models#gpt-3-5-turbo) | OpenAI | active | | | 0.9.3 |
-| GPT | [gpt-3.5-turbo-0125](https://platform.openai.com/docs/models#gpt-3-5-turbo) | OpenAI | active | | | 0.9.3 |
-| GPT | gpt-3.5-turbo-0613 | OpenAI | deprecated | | Deprecated on June 13, 2024 | 0.9.3 |
-| GPT | [gpt-3.5-turbo-1106](https://platform.openai.com/docs/models#gpt-3-5-turbo) | OpenAI | active | | | 0.9.3 |
-| GPT | gpt-3.5-turbo-16k | OpenAI | deprecated | | Deprecated on June 13, 2024 | 0.9.3 |
-| GPT | gpt-3.5-turbo-16k-0613 | OpenAI | deprecated | | Deprecated on June 13, 2024 | 0.9.3 |
-| GPT | [gpt-4](https://platform.openai.com/docs/models#gpt-4-turbo-and-gpt-4) | OpenAI | active | | | 0.9.3 |
-| GPT | [gpt-4-0125-preview](https://platform.openai.com/docs/models#gpt-4-turbo-and-gpt-4) | OpenAI | active | | | 0.9.3 |
-| GPT | [gpt-4-0613](https://platform.openai.com/docs/models#gpt-4-turbo-and-gpt-4) | OpenAI | active | | | 0.9.3 |
-| GPT | [gpt-4-1106-preview](https://platform.openai.com/docs/models#gpt-4-turbo-and-gpt-4) | OpenAI | active | | | 0.9.3 |
-| GPT | [gpt-4-32k](https://platform.openai.com/docs/models#gpt-4-turbo-and-gpt-4) | OpenAI | deprecated | | | 0.9.3 |
-| GPT | [gpt-4-32k-0613](https://platform.openai.com/docs/models#gpt-4-turbo-and-gpt-4) | OpenAI | deprecated | | | 0.9.3 |
-| GPT | [gpt-4-turbo-preview](https://platform.openai.com/docs/models#gpt-4-turbo-and-gpt-4) | OpenAI | active | | | 0.9.3 |
-| GPT | [gpt-4-turbo](https://platform.openai.com/docs/models#gpt-4-turbo-and-gpt-4) | OpenAI | vision | | | 0.9.5 |
-| GPT | [gpt-4-turbo-2024-04-09](https://platform.openai.com/docs/models#gpt-4-turbo-and-gpt-4) | OpenAI | vision | | | 0.9.5 |
-| GPT | [gpt-4o](https://platform.openai.com/docs/models#gpt-4o) | OpenAI | active | vision | | 0.9.4 |
-| GPT | [gpt-4o-2024-05-13](https://platform.openai.com/docs/models#gpt-4o) | OpenAI | active | vision | | 0.9.4 |
-| GPT | [gpt-4o-2024-08-06](https://platform.openai.com/docs/models#gpt-4o) | OpenAI | active | vision | | 0.9.8 |
-| GPT | [gpt-4o-2024-11-20](https://platform.openai.com/docs/models#gpt-4o) | OpenAI | active | vision | | 0.9.9 |
-| GPT | [chatgpt-4o-latest](https://platform.openai.com/docs/models#gpt-4o) | OpenAI | active | vision | | 0.9.9 |
-| GPT | [gpt-4o-mini](https://platform.openai.com/docs/models#gpt-4o-mini) | OpenAI | active | vision | | 0.9.7 |
-| GPT | [gpt-4o-mini-2024-07-18](https://platform.openai.com/docs/models#gpt-4o-mini) | OpenAI | active | vision | | 0.9.7 |
-| GPT | [o1-preview](https://platform.openai.com/docs/models#o1) | OpenAI | active | | `beta` | 0.9.8 |
-| GPT | [o1-preview-2024-09-12](https://platform.openai.com/docs/models#o1) | OpenAI | active | | `beta` | 0.9.9 |
-| GPT | [o1-mini](https://platform.openai.com/docs/models#o1) | OpenAI | active | | `beta` | 0.9.8 |
-| GPT | [o1-mini-2024-09-12](https://platform.openai.com/docs/models#o1) | OpenAI | active | | `beta` | 0.9.9 |
-| GPT | [o1](https://platform.openai.com/docs/models#o1) | OpenAI | active | vision | `beta` + `untested` | 0.9.10 |
-| GPT | [o1-2024-12-17](https://platform.openai.com/docs/models#o1) | OpenAI | active | vision | `beta` + `untested` | 0.9.10 |
-| GPT | [o3-mini](https://platform.openai.com/docs/models#o3-mini) | OpenAI | active | | `beta` + `untested` | 0.9.11 |
-| GPT | [o3-mini-2025-01-31](https://platform.openai.com/docs/models#o3-mini) | OpenAI | active | | `beta` + `untested` | 0.9.11 |
-| GPT | [`ollama`](https://ollama.com/) | SelfHosted | active | vision`?` | | 0.9.11 |
-| GPT | [sonar](https://docs.perplexity.ai/guides/model-cards) | PerplexityAI | active | WebSearch | | 0.9.11 |
-| GPT | [sonar-pro](https://docs.perplexity.ai/guides/model-cards) | PerplexityAI | active | WebSearch | | 0.9.11 |
-| GPT | [sonar-reasoning](https://docs.perplexity.ai/guides/model-cards) | PerplexityAI | active | WebSearch | | 0.9.11 |
-| GPT | [sonar-reasoning-pro](https://docs.perplexity.ai/guides/model-cards) | PerplexityAI | active | WebSearch | | 0.9.11 |
-| GPT | [sonar-deep-research](https://docs.perplexity.ai/guides/model-cards) | PerplexityAI | active | WebSearch | | 0.9.11 |
-| GPT | [r1-1776](https://docs.perplexity.ai/guides/model-cards) | PerplexityAI | active | | | 0.9.11 |
-
-
-`beta` models provide limited control over features or capabilities. Those currently also do not support `system` role: if using `prompt presets` those might not work.
-
-An `untested` model is added but is not able to be tested by the development team until we get access to the model (currently open to [Tier 5](https://platform.openai.com/docs/guides/rate-limits#usage-tiers) customers)
+The [models.md](./models.md) file shows the models supported by the current release.
 
 `ollama` is a self-hosted solution; the name is here for illustration prupose (`ollama` is not a recognized model value). At initialization, the tool will use the `OLLAMA_HOST` environment variable to attempt tofind the server; then list and add all available hosted models. Capabilties of the hosted models are various: by default we will authorize `vision` and set a defauklt `max_tokens`; it is advised to check the model information for details on its actual capabilities. Find more information about [Ollama](https://github.com/oollama/ollama)
 
@@ -141,8 +90,9 @@ Similarly, if a used model is listed as `legacy`, a notification of the upcoming
 ## 1.2. .env
 
 The `.env.example` file contains the parameters needed to pass to the running tool:
-- `OPENAI_API_KEY` as obtained from https://platform.openai.com/account/api-keys
+- `OPENAI_API_KEY` (optional) as obtained from https://platform.openai.com/account/api-keys
 - `PERPLEXITY_API_KEY` (optional) as obtained from https://docs.perplexity.ai/guides/getting-started
+- `GEMINI_API_KEY` (optional) as obtained from https://ai.google.dev/gemini-api/docs/api-key
 - `OAIWUI_SAVEDIR`, the location to save content (make sure the directory exists)
 - `OAIWUI_GPT_ONLY`, to request only to show the GPT tab otherwise, shows both GPT and DallE (authorized value: `True` or `False`)
 - `OAIWUI_GPT_MODELS` is a comma-separated list of GPT model(s) your API keys are authorized to use. For OpenAI, ee https://platform.openai.com/docs/api-reference/making-requests . For Perplexity AI, see https://docs.perplexity.ai/guides/pricing
