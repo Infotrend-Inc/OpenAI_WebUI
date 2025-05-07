@@ -246,7 +246,7 @@ class OAI_GPT:
         if len(models) == 0:
             return f"No models retained, unable to continue. Active models: {active_models_txt}", warning
 
-        model_help += "For a list of available supported models, see https://github.com/Infotrend-Inc/OpenAI_WebUI\n\n"
+        model_help += "For a list of available supported models, see https://github.com/Infotrend-Inc/OpenAI_WebUI/models.md\n\n"
         model_help += f"List of active models supported by this release: {active_models_txt}\n\n"
 
         self.models = models
