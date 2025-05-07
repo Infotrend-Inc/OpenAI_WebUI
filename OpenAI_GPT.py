@@ -11,7 +11,6 @@ import common_functions as cf
 
 
 #####
-# 20241206: Removed temperature and max_tokens from the function call, those are now passed within kwargs
 def simpler_gpt_call(apikey, messages, model_engine, base_url:str='', model_provider:str='OpenAI', resp_file:str='', **kwargs):
     client = None
     if cf.isNotBlank(base_url):
@@ -19,7 +18,7 @@ def simpler_gpt_call(apikey, messages, model_engine, base_url:str='', model_prov
     else:
         client = OpenAI(api_key=apikey)
     if client is None:
-        return("Unable to create an OpenAI Client handler", "")
+        return("Unable to create an OpenAI API Compartible Client handler", "")
 
     # beta models limitation: https://platform.openai.com/docs/guides/reasoning
     # o1 will may not provide an answer if the max_completion_tokens is lower than 2000
@@ -102,6 +101,9 @@ class OAI_GPT:
         self.per_model_url = {}
         self.per_model_meta = {}
 
+        self.models_warning = {}
+        self.known_models = {}
+
         self.last_dest_dir = None
 
 #####
@@ -144,6 +146,12 @@ class OAI_GPT:
     def get_per_model_meta(self):
         return self.per_model_meta
 
+    def get_models_warning(self):
+        return self.models_warning
+
+    def get_known_models(self):
+        return self.known_models
+
     def check_apikeys(self, meta):
         if 'provider' in meta:
             provider = meta["provider"]
@@ -181,6 +189,10 @@ class OAI_GPT:
                     self.per_model_meta[model] = av_models_list[model]["meta"]
                 else:
                     warning += f"Discarding Model {model}: Missing the meta information. "
+                    self.models_warning[model] = f"Discarding: Missing the meta information"
+            else:
+                warning += f"Unknown Model: {model}. "
+                self.models_warning[model] = f"Requested, unavailable"
 
         known_models = list(av_models_list.keys())
         for t_model in s_models_list:
@@ -188,12 +200,15 @@ class OAI_GPT:
             if model in av_models_list:
                 if av_models_list[model]["status"] == "deprecated":
                     warning += f"Model {model} is deprecated (" + av_models_list[model]["status_details"] + "), discarding it. "
+                    self.models_warning[model] = f"deprecated (" + av_models_list[model]["status_details"] + ")"
                 else:
                     models[model] = dict(av_models_list[model])
                     if cf.isNotBlank(models[model]["status_details"]):
                         models_status[model] = models[model]["status"] +" (" + models[model]["status_details"] + ")"
             else:
-                return f"Unknown model: {model} | Known models: {known_models}", warning
+                warning += f"Unknown model: {model}."
+                self.models_warning[model] = f"Unknown model"
+        self.known_models = known_models
 
         model_help = ""
         for key in models:
@@ -301,12 +316,15 @@ class OAI_GPT:
 
         return ""
 
-    def chatgpt_it(self, model_engine, chat_messages, max_tokens, temperature, msg_extra=None, **kwargs):
+    def chatgpt_it(self, model_engine, chat_messages, max_tokens, temperature, msg_extra=None, websearch_context_size="low", **kwargs):
         vision_capable = False
+        websearch_enabled = False
         if model_engine in self.model_capability:
             capability = self.model_capability[model_engine]
             if 'vision' in capability:
                 vision_capable = True
+            if 'websearch' in capability:
+                websearch_enabled = True
 
         beta_model = False
         if model_engine in self.beta_models:
@@ -390,7 +408,7 @@ class OAI_GPT:
             if 'msg_format' in self.per_model_meta[model_engine] and self.per_model_meta[model_engine]['msg_format'] == 'role_content':
                 to_add = { 'role': msg['role'], 'content': msg['content'] }
             clean_messages.append(to_add)
-
+ 
         msg_file = f"{dest_dir}/msg.json"
         with open(msg_file, 'w') as f:
             json.dump(clean_messages, f, indent=4)
@@ -398,6 +416,9 @@ class OAI_GPT:
         # Use kwargs to hold max_tokens and temperature
         if self.beta_models[model_engine] is True:
             kwargs['max_completion_tokens'] = max_tokens
+        elif websearch_enabled is True:
+            kwargs['response_format'] = { 'type': 'text'}
+            kwargs['web_search_options'] = { 'search_context_size': websearch_context_size }
         else:
             kwargs['max_tokens'] = max_tokens
             kwargs['temperature'] = temperature

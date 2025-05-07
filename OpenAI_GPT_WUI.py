@@ -50,6 +50,9 @@ class OAI_GPT_WUI:
         self.prompt_presets_file = prompt_presets_file
         self.prompt_presets_settings = {}
 
+        self.models_warning = oai_gpt.get_models_warning()
+        self.known_models = oai_gpt.get_known_models()
+
         err = self.load_prompt_presets()
         if cf.isNotBlank(err):
             st.error(err)
@@ -193,6 +196,7 @@ class OAI_GPT_WUI:
     def set_ui(self):
         st.sidebar.empty()
         vision_capable = False
+        websearch_capable = False
         vision_mode = False
         disable_preset_prompts = False
         prompt_preset = None
@@ -239,6 +243,8 @@ class OAI_GPT_WUI:
                     st.info(f"{model_name}: {self.models_status[model_name]}")
                 if self.model_capability[model_name] == "vision":
                     vision_capable = True
+                if self.model_capability[model_name] == "websearch":
+                    websearch_capable = True
 
                 roles_toremove = []
                 if model_name in self.per_model_meta and "removed_roles" in self.per_model_meta[model_name]:
@@ -327,6 +333,10 @@ class OAI_GPT_WUI:
                 if temperature_selector is True:
                     temperature = st.slider('temperature', 0.0, 1.0, 0.5, 0.01, "%0.2f", "temperature", "The temperature of the model. Higher temperature results in more surprising text.")
 
+                websearch = "low"
+                if websearch_capable is True:
+                    websearch = st.selectbox('Search Context Size', options=["low", "medium", "high"], index=0, help="Controls how much context is retrieved from the web to help the tool formulate a response.", key="websearch")
+
                 if preset_selector is True:
                     presets = st.selectbox("GPT Task", options=list(self.gpt_presets.keys()), index=0, key="presets", help=self.gpt_presets_help)
                 else:
@@ -377,8 +387,16 @@ class OAI_GPT_WUI:
             if prompt_preset_selector is True:
                 if prompt_preset is not None:
                     prompt_value += f" | prompt preset: {prompt_preset}"
+            if websearch_capable:
+                prompt_value += f" | websearch: {websearch}"
             prompt_value += f" ]"
             st.text(prompt_value, help=f'GPT provides a simple but powerful interface to any models. You input some text as a prompt, and the model will generate a text completion that attempts to match whatever context or pattern you gave it:\n\n - The tool works on text to: answer questions, provide definitions, translate, summarize, and analyze sentiments.\n\n- Keep your prompts clear and specific. The tool works best when it has a clear understanding of what you\'re asking it, so try to avoid vague or open-ended prompts.\n\n- Use complete sentences and provide context or background information as needed.\n\n- Some presets are available in the sidebar, check their details for more information.\n\nA few example prompts (to use with "None" preset):\n\n- Create a list of 8 questions for a data science interview\n\n- Generate an outline for a blog post on MFT\n\n- Translate "bonjour comment allez vous" in 1. English 2. German 3. Japanese\n\n- write python code to display with an image selector from a local directory using OpenCV\n\n- Write a creative ad and find a name  for a container to run machine learning and computer vision algorithms by providing access to many common ML frameworks\n\n- some models support "Chat" conversations. If you see the "Clear Chat" button, this will be one such model. They also support different max tokens, so adapt accordingly. The "Clear Chat" is here to allow you to start a new "Chat". Chat models can be given writing styles using the "system" "role"\n\nMore examples and hints can be found at https://platform.openai.com/examples')
+
+            # Check for model warnings
+            if list(self.models_warning.keys()) != []:
+                warning_text = " - " +"\n - ".join ([f"{model}: {self.models_warning[model]}" for model in sorted(self.models_warning.keys())])
+                warning_text += f"\n\n\nKnown models: {self.known_models}"
+                st.text("⚠️ Models warnings", help=f"{warning_text}")
 
         # Main window
 
@@ -428,7 +446,7 @@ class OAI_GPT_WUI:
 
                     st.session_state.gpt_messages.append({"role": role, "content": prompt})
 
-                    err, run_file = self.oai_gpt.chatgpt_it(model_name, st.session_state.gpt_messages, max_tokens, temperature, msg_extra, **self.gpt_presets[presets]["kwargs"])
+                    err, run_file = self.oai_gpt.chatgpt_it(model_name, st.session_state.gpt_messages, max_tokens, temperature, msg_extra, websearch, **self.gpt_presets[presets]["kwargs"])
                     if cf.isNotBlank(err):
                         st.error(err)
                     if cf.isNotBlank(run_file):
