@@ -195,7 +195,7 @@ def get_history_core(search_dir, mode: str = "GPT"):
                 if fnmatch.fnmatch(file, 'run.json'):
                     run_file = os.path.join(entry_dir, file)
                     run_json = get_run_file(run_file)
-                    if mode is "GPT":
+                    if mode == "GPT":
                         prompt = run_json[-1]['content']
                         hist[entry] = [prompt, run_file]
                     else:
@@ -240,3 +240,25 @@ def check_apikeys(provider, meta):
 
     apikey = os.environ[apikey_env]
     return "", apikey
+
+#####
+
+def load_models():
+    err = check_file_r("models.json", "models.json")
+    if isNotBlank(err):
+        return f"While checking models.json: {err}", None, None
+    all_models = read_json("models.json")
+    if all_models is None:
+        return f"Could not read models.json", None, None
+    gpt_models = {}
+    if 'GPT' in all_models:
+        gpt_models = all_models['GPT']
+    else:
+        return f"Could not find GPT in models.json", None, None
+    dalle_models = {}
+    if 'DallE' in all_models:
+        dalle_models = all_models['DallE']
+    else:
+        return f"Could not find DallE in models.json", None, None
+
+    return "", gpt_models, dalle_models
