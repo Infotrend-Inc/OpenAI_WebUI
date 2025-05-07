@@ -72,10 +72,23 @@ class OAI_DallE_WUI:
                 img_count = 1
 
             kwargs = {}
-            if model == "dall-e-3":
-                quality = st.selectbox("quality", options=["standard", "hd"], index=0, key="dalle_quality", help="The quality of the image that will be generated. hd creates images with finer details and greater consistency across the image.")
-                style = st.selectbox("style", options=["vivid", "natural"], index=0, key="dalle_style", help="The style of the generated images. Vivid causes the model to lean towards generating hyper-real and dramatic images. Natural causes the model to produce more natural, less hyper-real looking images.")
-                kwargs = {"quality": quality, "style": style}
+            quality_options = []
+            if 'quality' in self.models[model]['meta']:
+                quality_options = self.models[model]['meta']['quality']
+            style_options = []
+            if 'style' in self.models[model]['meta']:
+                style_options = self.models[model]['meta']['style']
+
+            if quality_options:
+                quality = st.selectbox("quality", options=quality_options, index=0, key="dalle_quality", help="The quality of the image that will be generated. hd creates images with finer details and greater consistency across the image.")
+                kwargs['quality'] = quality
+            if style_options:
+                style = st.selectbox("style", options=style_options, index=0, key="dalle_style", help="The style of the generated images. Vivid causes the model to lean towards generating hyper-real and dramatic images. Natural causes the model to produce more natural, less hyper-real looking images.")
+                kwargs['style'] = style
+
+            if 'transparent' in self.models[model]['meta']:
+                transparent = st.toggle("transparent", value=False, key="dalle_transparent", help="If enabled, the image will be generated with a transparent background.")
+                kwargs['background'] = "transparent"
 
             dalle_show_history = st.toggle(label='Show Prompt History', value=False, help="Show a list of prompts that you have used in the past (most recent first). Loading a selected prompt does not load the parameters used for the generation.", key="dalle_show_history")
             if dalle_show_history:
