@@ -1,6 +1,108 @@
 {
     "GPT": 
     {
+        "chatgpt-4o-latest":
+        {
+            "label": "OpenAI's ChatGPT-4o points to the GPT-4o snapshot currently used in ChatGPT. GPT-4o is their versatile, high-intelligence flagship model. It accepts both text and image inputs, and produces text outputs. It is the best model for most tasks, and is their most capable model outside of their o-series models.",
+            "max_token": 16384,
+            "context_token": 128000,
+            "data": "Up to Sep 2023",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision",
+            "meta": {
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
+                "model_url": "https://platform.openai.com/docs/models/gpt-4o"
+            }
+        },
+
+
+        "gemini-1.5-flash":
+        {
+            "label": "Google's fast and versatile performance across a diverse variety of tasks",
+            "max_token": 8000,
+            "context_token": 1000000,
+            "data": "Latest update: Sep 2024",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision",
+            "meta": {
+                "provider": "GoogleAI",
+                "apikey-env": "GEMINI_API_KEY",
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
+                "model_url": "https://ai.google.dev/gemini-api/docs/models#gemini-1.5-flash"
+            }
+        },
+
+        "gemini-1.5-flash-8b":
+        {
+            "label": "Google's fast and versatile performance across a diverse variety of tasks",
+            "max_token": 8000,
+            "context_token": 1000000,
+            "data": "Latest update: Oct 2024",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision",
+            "meta": {
+                "provider": "GoogleAI",
+                "apikey-env": "GEMINI_API_KEY",
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
+                "model_url": "https://ai.google.dev/gemini-api/docs/models#gemini-1.5-flash-8b"
+            }
+        },
+
+        "gemini-1.5-pro":
+        {
+            "label": "Google model for complex reasoning tasks requiring more intelligence",
+            "max_token": 8000,
+            "context_token": 2000000,
+            "data": "Latest update: Sep 2024",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision",
+            "meta": {
+                "provider": "GoogleAI",
+                "apikey-env": "GEMINI_API_KEY",
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
+                "model_url": "https://ai.google.dev/gemini-api/docs/models#gemini-1.5-pro"
+            }
+        },
+
+        "gemini-2.0-flash":
+        {
+            "label": "Google model with next generation features, speed, and multimodal generation for a diverse variety of tasks",
+            "max_token": 8000,
+            "context_token": 1000000,
+            "data": "Latest update: Feb 2025, Knowledge cutoff: Aug 2024",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision",
+            "meta": {
+                "provider": "GoogleAI",
+                "apikey-env": "GEMINI_API_KEY",
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
+                "model_url": "https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash"
+            }
+        },
+
+        "gemini-2.0-flash-lite":
+        {
+            "label": "Google model that reasons over the most complex problems, Show the thinking process of the model, Tackle difficult code and math problems",
+            "max_token": 8000,
+            "context_token": 1000000,
+            "data": "Latest update: Feb 2025, Knowledge cutoff: Aug 2024",
+            "status": "active",
+            "status_details": "",
+            "capability": "vision",
+            "meta": {
+                "provider": "GoogleAI",
+                "apikey-env": "GEMINI_API_KEY",
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
+                "model_url": "https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash-lite"
+            }
+        },
+
         "gemini-2.5-flash-preview-04-17":
         {
             "label": "Google's best model in terms of price-performance, offering well-rounded capabilities. Gemini 2.5 Flash rate limits are more restricted since it is an experimental / preview model",
@@ -14,12 +116,13 @@
                 "provider": "GoogleAI",
                 "apikey-env": "GEMINI_API_KEY",
                 "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
-                "url": "https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash-preview"
+                "model_url": "https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash-preview"
             }
         },
+
         "gemini-2.5-pro-preview-03-25":
         {
-            "label": "State-of-the-art thinking model, capable of reasoning over complex problems in code, math, and STEM, as well as analyzing large datasets, codebases, and documents using long context.",
+            "label": "Google's state-of-the-art thinking model, capable of reasoning over complex problems in code, math, and STEM, as well as analyzing large datasets, codebases, and documents using long context.",
             "max_token": 65000,
             "context_token": 1000000,
             "data": "Latest update: Mar 2025, Knowledge cutoff: Jan 2025",
@@ -30,140 +133,206 @@
                 "provider": "GoogleAI",
                 "apikey-env": "GEMINI_API_KEY",
                 "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
-                "url": "https://ai.google.dev/gemini-api/docs/models#gemini-2.5-pro-preview-03-25"
+                "model_url": "https://ai.google.dev/gemini-api/docs/models#gemini-2.5-pro-preview-03-25"
             }
         },
-        "gemini-2.5-pro-exp-03-25":
+
+
+        "gpt-4.1":
         {
-            "label": "State-of-the-art thinking model, capable of reasoning over complex problems in code, math, and STEM, as well as analyzing large datasets, codebases, and documents using long context.",
-            "max_token": 65000,
+            "label": "OpenAI's flagship model for complex tasks. It is well suited for problem solving across domains.",
+            "max_token": 32000,
             "context_token": 1000000,
-            "data": "Latest update: Mar 2025, Knowledge cutoff: Jan 2025",
+            "data": "Up to May 2024",
             "status": "active",
             "status_details": "",
             "capability": "vision",
             "meta": {
-                "provider": "GoogleAI",
-                "apikey-env": "GEMINI_API_KEY",
-                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
-                "url": "https://ai.google.dev/gemini-api/docs/models#gemini-2.5-pro-preview-03-25"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
+                "model_url": "https://platform.openai.com/docs/models/gpt-4.1"
             }
         },
-        "gemini-2.0-flash":
+
+        "gpt-4.1-mini":
         {
-            "label": "Next generation features, speed, and multimodal generation for a diverse variety of tasks (Latest)",
-            "max_token": 8000,
+            "label": "OpenAI's GPT-4.1 mini provides a balance between intelligence, speed, and cost that makes it an attractive model for many use cases.",
+            "max_token": 32000,
             "context_token": 1000000,
-            "data": "Latest update: Feb 2025, Knowledge cutoff: Aug 2024",
+            "data": "Up to May 2024",
             "status": "active",
             "status_details": "",
             "capability": "vision",
             "meta": {
-                "provider": "GoogleAI",
-                "apikey-env": "GEMINI_API_KEY",
-                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
-                "url": "https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
+                "model_url": "https://platform.openai.com/docs/models/gpt-4.1-mini"
             }
         },
-        "gemini-2.0-flash-001":
+
+        "gpt-4.1-nano":
         {
-            "label": "Next generation features, speed, and multimodal generation for a diverse variety of tasks (Stable)",
-            "max_token": 8000,
+            "label": "OpenAI's GPT-4.1 nano is the fastest, most cost-effective GPT-4.1 model.",
+            "max_token": 32000,
             "context_token": 1000000,
-            "data": "Latest update: Feb 2025, Knowledge cutoff: Aug 2024",
+            "data": "Up to May 2024",
             "status": "active",
             "status_details": "",
             "capability": "vision",
             "meta": {
-                "provider": "GoogleAI",
-                "apikey-env": "GEMINI_API_KEY",
-                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
-                "url": "https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash-001"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
+                "model_url": "https://platform.openai.com/docs/models/gpt-4.1-nano"
             }
         },
-        "gemini-2.0-flash-lite":
+
+        "gpt-4o":
         {
-            "label": "Reason over the most complex problems, Show the thinking process of the model, Tackle difficult code and math problems (Latest)",
-            "max_token": 8000,
-            "context_token": 1000000,
-            "data": "Latest update: Feb 2025, Knowledge cutoff: Aug 2024",
+            "label": "OpenAI's GPT-4o (“o” for “omni”) is their versatile, high-intelligence flagship model. It accepts both text and image inputs, and produces text outputs (including Structured Outputs). It is the best model for most tasks, and is their most capable model outside of their o-series models.",
+            "max_token": 16384,
+            "context_token": 128000,
+            "data": "Up to Sep 2023",
             "status": "active",
             "status_details": "",
             "capability": "vision",
             "meta": {
-                "provider": "GoogleAI",
-                "apikey-env": "GEMINI_API_KEY",
-                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
-                "url": "https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash-lite"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
+                "model_url": "https://platform.openai.com/docs/models/gpt-4o"
             }
         },
-        "gemini-2.0-flash-lite-001":
+
+        "gpt-4o-mini":
         {
-            "label": "Reason over the most complex problems, Show the thinking process of the model, Tackle difficult code and math problems (Stable)",
-            "max_token": 8000,
-            "context_token": 1000000,
-            "data": "Latest update: Feb 2025, Knowledge cutoff: Aug 2024",
+            "label": "OpenAI's GPT-4o mini (“o” for “omni”) is a fast, affordable small model for focused tasks. It accepts both text and image inputs, and produces text outputs (including Structured Outputs).",
+            "max_token": 16384,
+            "context_token": 128000,
+            "data": "Up to Sep 2023",
             "status": "active",
             "status_details": "",
             "capability": "vision",
             "meta": {
-                "provider": "GoogleAI",
-                "apikey-env": "GEMINI_API_KEY",
-                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
-                "url": "https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash-lite-001"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
+                "model_url": "https://platform.openai.com/docs/models/gpt-4o-mini"
             }
         },
-        "gemini-1.5-flash":
+
+        "gpt-4o-mini-search-preview":
         {
-            "label": "Fast and versatile performance across a diverse variety of tasks",
-            "max_token": 8000,
-            "context_token": 1000000,
-            "data": "Latest update: Sep 2024",
+            "label": "OpenAI's GPT-4o mini Search Preview is a specialized model trained to understand and execute web search queries with the Chat Completions API. In addition to token fees, web search queries have a fee per tool call..",
+            "max_token": 16384,
+            "context_token": 128000,
+            "data": "Up to Oct 2023",
             "status": "active",
             "status_details": "",
-            "capability": "vision",
+            "capability": "websearch",
             "meta": {
-                "provider": "GoogleAI",
-                "apikey-env": "GEMINI_API_KEY",
-                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
-                "url": "https://ai.google.dev/gemini-api/docs/models#gemini-1.5-flash"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
+                "model_url": "https://platform.openai.com/docs/models/gpt-4o-mini-search-preview"
             }
         },
-        "gemini-1.5-flash-8b":
+
+        "gpt-4o-search-preview":
         {
-            "label": "Fast and versatile performance across a diverse variety of tasks",
-            "max_token": 8000,
-            "context_token": 1000000,
-            "data": "Latest update: Oct 2024",
+            "label": "OpenAI's GPT-4o Search Preview is a specialized model trained to understand and execute web search queries with the Chat Completions API. In addition to token fees, web search queries have a fee per tool call..",
+            "max_token": 16384,
+            "context_token": 128000,
+            "data": "Up to Oct 2023",
             "status": "active",
             "status_details": "",
-            "capability": "vision",
+            "capability": "websearch",
             "meta": {
-                "provider": "GoogleAI",
-                "apikey-env": "GEMINI_API_KEY",
-                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
-                "url": "https://ai.google.dev/gemini-api/docs/models#gemini-1.5-flash-8b"
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
+                "model_url": "https://platform.openai.com/docs/models/gpt-4o-search-preview"
             }
         },
-        "gemini-1.5-pro":
+
+
+        "o3":
         {
-            "label": "Complex reasoning tasks requiring more intelligence",
-            "max_token": 8000,
-            "context_token": 2000000,
-            "data": "Latest update: Sep 2024",
+            "label": "OpenAI's o3 is a well-rounded and powerful model across domains. It sets a new standard for math, science, coding, and visual reasoning tasks. It also excels at technical writing and instruction-following. Use it to think through multi-step problems that involve analysis across text, code, and images.",
+            "max_token": 100000,
+            "context_token": 208000,
+            "data": "Up to May 2024",
+            "status": "active",
+            "status_details": "beta",
+            "capability": "",
+            "meta": {
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
+                "beta_model": true,
+                "removed_roles": ["system"],
+                "disabled_features": ["temperature", "preset"],
+                "model_url": "https://platform.openai.com/docs/models/o3"
+            }
+        },
+
+        "o3-mini":
+        {
+            "label": "OpenAI's o3-mini is their newest small reasoning model, providing high intelligence at the same cost and latency targets of o1-mini.",
+            "max_token": 100000,
+            "context_token": 208000,
+            "data": "Up to Sep 2023",
+            "status": "active",
+            "status_details": "beta",
+            "capability": "",
+            "meta": {
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
+                "beta_model": true,
+                "removed_roles": ["system"],
+                "disabled_features": ["temperature", "preset"],
+                "model_url": "https://platform.openai.com/docs/models/o3-mini"
+            }
+        },
+
+        "o4-mini":
+        {
+            "label": "OpenAI's o4-mini is their latest small o-series model. It's optimized for fast, effective reasoning with exceptionally efficient performance in coding and visual tasks.",
+            "max_token": 100000,
+            "context_token": 208000,
+            "data": "Up to May 2024",
+            "status": "active",
+            "status_details": "beta",
+            "capability": "",
+            "meta": {
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
+                "beta_model": true,
+                "removed_roles": ["system"],
+                "disabled_features": ["temperature", "preset"],
+                "model_url": "https://platform.openai.com/docs/models/o4-mini"
+            }
+        },
+
+
+        "r1-1776":
+        {
+            "label": "Perplexity's offline AI model that provides uncensored, unbiased responses without relying on real-time search.",
+            "max_token": 4096,
+            "context_token": 127000,
+            "data": "Perplexity model",
             "status": "active",
             "status_details": "",
-            "capability": "vision",
+            "capability": "",
             "meta": {
-                "provider": "GoogleAI",
-                "apikey-env": "GEMINI_API_KEY",
-                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
-                "url": "https://ai.google.dev/gemini-api/docs/models#gemini-1.5-pro"
+                "provider": "PerplexityAI",
+                "apikey-env": "PERPLEXITY_API_KEY",
+                "apiurl": "https://api.perplexity.ai",
+                "msg_format": "role_content",
+                "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user." },
+                "disabled_features": ["role", "prompt_preset", "preset"],
+                "model_url": "https://docs.perplexity.ai/models/models/r1-1776"
             }
-        },        
+        },
+
+
         "sonar":
         {
-            "label": "Lightweight offering with search grounding, quicker and cheaper than Sonar Pro",
+            "label": "Perplexity's lightweight offering with search grounding, quicker and cheaper than Sonar Pro",
             "max_token": 4096,
             "context_token": 127000,
             "data": "Perplexity model",
@@ -177,69 +346,13 @@
                 "msg_format": "role_content",
                 "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user.", "oaiwui_skip": "" },
                 "disabled_features": ["role", "prompt_preset", "preset"],
-                "url": "https://docs.perplexity.ai/models/models/sonar"
+                "model_url": "https://docs.perplexity.ai/models/models/sonar"
             }
         },
-        "sonar-pro":
-        {
-            "label": "Premier search offering with search grounding, supporting advanced queries and follow-ups.",
-            "max_token": 8192,
-            "context_token": 200000,
-            "data": "Perplexity model",
-            "status": "active",
-            "status_details": "",
-            "capability": "",
-            "meta": {
-                "provider": "PerplexityAI",
-                "apikey-env": "PERPLEXITY_API_KEY",
-                "apiurl": "https://api.perplexity.ai",
-                "msg_format": "role_content",
-                "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user." },
-                "disabled_features": ["role", "prompt_preset", "preset"],
-                "url": "https://docs.perplexity.ai/models/models/sonar-pro"
-            }
-        },
-        "sonar-reasoning":
-        {
-            "label": "Premier search offering outputs Chain-of-Thought (CoT) in its response as well.",
-            "max_token": 4096,
-            "context_token": 127000,
-            "data": "Perplexity model",
-            "status": "active",
-            "status_details": "",
-            "capability": "",
-            "meta": {
-                "provider": "PerplexityAI",
-                "apikey-env": "PERPLEXITY_API_KEY",
-                "apiurl": "https://api.perplexity.ai",
-                "msg_format": "role_content",
-                "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user." },
-                "disabled_features": ["role", "prompt_preset", "preset"],
-                "url": "https://docs.perplexity.ai/models/models/sonar-reasoning"
-            }
-        },
-        "sonar-reasoning-pro":
-        {
-            "label": "Premier search offering leveraging advanced multi-step Chain-of-Thought (CoT) in its response as well with search grounding, supporting advanced queries and follow-ups.",
-            "max_token": 8192,
-            "context_token": 127000,
-            "data": "Perplexity model",
-            "status": "active",
-            "status_details": "",
-            "capability": "",
-            "meta": {
-                "provider": "PerplexityAI",
-                "apikey-env": "PERPLEXITY_API_KEY",
-                "apiurl": "https://api.perplexity.ai",
-                "msg_format": "role_content",
-                "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user." },
-                "disabled_features": ["role", "prompt_preset", "preset"],
-                "url": "https://docs.perplexity.ai/models/models/sonar-reasoning-pro"
-            }
-        },
+
         "sonar-deep-research":
         {
-            "label": "Premier search offering outputs CoT in its response as well with search grounding, supporting advanced queries and follow-ups.",
+            "label": "Perplexity's premier search offering outputs CoT in its response as well with search grounding, supporting advanced queries and follow-ups.",
             "max_token": 4096,
             "context_token": 60000,
             "data": "Perplexity model",
@@ -253,12 +366,33 @@
                 "msg_format": "role_content",
                 "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user." },
                 "disabled_features": ["role", "prompt_preset", "preset"],
-                "url": "https://docs.perplexity.ai/models/models/sonar-deep-research"
+                "model_url": "https://docs.perplexity.ai/models/models/sonar-deep-research"
             }
         },
-        "r1-1776":
+
+        "sonar-pro":
         {
-            "label": "Offline AI model that provides uncensored, unbiased responses without relying on real-time search.",
+            "label": "Perplexity's premier search offering with search grounding, supporting advanced queries and follow-ups.",
+            "max_token": 8192,
+            "context_token": 200000,
+            "data": "Perplexity model",
+            "status": "active",
+            "status_details": "",
+            "capability": "",
+            "meta": {
+                "provider": "PerplexityAI",
+                "apikey-env": "PERPLEXITY_API_KEY",
+                "apiurl": "https://api.perplexity.ai",
+                "msg_format": "role_content",
+                "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user." },
+                "disabled_features": ["role", "prompt_preset", "preset"],
+                "model_url": "https://docs.perplexity.ai/models/models/sonar-pro"
+            }
+        },
+
+        "sonar-reasoning":
+        {
+            "label": "Perplexity's premier search offering outputs Chain-of-Thought (CoT) in its response as well.",
             "max_token": 4096,
             "context_token": 127000,
             "data": "Perplexity model",
@@ -272,496 +406,32 @@
                 "msg_format": "role_content",
                 "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user." },
                 "disabled_features": ["role", "prompt_preset", "preset"],
-                "url": "https://docs.perplexity.ai/models/models/r1-1776"
+                "model_url": "https://docs.perplexity.ai/models/models/sonar-reasoning"
             }
         },
-        "gpt-4.1":
+
+        "sonar-reasoning-pro":
         {
-            "label": "OpenAI's flagship model for complex tasks. It is well suited for problem solving across domains.",
-            "max_token": 32000,
-            "context_token": 1000000,
-            "data": "Up to May 2024",
-            "status": "active",
-            "status_details": "",
-            "capability": "vision",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-4.5-preview":
-        {
-            "label": "Research preview of GPT-4.5, our largest and most capable GPT model yet.",
-            "max_token": 16384,
-            "context_token": 128000,
-            "data": "Up to Oct 2023 (as of 20250302)",
-            "status": "active",
-            "status_details": "",
-            "capability": "vision",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-4o-mini":
-        {
-            "label": "Our affordable and intelligent small model for fast, lightweight tasks. GPT-4o mini is cheaper and more capable than GPT-3.5 Turbo. Currently points to gpt-4o-mini-2024-07-18.",
-            "max_token": 16384,
-            "context_token": 128000,
-            "data": "Up to Oct 2023 (as of 20240718)",
-            "status": "active",
-            "status_details": "",
-            "capability": "vision",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-4o-mini-2024-07-18":
-        {
-            "label": "Our affordable and intelligent small model for fast, lightweight tasks. GPT-4o mini is cheaper and more capable than GPT-3.5 Turbo.",
-            "max_token": 16384,
-            "context_token": 128000,
-            "data": "Up to Oct 2023 (as of 20240718)",
-            "status": "active",
-            "status_details": "",
-            "capability": "vision",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-4o":
-        {
-            "label": "Our high-intelligence flagship model for complex, multi-step tasks. GPT-4o is cheaper and faster than GPT-4 Turbo. Currently points to gpt-4o-2024-08-06.",
-            "max_token": 16384,
-            "context_token": 128000,
-            "data": "Up to Oct 2023 (as of 20240806)",
-            "status": "active",
-            "status_details": "",
-            "capability": "vision",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-4o-2024-11-20":
-        {
-            "label": "Latest gpt-4o snapshot from November 20th, 2024.",
-            "max_token": 16384,
-            "context_token": 128000,
-            "data": "Up to Oct 2023 (as of 20241206)",
-            "status": "active",
-            "status_details": "",
-            "capability": "vision",
-            "meta": {
-                "provider": "OpenAI", 
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-4o-2024-08-06":
-        {
-            "label": "Latest snapshot that supports Structured Outputs. gpt-4o currently points to this version.",
-            "max_token": 16384,
-            "context_token": 128000,
-            "data": "Up to Oct 2023 (as of 20240806)",
-            "status": "active",
-            "status_details": "",
-            "capability": "vision",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-4o-2024-05-13":
-        {
-            "label": "Original gpt-4o snapshot from May 13, 2024.",
-            "max_token": 4096,
-            "context_token": 128000,
-            "data": "Up to Oct 2023 (as of 20240718)",
-            "status": "active",
-            "status_details": "",
-            "capability": "vision",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "chatgpt-4o-latest":
-        {
-            "label": "The chatgpt-4o-latest model version continuously points to the version of GPT-4o used in ChatGPT, and is updated frequently, when there are significant changes.",
-            "max_token": 16384,
-            "context_token": 128000,
-            "data": "Up to Oct 2023 (as of 20241206)",
-            "status": "active",
-            "status_details": "",
-            "capability": "vision",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "o1-preview":
-        {
-            "label": "o1 series of large language models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user. o1-preview: reasoning model designed to solve hard problems across domains. Points to the most recent snapshot of the o1 model: o1-preview-2024-09-12",
-            "max_token": 32768,
-            "context_token": 128000,
-            "data": "Up to Oct 2023 (as of 20240912)",
-            "status": "active",
-            "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
-            "capability": "",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY",
-                "beta_model": true,
-                "removed_roles": ["system"],
-                "disabled_features": ["temperature", "preset"]
-            }
-        },
-        "o1-preview-2024-09-12":
-        {
-            "label": "Latest o1 model snapshot",
-            "max_token": 32768,
-            "context_token": 128000,
-            "data": "Up to Oct 2023 (as of 20241206)",
-            "status": "active",
-            "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
-            "capability": "",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY",
-                "beta_model": true,
-                "removed_roles": ["system"],
-                "disabled_features": ["temperature", "preset"]
-            }
-        },
-        "o3-mini":
-        {
-            "label": "o3-mini is our most recent small reasoning model, providing high intelligence at the same cost and latency targets of o1-mini. Points to the most recent o3-mini snapshot: o3-mini-2025-01-31",
-            "max_token": 100000,
-            "context_token": 208000,
-            "data": "Up to Oct 2023 (as of 20250131)",
-            "status": "active",
-            "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
-            "capability": "",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY",
-                "beta_model": true,
-                "removed_roles": ["system"],
-                "disabled_features": ["temperature", "preset"]
-            }
-        },
-        "o3-mini-2025-01-31":
-        {
-            "label": "Latest o3-mini model snapshot",
-            "max_token": 100000,
-            "context_token": 208000,
-            "data": "Up to Oct 2023 (as of 20250131)",
-            "status": "active",
-            "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
-            "capability": "",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY",
-                "beta_model": true,
-                "removed_roles": ["system"],
-                "disabled_features": ["temperature", "preset"]
-            }
-        },
-        "o1-mini":
-        {
-            "label": "o1 series of large language models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user. o1-mini: faster and cheaper reasoning model particularly good at coding, math, and science. Points to the most recent o1-mini snapshot: o1-mini-2024-09-12",
-            "max_token": 65536,
-            "context_token": 128000,
-            "data": "Up to Oct 2023 (as of 20240912)",
-            "status": "active",
-            "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
-            "capability": "",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY",
-                "beta_model": true,
-                "removed_roles": ["system"],
-                "disabled_features": ["temperature", "preset"]
-            }
-        },
-        "o1-mini-2024-09-12":
-        {
-            "label": "Latest o1-mini model snapshot",
-            "max_token": 65536,
-            "context_token": 128000,
-            "data": "Up to Oct 2023 (as of 20240912)",
-            "status": "active",
-            "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
-            "capability": "",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY",
-                "beta_model": true,
-                "removed_roles": ["system"],
-                "disabled_features": ["temperature", "preset"]
-            }
-        },
-        "o1":
-        {
-            "label": "o1: reasoning model designed to solve hard problems across domains. o1 series of large language models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user. o1 model supports both text and image inputs, and produces text outputs (including Structured Outputs). Points to: o1-2024-12-17",
-            "max_token": 100000,
-            "context_token": 200000,
-            "data": "Unlisted (as of 20241217)",
-            "status": "active",
-            "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
-            "capability": "vision",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY",
-                "beta_model": true,
-                "removed_roles": ["system"],
-                "disabled_features": ["temperature", "preset"]
-            }
-        },
-        "o1-2024-12-17":
-        {
-            "label": "o1: reasoning model designed to solve hard problems across domains. o1 series of large language models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user.",
-            "max_token": 100000,
-            "context_token": 200000,
-            "data": "Unlisted (as of 20241217)",
-            "status": "active",
-            "status_details": "beta model: limited control of features and capabilities. Does not support system role. For details, see https://platform.openai.com/docs/guides/reasoning",
-            "capability": "vision",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY",
-                "beta_model": true,
-                "removed_roles": ["system"],
-                "disabled_features": ["temperature", "preset"]
-            }
-        },
-        "gpt-4-turbo":
-        {
-            "label": "The latest GPT-4 Turbo model with vision capabilities. Currently points to gpt-4-turbo-2024-04-09.",
-            "max_token": 4096,
-            "context_token": 128000,
-            "data": "Up to Dec 2023 (as of 20240718)",
-            "status": "active",
-            "status_details": "",
-            "capability": "vision",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-4-turbo-2024-04-09":
-        {
-            "label": "GPT-4 Turbo with Vision model. gpt-4-turbo currently points to this version.",
-            "max_token": 4096,
-            "context_token": 128000,
-            "data": "Up to Dec 2023 (as of 20240718)",
-            "status": "active",
-            "status_details": "",
-            "capability": "vision",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-4-turbo-preview":
-        {
-            "label": "Currently points to gpt-4-0125-preview: The latest GPT-4 model intended to reduce cases of laziness where the model doesn’t complete a task. Returns a maximum of 4,096 output tokens.",
-            "max_token": 4096,
-            "context_token": 128000,
-            "data": "Up to Dec 2023 (as of 20240718)",
+            "label": "Perplexity's premier search offering leveraging advanced multi-step Chain-of-Thought (CoT) in its response as well with search grounding, supporting advanced queries and follow-ups.",
+            "max_token": 8192,
+            "context_token": 127000,
+            "data": "Perplexity model",
             "status": "active",
             "status_details": "",
             "capability": "",
             "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-4-0125-preview":
-        {
-            "label": "GPT-4 Turbo preview model intended to reduce cases of laziness where the model doesn’t complete a task. Returns a maximum of 4,096 output tokens.",
-            "max_token": 4096,
-            "context_token": 128000,
-            "data": "Up to Dec 2023 (as of 20240718)",
-            "status": "active",
-            "status_details": "",
-            "capability": "",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-4-1106-preview":
-        {
-            "label": "GPT-4 Turbo model featuring improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Returns a maximum of 4,096 output tokens. This is a preview model.",
-            "max_token": 4096,
-            "context_token": 128000,
-            "data": "Up to Apr 2023 (as of 20240718)",
-            "status": "active",
-            "status_details": "",
-            "capability": "",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-4":
-        {
-            "label": "Currently points to gpt-4-0613: Snapshot of gpt-4 from June 13th 2023 with improved function calling support.",
-            "max_token": 4096,
-            "context_token": 8192,
-            "data": "Up to Sep 2021 (as of 20240718)",
-            "status": "active",
-            "status_details": "",
-            "capability": "",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-4-0613":
-        {
-            "label": "Snapshot of gpt-4 from June 13th 2023 with improved function calling support.",
-            "max_token": 4096,
-            "context_token": 8192,
-            "data": "Up to Sep 2021 (as of 20240718)",
-            "status": "active",
-            "status_details": "",
-            "capability": "",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-4-32k":
-        {
-            "label": "Currently points to gpt-4-32k-0613: Snapshot of gpt-4-32k from June 13th 2023 with improved function calling support. This model was never rolled out widely in favor of GPT-4 Turbo.",
-            "max_token": 4096,
-            "context_token": 32768,
-            "data": "Up to Sep 2021 (as of 20240606)",
-            "status": "deprecated",
-            "status_details": "",
-            "capability": "",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-4-32k-0613":
-        {
-            "label": "Snapshot of gpt-4-32k from June 13th 2023 with improved function calling support. This model was never rolled out widely in favor of GPT-4 Turbo.",
-            "max_token": 4096,
-            "context_token": 32768,
-            "data": "Up to Sep 2021 (as of 20240606)",
-            "status": "deprecated",
-            "status_details": "",
-            "capability": "",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-3.5-turbo-0125":
-        {
-            "label": "The latest GPT-3.5 Turbo model with higher accuracy at responding in requested formats and a fix for a bug which caused a text encoding issue for non-English language function calls. Returns a maximum of 4,096 output tokens.",
-            "max_token": 4096,
-            "context_token": 16385,
-            "data": "Up to Sep 2021 (as of 20240718)",
-            "status": "active",
-            "status_details": "",
-            "capability": "",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-3.5-turbo":
-        {
-            "label": "Currently points to gpt-3.5-turbo-0125: The latest GPT-3.5 Turbo model with higher accuracy at responding in requested formats and a fix for a bug which caused a text encoding issue for non-English language function calls. Returns a maximum of 4,096 output tokens.",
-            "max_token": 4096,
-            "context_token": 16385,
-            "data": "Up to Sep 2021 (as of 20240718)",
-            "status": "active",
-            "status_details": "",
-            "capability": "",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-3.5-turbo-1106":
-        {
-            "label": "GPT-3.5 Turbo model with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Returns a maximum of 4,096 output tokens.",
-            "max_token": 4096,
-            "context_token": 16385,
-            "data": "Up to Sep 2021 (as of 20240718)",
-            "status": "active",
-            "status_details": "",
-            "capability": "",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-3.5-turbo-16k":
-        {
-            "label": "Currently points to gpt-3.5-turbo-16k-0613: Snapshot of gpt-3.5-turbo from June 13th 2023. Will be deprecated on June 13, 2024.",
-            "max_token": 4096,
-            "context_token": 16385,
-            "data": "Up to Sep 2021 (as of 20240513)",
-            "status": "deprecated",
-            "status_details": "Will be deprecated on June 13, 2024.",
-            "capability": "",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-3.5-turbo-0613":
-        {
-            "label": "Snapshot of gpt-3.5-turbo from June 13th 2023. Will be deprecated on June 13, 2024.",
-            "max_token": 4096,
-            "context_token": 4096,
-            "data": "Up to Sep 2021 (as of 20240513)",
-            "status": "deprecated",
-            "status_details": "Will be deprecated on June 13, 2024.",
-            "capability": "",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
-            }
-        },
-        "gpt-3.5-turbo-16k-0613":
-        {
-            "label": "Snapshot of gpt-3.5-16k-turbo from June 13th 2023. Will be deprecated on June 13, 2024.",
-            "max_token": 4096,
-            "context_token": 16385,
-            "data": "Up to Sep 2021 (as of 20240513)",
-            "status": "deprecated",
-            "status_details": "Will be deprecated on June 13, 2024.",
-            "capability": "",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"
+                "provider": "PerplexityAI",
+                "apikey-env": "PERPLEXITY_API_KEY",
+                "apiurl": "https://api.perplexity.ai",
+                "msg_format": "role_content",
+                "init_msg": {"role": "system", "content": "You are an artificial intelligence assistant and you need to engage in a helpful, detailed, polite conversation with a user." },
+                "disabled_features": ["role", "prompt_preset", "preset"],
+                "model_url": "https://docs.perplexity.ai/models/models/sonar-reasoning-pro"
             }
         }
     },
     "DallE":
     {
-        "dall-e-3":
-        {
-            "label": "The latest DALL·E model released in Nov 2023. The maximum prompt length is 4000 characters.",
-            "image_size": ["1024x1024", "1024x1792", "1792x1024"],
-            "max_prompt_length": 4000,
-            "status": "active",
-            "status_details": "",
-            "meta": {
-                "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"                    
-            }
-        },
         "dall-e-2":
         {
             "label": "The previous DALL·E model released in Nov 2022. The maximum prompt length is 1000 characters.",
@@ -771,8 +441,43 @@
             "status_details": "",
             "meta": {
                 "provider": "OpenAI",
-                "apikey-env": "OPENAI_API_KEY"                    
+                "apikey-env": "OPENAI_API_KEY",
+                "model_url": "https://platform.openai.com/docs/models#dall-e"
+            }
+        },
+
+        "dall-e-3":
+        {
+            "label": "The latest DALL·E model released in Nov 2023. The maximum prompt length is 4000 characters.",
+            "image_size": ["1024x1024", "1024x1792", "1792x1024"],
+            "max_prompt_length": 4000,
+            "status": "active",
+            "status_details": "",
+            "meta": {
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
+                "model_url": "https://platform.openai.com/docs/models#dall-e",
+                "quality": ["standard", "hd"],
+                "style": ["vivid", "natural"]
+            }
+        },
+
+        "gpt-image-1":
+        {
+            "label": "OpenAI's GPT Image 1 is their new state-of-the-art image generation model.",
+            "image_size": ["auto", "1024x1024", "1536x1024", "1024x1536"],
+            "max_prompt_length": 1000,
+            "status": "active",
+            "status_details": "",
+            "meta": {
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
+                "model_url": "https://platform.openai.com/docs/models#dall-e",
+                "quality": ["auto", "low", "medium", "high"],
+                "transparent": true
             }
         }
+
+
     }
 }
