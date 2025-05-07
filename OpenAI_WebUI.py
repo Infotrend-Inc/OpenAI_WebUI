@@ -6,10 +6,10 @@
 
 # /// script
 # requires-python = ">=3.12"
-# dependencies = ["openai==1.77.0", "streamlit>=1.45.0", "extra-streamlit-components>=0.1.80", "streamlit-extras>=0.6.0", "streamlit_image_select>=0.6.0", "requests>=2.32.0", "python-dotenv>=1.0.1", "pillow>=10.4.0", "watchdog>=5.0.0" ]
+# dependencies = ["openai==1.77.0", "streamlit>=1.45.0", "extra-streamlit-components>=0.1.80", "streamlit-extras>=0.7.1", "streamlit_image_select>=0.6.0", "requests>=2.32.0", "python-dotenv>=1.0.1", "pillow>=10.4.0", "watchdog>=5.0.0" ]
 # ///
 
-# uv tool run --with 'openai==1.77.0,streamlit>=1.45.0,extra-streamlit-components>=0.1.80,streamlit-extras>=0.6.0,streamlit_image_select>=0.6.0,requests>=2.32.0,python-dotenv>=1.0.1,pillow>=10.4.0,watchdog>=5.0.0' streamlit run ./OpenAI_WebUI.py --server.port=8501 --server.address=127.0.0.1 --logger.level=debug --server.headless=true
+# uv tool run --with 'openai==1.77.0,streamlit>=1.45.0,extra-streamlit-components>=0.1.80,streamlit-extras>=0.7.1,streamlit_image_select>=0.6.0,requests>=2.32.0,python-dotenv>=1.0.1,pillow>=10.4.0,watchdog>=5.0.0' streamlit run ./OpenAI_WebUI.py --server.port=8501 --server.address=127.0.0.1 --logger.level=debug --server.headless=true
 
 
 import streamlit as st
@@ -37,30 +37,6 @@ import hmac
 iti_version=cf.iti_version
 
 st.set_page_config(page_title=f"OpenAI API WebUI ({iti_version})", page_icon="🫥", layout="wide", initial_sidebar_state="expanded", menu_items={'Get Help': 'https://github.com/Infotrend-Inc/OpenAI_WebUI', 'About': f"# OpenAI WebUI ({iti_version})\n Brought to you by [Infotrend Inc.](https://www.infotrend.com/)"})
-
-#####
-def load_models():
-    err = cf.check_file_r("models.json", "models.json")
-    if cf.isNotBlank(err):
-        st.error(f"While checking models.json: {err}")
-        cf.error_exit(f"While checking models.json: {err}")
-    all_models = cf.read_json("models.json")
-    if all_models is None:
-        st.error(f"Could not read models.json")
-        cf.error_exit(f"Could not read models.json")
-    gpt_models = {}
-    if 'GPT' in all_models:
-        gpt_models = all_models['GPT']
-    else:
-        st.error(f"Could not find GPT in models.json")
-        cf.error_exit(f"Could not find GPT in models.json")
-    dalle_models = {}
-    if 'DallE' in all_models:
-        dalle_models = all_models['DallE']
-    else:
-        st.error(f"Could not find DallE in models.json")
-        cf.error_exit(f"Could not find DallE in models.json")
-    return gpt_models, dalle_models
 
 #####
 # https://docs.streamlit.io/knowledge-base/deploy/authentication-without-sso
@@ -91,7 +67,10 @@ def check_password():
 def get_ui_params(runid):
     print(f"---------- [INFO] Main get_ui_params ({runid}) ----------")
     # Load all supported models (need the status field to decide or prompt if we can use that model or not)
-    av_gpt_models, av_dalle_models = load_models()    
+    err, av_gpt_models, av_dalle_models = cf.load_models()    
+    if cf.isNotBlank(err):
+        st.error(err)
+        cf.error_exit(err)
 
     warnings = [ ]
 
@@ -308,7 +287,8 @@ def process_error_warning(err, warn):
         st.error(err)
         cf.error_exit(err)
     if cf.isNotBlank(warn):
-        st.warning(warn)
+#        st.toast(warn)
+        print(warn)
 
 
 def set_ui(oai_gpt, oai_gpt_st, oai_dalle, oai_dalle_st):
