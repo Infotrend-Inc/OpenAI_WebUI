@@ -89,7 +89,7 @@ def ollama_to_modelsjson(ollama_home, model_name, info):
         return err, {}
 
     # INPUT: 'llama3.3:70b': {'license': 'LLAMA 3.3 COMMUNITY LICENSE AGREEMENT', 'family': 'llama', 'format': 'gguf', 'parameter_size': '70.6B', 'quantization_level': 'Q4_K_M', 'architecture': 'llama', 'context_length': 131072}
-    # OUTPUT: 'llama3.3:70b': { "label": "[Ollama] Architecture: llama, Format: gguf, License: LLAMA 3.3 COMMUNITY LICENSE AGREEMENT, Family: llama, Parameter size: 70.6B, Quantization level: Q4_K_M", "max_token": 4096, "context_token": 131072, "data": "Ollama model","status": "active", "status_details": "", "capability": "", "meta": { "provider": "Ollama", "apiurl": f"{ollama_home}/v1/"}
+    # OUTPUT: 'llama3.3:70b': { "label": "[Ollama] Architecture: llama, Format: gguf, License: LLAMA 3.3 COMMUNITY LICENSE AGREEMENT, Family: llama, Parameter size: 70.6B, Quantization level: Q4_K_M", "max_token": 4096, "context_token": 131072, "data": "Ollama model","status": "active", "status_details": "", "capability": [], "meta": { "provider": "Ollama", "apiurl": f"{ollama_home}/v1/"}
 
     if 'license' not in info:
         info['license'] = 'Unknown'
@@ -116,7 +116,7 @@ def ollama_to_modelsjson(ollama_home, model_name, info):
         "data": "Ollama model",
         "status": "active",
         "status_details": f"using Ollama: allowing vision and using a default value for max_token. See https://ollama.com/library/{model_name} for actual model capabilities.",
-        "capability": "vision",
+        "capability": ["vision"],
         "meta": {
             "provider": "Ollama",
             "apikey": "ollama",
