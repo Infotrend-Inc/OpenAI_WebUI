@@ -1,4 +1,4 @@
-<h1>OpenAI API-compatible WebUI</h1>
+<h1>OpenAI API-compatible WebUI (OAIWUI)</h1>
 
 Latest version: 0.9.11 (20241217)
 
@@ -24,9 +24,9 @@ The tool also supports a few OpenAI API-compatible providers, such as Perplexity
 
 The tool's purpose is to enable a company to install a self-hosted version of a WebUI to access the capabilities of OpenAI's API-compatible GPT and Dall-E and share access to the tool's capabilities while consolidating billing through the [OpenAI API](https://pypi.org/project/openai/) key. Access to [models](https://platform.openai.com/docs/models/) is limited to those enabled with your API key.
 
-Click on the links to see a screenshot of the [GPT WebUI](./assets/Screenshot-OAI_WebUI_GPT.jpg) and the [DallE WebUI](./assets/Screenshot-OAI_WebUI_DallE.jpg).
+Click on the links to see a screenshot of the [GPT WebUI](./assets/Screenshot-OAIWUI_WebUI_GPT.jpg) and the [Image WebUI](./assets/Screenshot-OAIWUI_WebUI_Image.jpg).
 
-Please see https://github.com/Infotrend-Inc/OpenAI_WebUI/blob/main/.env.example for details of possible values for the environment variables. 
+Please see https://github.com/Infotrend-Inc/OpenAI_WebUI/blob/main/.env.example for details of possible values for the environment variables. 
 Unless specified, even if a feature is not used, its environment variable should be set.
 
 A pre-built container is available from our Docker account at https://hub.docker.com/r/infotrend/openai_webui
@@ -214,7 +214,7 @@ Do not distribute that file.
 1. Edit the code if desired, and when you are ready to test, start the WebUI (remove `--server.headless=true` to automatically open a browser window)
 
     ```bash
-    $ poetry run streamlit run ./OpenAI_WebUI.py --server.port=8501 --server.address=127.0.0.1 --logger.level=debug --server.headless=true
+    $ poetry run streamlit run ./OAIWUI_WebUI.py --server.port=8501 --server.address=127.0.0.1 --logger.level=debug --server.headless=true
     ```
 
 1. You can now open your browser to http://127.0.0.1:8501 to test the WebUI.
