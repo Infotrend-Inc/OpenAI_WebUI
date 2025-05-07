@@ -10,10 +10,10 @@ readme = "README.md"
 repository = "https://github.com/Infotrend-Inc/OpenAI_WebUI"
 requires-python = ">=3.10,<4.0"
 dependencies = [
-    "openai==1.64.0",
-    "streamlit>=1.39.0",
-    "extra-streamlit-components>=0.1.71",
-    "streamlit-extras>=0.4.7",
+    "openai==1.77.0",
+    "streamlit>=1.45.0",
+    "extra-streamlit-components>=0.1.80",
+    "streamlit-extras>=0.7.1",
     "streamlit_image_select>=0.6.0",
     "requests>=2.32.0",
     "python-dotenv>=1.0.1",
