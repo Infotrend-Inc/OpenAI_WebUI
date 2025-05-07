@@ -7,6 +7,7 @@ import requests
 
 import os.path
 import pathlib
+import base64
 
 import common_functions as cf
 
@@ -15,7 +16,7 @@ from datetime import datetime
 
 ######
 # https://github.com/openai/openai-openapi/blob/master/openapi.yaml
-def dalle_call(apikey, model, prompt, img_size, img_count, **kwargs):
+def dalle_call(apikey, model, prompt, img_size, img_count, resp_file:str='', **kwargs):
     client = OpenAI(api_key=apikey)
 
     # Generate a response
@@ -38,6 +39,18 @@ def dalle_call(apikey, model, prompt, img_size, img_count, **kwargs):
         return(f"OpenAI API returned an API Error: {e}", "")
     except openai.OpenAIError as e:
         return(f"OpenAI API request failed: {e}", "")
+
+    response_dict = {}
+    # Convert response to dict using model_dump() for Pydantic models
+    try:
+        response_dict = response.model_dump()
+    except AttributeError:
+        # Fallback for objects that don't support model_dump
+        response_dict = vars(response)
+
+    if cf.isNotBlank(resp_file):
+        with open(resp_file, 'w') as f:
+            json.dump(response_dict, f, indent=4)
 
     return "", response
 
@@ -68,6 +81,8 @@ class OAI_DallE:
             self.dalle_help += self.dalle_modes[key] + "\n"
 
         self.per_model_provider = {}
+        self.models_warning = {}
+        self.known_models = {}
 
 
 #####
@@ -85,7 +100,6 @@ class OAI_DallE:
             return warn
 
         self.apikeys[provider] = apikey
-        self.per_model_provider[model] = provider
         return ""
 
 #####
@@ -105,19 +119,31 @@ class OAI_DallE:
                     err = self.check_apikeys(model, av_models_list[model]["meta"])
                     if cf.isNotBlank(err):
                         warning += f"Discarding Model {model}: {err}. "
+                        self.models_warning[model] = f"Discarding: {err}"
+                        continue
+                    if 'provider' in av_models_list[model]["meta"]:
+                        self.per_model_provider[model] = av_models_list[model]["meta"]["provider"]
+                    else:
+                        warning += f"Discarding Model {model}: Missing the provider information. "
+                        self.models_warning[model] = f"Discarding: Missing the provider information"
                         continue
                 else:
                     warning += f"Discarding Model {model}: Missing the meta information. "
+                    self.models_warning[model] = f"Discarding: Missing the meta information"
                     continue
 
                 if av_models_list[model]["status"] == "deprecated":
                     warning += f"Model [{model}] is deprecated (" + av_models_list[model]['status_details'] + "), discarding it"
+                    self.models_warning[model] = f"deprecated (" + av_models_list[model]['status_details'] + ")"
                 else:
                     models[model] = dict(av_models_list[model])
                     if cf.isNotBlank(models[model]["status_details"]):
                         models_status[model] = av_models_list[model]["status"] + " (" + av_models_list[model]["status_details"] + ")"
             else:
-                return f"Unknown model: [{model}] | Known models: {known_models}", warning
+                warning += f"Unknown model: [{model}] | Known models: {known_models}"
+                self.models_warning[model] = f"Unknown model"
+
+        self.known_models = list(av_models_list.keys())
 
         model_help = ""
         for key in models:
@@ -135,7 +161,7 @@ class OAI_DallE:
         if len(models) == 0:
             return f"No models retained, unable to continue. Active models: {active_models_txt}", warning
 
-        model_help += "For a list of available supported models, see https://github.com/Infotrend-Inc/OpenAI_WebUI\n\n"
+        model_help += "For a list of available supported models, see https://github.com/Infotrend-Inc/OpenAI_WebUI/models.md\n\n"
         model_help += f"List of active models supported by this release: {active_models_txt}\n\n"
 
         self.models = models
@@ -166,29 +192,49 @@ class OAI_DallE:
     def get_save_location(self):
         return self.save_location
 
+    def get_models_warning(self):
+        return self.models_warning
+
+    def get_known_models(self):
+        return self.known_models
+
 #####
-    def dalle_it(self, model, prompt, img_size, img_count, dest_dir, st_placeholder = None, **kwargs):
+    def dalle_it(self, model, prompt, img_size, img_count, dest_dir, **kwargs):
         err = cf.make_wdir_recursive(dest_dir)
         err = cf.check_existing_dir_w(dest_dir)
         if cf.isNotBlank(err):
             return f"While checking {dest_dir}: {err}", ""
+        resp_file = f"{dest_dir}/resp.json"
 
-        err, response = dalle_call(self.apikeys[self.per_model_provider[model]], model, prompt, img_size, img_count, **kwargs)
+        warn = ""
+        err, response = dalle_call(self.apikeys[self.per_model_provider[model]], model, prompt, img_size, img_count, resp_file, **kwargs)
         if cf.isNotBlank(err):
-            return err, ""
+            return err, warn, ""
 
         all_images = []
         for i in range(img_count):
             image_name = f"{dest_dir}/{i + 1}.png"
+
+            print(f"Downloading result {i + 1} as {image_name}")
             image_url = response.data[i].url
-            if st_placeholder:
-                st_placeholder.info(f"Downloading result {i + 1} as {image_name}")
-            img_data = requests.get(image_url).content
-            with open(image_name, 'wb') as handler:
-                handler.write(img_data)
-            all_images.append(image_name)
-        if st_placeholder:
-            st_placeholder.empty()
+            image_b64 = response.data[i].b64_json
+            img_bytes = None
+
+            if image_url is not None:
+                img_bytes = requests.get(image_url).content
+            elif image_b64 is not None:
+                img_bytes = base64.b64decode(image_b64)
+
+            if img_bytes is not None:
+                with open(image_name, 'wb') as handler:
+                    handler.write(img_bytes)
+                all_images.append(image_name)
+            else:
+                warn += f"Unable to download image {i + 1}\n"
+                print(f"Unable to download image")
+
+        if len(all_images) == 0:
+            return "No images generated", warn, ""
 
         run_file = f"{dest_dir}/run.json"
         run_json = {
@@ -198,7 +244,7 @@ class OAI_DallE:
         with open(run_file, 'w') as f:
             json.dump(run_json, f, indent=4)
 
-        return "", run_file
+        return "", warn, run_file
 
 #####
     def get_history(self):

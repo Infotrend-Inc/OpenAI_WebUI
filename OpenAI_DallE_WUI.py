@@ -33,6 +33,9 @@ class OAI_DallE_WUI:
         self.per_model_help = oai_dalle.get_per_model_help()
         self.dalle_modes = oai_dalle.get_dalle_modes()
 
+        self.models_warning = oai_dalle.get_models_warning()
+        self.known_models = oai_dalle.get_known_models()
+
         self.last_dalle_query = oai_dalle.last_dalle_query
 
 
@@ -88,12 +91,18 @@ class OAI_DallE_WUI:
 
             if 'transparent' in self.models[model]['meta']:
                 transparent = st.toggle("transparent", value=False, key="dalle_transparent", help="If enabled, the image will be generated with a transparent background.")
-                kwargs['background'] = "transparent"
+                if transparent:
+                    kwargs['background'] = "transparent"
 
             dalle_show_history = st.toggle(label='Show Prompt History', value=False, help="Show a list of prompts that you have used in the past (most recent first). Loading a selected prompt does not load the parameters used for the generation.", key="dalle_show_history")
             if dalle_show_history:
                 dalle_allow_history_deletion = st.toggle('Allow Prompt History Deletion', value=False, help="This will allow you to delete a prompt from the history. This will delete the prompt and all its associated files. This cannot be undone.", key="dalle_allow_history_deletion")
 
+            # Check for model warnings
+            if list(self.models_warning.keys()) != []:
+                warning_text = " - " +"\n - ".join ([f"{model}: {self.models_warning[model]}" for model in sorted(self.models_warning.keys())])
+                warning_text += f"\n\n\nKnown models: {self.known_models}"
+                st.text("⚠️ Models warnings", help=f"{warning_text}")
 
         if dalle_show_history:
             err, hist = self.oai_dalle.get_history()
@@ -121,11 +130,12 @@ class OAI_DallE_WUI:
                 return ()
             
             dalle_dest_dir = self.get_dest_dir()
-            st_placeholder = st.empty()
             with st.spinner(f"Asking OpenAI for a response..."):
-                err, run_file = self.oai_dalle.dalle_it(model, prompt, img_size, img_count, dalle_dest_dir, st_placeholder, **kwargs)
+                err, warn, run_file = self.oai_dalle.dalle_it(model, prompt, img_size, img_count, dalle_dest_dir, **kwargs)
                 if cf.isNotBlank(err):
                     st.error(err)
+                if cf.isNotBlank(warn):
+                    st.warning(warn)
                 if cf.isNotBlank(run_file):
                     st.session_state[self.last_dalle_query] = run_file
                     st.toast("Done")
