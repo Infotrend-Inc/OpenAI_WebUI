@@ -9,17 +9,17 @@
 # dependencies = ["openai==1.77.0", "streamlit>=1.45.0", "extra-streamlit-components>=0.1.80", "streamlit-extras>=0.7.1", "streamlit_image_select>=0.6.0", "requests>=2.32.0", "python-dotenv>=1.0.1", "pillow>=10.4.0", "watchdog>=5.0.0" ]
 # ///
 
-# uv tool run --with 'openai==1.77.0,streamlit>=1.45.0,extra-streamlit-components>=0.1.80,streamlit-extras>=0.7.1,streamlit_image_select>=0.6.0,requests>=2.32.0,python-dotenv>=1.0.1,pillow>=10.4.0,watchdog>=5.0.0' streamlit run ./OpenAI_WebUI.py --server.port=8501 --server.address=127.0.0.1 --logger.level=debug --server.headless=true
+# uv tool run --with 'openai==1.77.0,streamlit>=1.45.0,extra-streamlit-components>=0.1.80,streamlit-extras>=0.7.1,streamlit_image_select>=0.6.0,requests>=2.32.0,python-dotenv>=1.0.1,pillow>=10.4.0,watchdog>=5.0.0' streamlit run ./OAIWUI_WebUI.py --server.port=8501 --server.address=127.0.0.1 --logger.level=debug --server.headless=true
 
 
 import streamlit as st
 import extra_streamlit_components as stx
 
-from OpenAI_GPT import OAI_GPT
-from OpenAI_DallE import OAI_DallE
+from OAIWUI_GPT import OAIWUI_GPT
+from OAIWUI_Images import OAIWUI_Images
 
-from OpenAI_GPT_WUI import OAI_GPT_WUI
-from OpenAI_DallE_WUI import OAI_DallE_WUI
+from OAIWUI_GPT_WebUI import OAIWUI_GPT_WebUI
+from OAIWUI_Images_WebUI import OAIWUI_Images_WebUI
 
 import re
 import os.path
@@ -36,7 +36,7 @@ import hmac
 #####
 iti_version=cf.iti_version
 
-st.set_page_config(page_title=f"OpenAI API WebUI ({iti_version})", page_icon="🫥", layout="wide", initial_sidebar_state="expanded", menu_items={'Get Help': 'https://github.com/Infotrend-Inc/OpenAI_WebUI', 'About': f"# OpenAI WebUI ({iti_version})\n Brought to you by [Infotrend Inc.](https://www.infotrend.com/)"})
+st.set_page_config(page_title=f"OpenAI API Compatible WebUI ({iti_version})", page_icon="🫥", layout="wide", initial_sidebar_state="expanded", menu_items={'Get Help': 'https://github.com/Infotrend-Inc/OpenAI_WebUI', 'About': f"# OpenAI API Compatible WebUI ({iti_version})\n Brought to you by [Infotrend Inc.](https://www.infotrend.com/)"})
 
 #####
 # https://docs.streamlit.io/knowledge-base/deploy/authentication-without-sso
@@ -67,7 +67,7 @@ def check_password():
 def get_ui_params(runid):
     print(f"---------- [INFO] Main get_ui_params ({runid}) ----------")
     # Load all supported models (need the status field to decide or prompt if we can use that model or not)
-    err, av_gpt_models, av_dalle_models = cf.load_models()    
+    err, av_gpt_models, av_image_models = cf.load_models()    
     if cf.isNotBlank(err):
         st.error(err)
         cf.error_exit(err)
@@ -113,14 +113,20 @@ def get_ui_params(runid):
             st.error(f"OAIWUI_GPT_VISION environment variable must be set to 'True' or 'False'")
             cf.error_exit("OAIWUI_GPT_VISION environment variable must be set to 'True' or 'False'")
 
-    dalle_models = ""
+    # Support old DALLE_MODELS environment variable
     if 'OAIWUI_DALLE_MODELS' in os.environ:
-        dalle_models = os.environ.get('OAIWUI_DALLE_MODELS')
-        if cf.isBlank(dalle_models):
-            st.error(f"OAIWUI_DALLE_MODELS environment variable is empty")
-            cf.error_exit("OAIWUI_DALLE_MODELS environment variable is empty")
+        if 'OAIWUI_IMAGE_MODELS' not in os.environ or cf.isBlank(os.environ.get('OAIWUI_IMAGE_MODELS')):
+            warnings.append(f"OAIWUI_DALLE_MODELS environment variable is set but OAIWUI_IMAGE_MODELS is not set, will use OAIWUI_DALLE_MODELS as OAIWUI_IMAGE_MODELS. Please set OAIWUI_IMAGE_MODELS to avoid this warning")
+            os.environ['OAIWUI_IMAGE_MODELS'] = os.environ.get('OAIWUI_DALLE_MODELS')
+
+    image_models = ""
+    if 'OAIWUI_IMAGE_MODELS' in os.environ:
+        image_models = os.environ.get('OAIWUI_IMAGE_MODELS')
+        if cf.isBlank(image_models):
+            st.error(f"OAIWUI_IMAGE_MODELS environment variable is empty")
+            cf.error_exit("OAIWUI_IMAGE_MODELS environment variable is empty")
     else:
-        warnings.append(f"Disabling DallE -- Could not find the OAIWUI_DALLE_MODELS environment variable")
+        warnings.append(f"Disabling Images -- Could not find the OAIWUI_IMAGE_MODELS environment variable")
         os.environ['OAIWUI_GPT_ONLY'] = "True"
 
     if 'OLLAMA_HOST' in os.environ:
@@ -196,34 +202,46 @@ def get_ui_params(runid):
         st.session_state.visibility = "visible"
         st.session_state.disabled = False
 
+    # Debug print
+    print("---------- [INFO] get_ui_params ----------")
+    print(f"warnings: {warnings}")
+    print(f"save_location: {save_location}")
+    print(f"gpt_models: {gpt_models}")
+    print(f"av_gpt_models: {av_gpt_models}")
+    print(f"gpt_vision: {gpt_vision}")
+    print(f"image_models: {image_models}")
+    print(f"av_image_models: {av_image_models}")
+    print(f"prompt_presets_dir: {prompt_presets_dir}")
+    print(f"prompt_presets_file: {prompt_presets_file}")
+    print("---------- [INFO] get_ui_params ----------")
 
-    return warnings, save_location, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir, prompt_presets_file
+    return warnings, save_location, gpt_models, av_gpt_models, gpt_vision, image_models, av_image_models, prompt_presets_dir, prompt_presets_file
 
 
 #####
 
 @st.cache_data
-def set_ui_core(long_save_location, username, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir: str = None, prompt_presets_file: str = None):
-    oai_gpt = OAI_GPT(long_save_location, username)
-    err, warn = oai_gpt.set_parameters(gpt_models, av_gpt_models)
+def set_ui_core(long_save_location, username, gpt_models, av_gpt_models, gpt_vision, image_models, av_image_models, prompt_presets_dir: str = None, prompt_presets_file: str = None):
+    oaiwui_gpt = OAIWUI_GPT(long_save_location, username)
+    err, warn = oaiwui_gpt.set_parameters(gpt_models, av_gpt_models)
     process_error_warning(err, warn)
-    oai_gpt_st = OAI_GPT_WUI(oai_gpt, gpt_vision, prompt_presets_dir, prompt_presets_file)
-    oai_dalle = None
-    oai_dalle_st = None
+    oaiwui_gpt_st = OAIWUI_GPT_WebUI(oaiwui_gpt, gpt_vision, prompt_presets_dir, prompt_presets_file)
+    oaiwui_images = None
+    oaiwui_images_st = None
     if 'OAIWUI_GPT_ONLY' in os.environ:
         tmp = os.environ.get('OAIWUI_GPT_ONLY')
         if tmp.lower() == "true":
-            oai_dalle = None
+            oaiwui_images = None
         elif tmp.lower() == "false":
-            oai_dalle = OAI_DallE(long_save_location, username)
-            err, warn = oai_dalle.set_parameters(dalle_models, av_dalle_models)
+            oaiwui_images = OAIWUI_Images(long_save_location, username)
+            err, warn = oaiwui_images.set_parameters(image_models, av_image_models)
             process_error_warning(err, warn)
-            oai_dalle_st = OAI_DallE_WUI(oai_dalle)
+            oaiwui_images_st = OAIWUI_Images_WebUI(oaiwui_images)
         else:
             st.error(f"OAIWUI_GPT_ONLY environment variable must be set to 'True' or 'False'")
             cf.error_exit("OAIWUI_GPT_ONLY environment variable must be set to 'True' or 'False'")
 
-    return oai_gpt, oai_gpt_st, oai_dalle, oai_dalle_st
+    return oaiwui_gpt, oaiwui_gpt_st, oaiwui_images, oaiwui_images_st
 
 
 #####
@@ -239,7 +257,7 @@ def main():
     if 'webui_runid' not in st.session_state:
         st.session_state['webui_runid'] = datetime.now().strftime("%Y%m%d-%H%M%S")
 
-    warnings, save_location, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir, prompt_presets_file = get_ui_params(st.session_state['webui_runid'])
+    warnings, save_location, gpt_models, av_gpt_models, gpt_vision, images_models, av_image_models, prompt_presets_dir, prompt_presets_file = get_ui_params(st.session_state['webui_runid'])
 
     if len(warnings) > 0:
         if 'warning_shown' not in st.session_state:
@@ -276,33 +294,34 @@ def main():
         long_save_location = os.path.join(save_location, iti_version)
         cf.make_wdir_error(os.path.join(long_save_location))
 
-        oai_gpt, oai_gpt_st, oai_dalle, oai_dalle_st = set_ui_core(long_save_location, username, gpt_models, av_gpt_models, gpt_vision, dalle_models, av_dalle_models, prompt_presets_dir, prompt_presets_file)
+        oaiwui_gpt, oaiwui_gpt_st, oaiwui_images, oaiwui_images_st = set_ui_core(long_save_location, username, gpt_models, av_gpt_models, gpt_vision, images_models, av_image_models, prompt_presets_dir, prompt_presets_file)
 
-        set_ui(oai_gpt, oai_gpt_st, oai_dalle, oai_dalle_st)
+        set_ui(oaiwui_gpt, oaiwui_gpt_st, oaiwui_images, oaiwui_images_st)
 
 #####
 
 def process_error_warning(err, warn):
+    if cf.isNotBlank(warn):
+        print(warn)
     if cf.isNotBlank(err):
+        if cf.isNotBlank(warn):
+            st.warning(warn)
         st.error(err)
         cf.error_exit(err)
-    if cf.isNotBlank(warn):
-#        st.toast(warn)
-        print(warn)
 
 
-def set_ui(oai_gpt, oai_gpt_st, oai_dalle, oai_dalle_st):
-    if oai_dalle is None:
-        oai_gpt_st.set_ui()
+def set_ui(oaiwui_gpt, oaiwui_gpt_st, oaiwui_images, oaiwui_images_st):
+    if oaiwui_images is None:
+        oaiwui_gpt_st.set_ui()
     else:
         chosen_id = stx.tab_bar(data=[
-            stx.TabBarItemData(id="gpt_tab", title="GPT", description="OpenAI API Compatible GPTs"),
-            stx.TabBarItemData(id="dalle_tab", title="Dall-E", description="OpenAI Dall-E")
+            stx.TabBarItemData(id="gpt_tab", title="GPTs", description=""),
+            stx.TabBarItemData(id="images_tab", title="Images", description="")
             ])
-        if chosen_id == "dalle_tab":
-            oai_dalle_st.set_ui()
+        if chosen_id == "images_tab":
+            oaiwui_images_st.set_ui()
         else:
-            oai_gpt_st.set_ui()
+            oaiwui_gpt_st.set_ui()
 
 
 #####

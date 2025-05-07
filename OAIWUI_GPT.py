@@ -69,9 +69,9 @@ def simpler_gpt_call(apikey, messages, model_engine, base_url:str='', model_prov
     return "", response_text
 
 ##########
-class OAI_GPT:
+class OAIWUI_GPT:
     def __init__(self, base_save_location, username):
-        print("---------- [INFO] In OAI_GPT __init__ ----------")
+        print("---------- [INFO] In OAIWUI_GPT __init__ ----------")
 
         if cf.isBlank(base_save_location):
             base_save_location = "savedir"
@@ -221,11 +221,9 @@ class OAI_GPT:
             per_model_help += "[Data: " + models[key]["data"] + " | "
             per_model_help += "Tokens -- max: " + str(models[key]["max_token"]) + " / "
             per_model_help += "context: " + str(models[key]["context_token"]) + "]"
-            if cf.isNotBlank(models[key]["capability"]):
-                per_model_help += " | Capability: " + models[key]["capability"]
+            if 'capability' in models[key]:
+                per_model_help += " | Capability: " + ", ".join(models[key]["capability"])
                 self.model_capability[key] = models[key]["capability"]
-            else:
-                self.model_capability[key] = "None"
 
             if 'beta_model' in models[key]["meta"]:
                 self.beta_models[key] = models[key]['meta']['beta_model']
@@ -244,7 +242,7 @@ class OAI_GPT:
         active_models_txt = ",".join(active_models)
 
         if len(models) == 0:
-            return f"No models retained, unable to continue. Active models: {active_models_txt}", warning
+            return f"No models kept, unable to continue. Active models: {active_models_txt}", warning
 
         model_help += "For a list of available supported models, see https://github.com/Infotrend-Inc/OpenAI_WebUI/models.md\n\n"
         model_help += f"List of active models supported by this release: {active_models_txt}\n\n"
@@ -318,13 +316,13 @@ class OAI_GPT:
 
     def chatgpt_it(self, model_engine, chat_messages, max_tokens, temperature, msg_extra=None, websearch_context_size="low", **kwargs):
         vision_capable = False
-        websearch_enabled = False
+        openai_websearch_enabled = False
         if model_engine in self.model_capability:
             capability = self.model_capability[model_engine]
             if 'vision' in capability:
                 vision_capable = True
-            if 'websearch' in capability:
-                websearch_enabled = True
+            if 'openai_websearch' in capability:
+                openai_websearch_enabled = True
 
         beta_model = False
         if model_engine in self.beta_models:
@@ -416,7 +414,7 @@ class OAI_GPT:
         # Use kwargs to hold max_tokens and temperature
         if self.beta_models[model_engine] is True:
             kwargs['max_completion_tokens'] = max_tokens
-        elif websearch_enabled is True:
+        elif openai_websearch_enabled is True:
             kwargs['response_format'] = { 'type': 'text'}
             kwargs['web_search_options'] = { 'search_context_size': websearch_context_size }
         else:

@@ -17,30 +17,30 @@ import os.path
 import tempfile
 
 import common_functions as cf
-import common_functions_WUI as cfw
+import common_functions_WebUI as cfw
 
-import OpenAI_GPT as OAI_GPT
+import OAIWUI_GPT as OAIWUI_GPT
 
 ##########
-class OAI_GPT_WUI:
-    def __init__(self, oai_gpt: OAI_GPT, enable_vision: bool = True, prompt_presets_dir: str = None, prompt_presets_file: str = None) -> None:
+class OAIWUI_GPT_WebUI:
+    def __init__(self, oaiwui_gpt: OAIWUI_GPT, enable_vision: bool = True, prompt_presets_dir: str = None, prompt_presets_file: str = None) -> None:
         self.last_gpt_query = "last_gpt_query"
 
-        self.oai_gpt = oai_gpt
-        self.save_location = oai_gpt.get_save_location()
-        self.models = oai_gpt.get_models()
-        self.model_help = oai_gpt.get_model_help()
-        self.models_status = oai_gpt.get_models_status()
-        self.model_capability = oai_gpt.get_model_capability()
-        self.gpt_roles = oai_gpt.get_gpt_roles()
-        self.gpt_roles_help = oai_gpt.get_gpt_roles_help()
-        self.gpt_presets = oai_gpt.get_gpt_presets()
-        self.gpt_presets_help = oai_gpt.get_gpt_presets_help()
+        self.oaiwui_gpt = oaiwui_gpt
+        self.save_location = oaiwui_gpt.get_save_location()
+        self.models = oaiwui_gpt.get_models()
+        self.model_help = oaiwui_gpt.get_model_help()
+        self.models_status = oaiwui_gpt.get_models_status()
+        self.model_capability = oaiwui_gpt.get_model_capability()
+        self.gpt_roles = oaiwui_gpt.get_gpt_roles()
+        self.gpt_roles_help = oaiwui_gpt.get_gpt_roles_help()
+        self.gpt_presets = oaiwui_gpt.get_gpt_presets()
+        self.gpt_presets_help = oaiwui_gpt.get_gpt_presets_help()
 
-        self.per_model_help = oai_gpt.get_per_model_help()
-        self.beta_models = oai_gpt.get_beta_models()
-        self.per_model_provider = oai_gpt.get_per_model_provider()
-        self.per_model_meta = oai_gpt.get_per_model_meta()
+        self.per_model_help = oaiwui_gpt.get_per_model_help()
+        self.beta_models = oaiwui_gpt.get_beta_models()
+        self.per_model_provider = oaiwui_gpt.get_per_model_provider()
+        self.per_model_meta = oaiwui_gpt.get_per_model_meta()
 
         self.enable_vision = enable_vision
 
@@ -50,8 +50,8 @@ class OAI_GPT_WUI:
         self.prompt_presets_file = prompt_presets_file
         self.prompt_presets_settings = {}
 
-        self.models_warning = oai_gpt.get_models_warning()
-        self.known_models = oai_gpt.get_known_models()
+        self.models_warning = oaiwui_gpt.get_models_warning()
+        self.known_models = oaiwui_gpt.get_known_models()
 
         err = self.load_prompt_presets()
         if cf.isNotBlank(err):
@@ -106,8 +106,8 @@ class OAI_GPT_WUI:
             return new_x, new_y
 
 
-    def file_uploader(self, details_selection):
-        # File uploader: [OpenAI supports] PNG (.png), JPEG (.jpeg and .jpg), WEBP (.webp), and non-animated GIF (.gif).
+    def image_uploader(self, details_selection):
+        # image uploader: PNG (.png), JPEG (.jpeg and .jpg), WEBP (.webp), and non-animated GIF (.gif).
         uploaded_file = st.file_uploader("Upload a PNG/JPEG/WebP image (automatic resize to a value closer to the selected \"details\" selected, see its \"?\")", type=['png','jpg','jpeg','webp'])
         if uploaded_file is not None:
             placeholder = st.empty()
@@ -241,9 +241,9 @@ class OAI_GPT_WUI:
                 model_name = tmp_model_name.split(" ")[0]
                 if model_name in self.models_status:
                     st.info(f"{model_name}: {self.models_status[model_name]}")
-                if self.model_capability[model_name] == "vision":
+                if "vision" in self.model_capability[model_name]:
                     vision_capable = True
-                if self.model_capability[model_name] == "websearch":
+                if "websearch" in self.model_capability[model_name]:
                     websearch_capable = True
 
                 roles_toremove = []
@@ -285,7 +285,7 @@ class OAI_GPT_WUI:
 
                 img_file = None
                 if vision_mode:
-                    img_file = self.file_uploader(vision_details)
+                    img_file = self.image_uploader(vision_details)
                     img_type = "png" # convert everything to PNG for processing
                     if img_file is not None:
                         img_b64 = None
@@ -401,7 +401,7 @@ class OAI_GPT_WUI:
         # Main window
 
         if gpt_show_history:
-            err, hist = self.oai_gpt.get_history()
+            err, hist = self.oaiwui_gpt.get_history()
             if cf.isNotBlank(err):
                 st.error(err)
                 cf.error_exit(err)
@@ -419,13 +419,13 @@ class OAI_GPT_WUI:
             with st.chat_message(role):
                 st.markdown(prompt)
 
-            if cf.isBlank(prompt) or len(prompt) < 10:
-                st.error("Please provide a prompt of at least 10 characters before requesting an answer", icon="✋")
+            if cf.isBlank(prompt) or len(prompt) < 5:
+                st.error("Please provide a prompt of at least 5 characters before requesting an answer", icon="✋")
                 return ()
 
             prompt = self.gpt_presets[presets]["pre"] + prompt + self.gpt_presets[presets]["post"]
 
-            prompt_token_count = self.oai_gpt.estimate_tokens(prompt)
+            prompt_token_count = self.oaiwui_gpt.estimate_tokens(prompt)
             requested_token_count = prompt_token_count + max_tokens
             if requested_token_count > self.models[model_name]["context_token"]:
                 st.warning("You requested an estimated %i tokens, which might exceed the model's context window of %i tokens. We are still proceeding with the request, but an error return is possible." % (requested_token_count, self.models[model_name]["context_token"]))
@@ -446,7 +446,7 @@ class OAI_GPT_WUI:
 
                     st.session_state.gpt_messages.append({"role": role, "content": prompt})
 
-                    err, run_file = self.oai_gpt.chatgpt_it(model_name, st.session_state.gpt_messages, max_tokens, temperature, msg_extra, websearch, **self.gpt_presets[presets]["kwargs"])
+                    err, run_file = self.oaiwui_gpt.chatgpt_it(model_name, st.session_state.gpt_messages, max_tokens, temperature, msg_extra, websearch, **self.gpt_presets[presets]["kwargs"])
                     if cf.isNotBlank(err):
                         st.error(err)
                     if cf.isNotBlank(run_file):

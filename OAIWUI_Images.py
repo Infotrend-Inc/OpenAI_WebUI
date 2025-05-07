@@ -16,7 +16,7 @@ from datetime import datetime
 
 ######
 # https://github.com/openai/openai-openapi/blob/master/openapi.yaml
-def dalle_call(apikey, model, prompt, img_size, img_count, resp_file:str='', **kwargs):
+def images_call(apikey, model, prompt, img_size, img_count, resp_file:str='', **kwargs):
     client = OpenAI(api_key=apikey)
 
     # Generate a response
@@ -56,11 +56,11 @@ def dalle_call(apikey, model, prompt, img_size, img_count, resp_file:str='', **k
 
 
 ##########
-class OAI_DallE:
+class OAIWUI_Images:
     def __init__(self, base_save_location, username):
-        print("---------- [INFO] In OAI_DallE __init__ ----------")
+        print("---------- [INFO] In OAIWUI_Images __init__ ----------")
 
-        self.last_dalle_query = 'last_dalle_query'
+        self.last_images_query = 'last_images_query'
 
         self.apikeys = {}
         self.save_location = os.path.join(base_save_location, username)
@@ -72,13 +72,13 @@ class OAI_DallE:
         self.model_help = ""
         self.per_model_help = {}
 
-        self.dalle_modes = {
+        self.images_modes = {
             "Image": "The image generations endpoint allows you to create an original image given a text prompt. Generated images and maximum number of requested images depends on the model selected. Smaller sizes are faster to generate."
         }
-        self.dalle_help = ""
-        for key in self.dalle_modes:
-            self.dalle_help += key + ":\n"
-            self.dalle_help += self.dalle_modes[key] + "\n"
+        self.images_help = ""
+        for key in self.images_modes:
+            self.images_help += key + ":\n"
+            self.images_help += self.images_modes[key] + "\n"
 
         self.per_model_provider = {}
         self.models_warning = {}
@@ -159,7 +159,7 @@ class OAI_DallE:
         active_models_txt = ",".join(active_models)
 
         if len(models) == 0:
-            return f"No models retained, unable to continue. Active models: {active_models_txt}", warning
+            return f"No models kept, unable to continue. Active models: {active_models_txt}", warning
 
         model_help += "For a list of available supported models, see https://github.com/Infotrend-Inc/OpenAI_WebUI/models.md\n\n"
         model_help += f"List of active models supported by this release: {active_models_txt}\n\n"
@@ -172,7 +172,7 @@ class OAI_DallE:
 
 #####
     def get_dest_dir(self):
-        return os.path.join(self.save_location, "dalle", cf.get_timeUTC())
+        return os.path.join(self.save_location, "images", cf.get_timeUTC())
 
     def get_models(self):
         return self.models
@@ -186,8 +186,8 @@ class OAI_DallE:
     def get_per_model_help(self):
         return self.per_model_help
 
-    def get_dalle_modes(self):
-        return self.dalle_modes
+    def get_images_modes(self):
+        return self.images_modes
 
     def get_save_location(self):
         return self.save_location
@@ -199,7 +199,7 @@ class OAI_DallE:
         return self.known_models
 
 #####
-    def dalle_it(self, model, prompt, img_size, img_count, dest_dir, **kwargs):
+    def images_it(self, model, prompt, img_size, img_count, dest_dir, **kwargs):
         err = cf.make_wdir_recursive(dest_dir)
         err = cf.check_existing_dir_w(dest_dir)
         if cf.isNotBlank(err):
@@ -207,7 +207,7 @@ class OAI_DallE:
         resp_file = f"{dest_dir}/resp.json"
 
         warn = ""
-        err, response = dalle_call(self.apikeys[self.per_model_provider[model]], model, prompt, img_size, img_count, resp_file, **kwargs)
+        err, response = images_call(self.apikeys[self.per_model_provider[model]], model, prompt, img_size, img_count, resp_file, **kwargs)
         if cf.isNotBlank(err):
             return err, warn, ""
 
@@ -248,5 +248,5 @@ class OAI_DallE:
 
 #####
     def get_history(self):
-        search_dir = os.path.join(self.save_location, "dalle")
+        search_dir = os.path.join(self.save_location, "images")
         return cf.get_history(search_dir)

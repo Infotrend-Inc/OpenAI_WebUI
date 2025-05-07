@@ -255,10 +255,10 @@ def load_models():
         gpt_models = all_models['GPT']
     else:
         return f"Could not find GPT in models.json", None, None
-    dalle_models = {}
+    images_models = {}
     if 'DallE' in all_models:
-        dalle_models = all_models['DallE']
+        images_models = all_models['DallE']
     else:
         return f"Could not find DallE in models.json", None, None
 
-    return "", gpt_models, dalle_models
+    return "", gpt_models, images_models
