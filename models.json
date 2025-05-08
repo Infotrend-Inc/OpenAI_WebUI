@@ -226,7 +226,7 @@
             "data": "Up to Oct 2023",
             "status": "active",
             "status_details": "",
-            "capability": ["openai_websearch"],
+            "capability": ["websearch"],
             "meta": {
                 "provider": "OpenAI",
                 "apikey-env": "OPENAI_API_KEY",
@@ -242,7 +242,7 @@
             "data": "Up to Oct 2023",
             "status": "active",
             "status_details": "",
-            "capability": ["openai_websearch"],
+            "capability": ["websearch"],
             "meta": {
                 "provider": "OpenAI",
                 "apikey-env": "OPENAI_API_KEY",
@@ -430,7 +430,7 @@
             }
         }
     },
-    "DallE":
+    "Image":
     {
         "dall-e-2":
         {

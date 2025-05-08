@@ -19,7 +19,7 @@ def show_history_core(hist, allow_history_deletion, last_prompt_key, last_query_
     hk = sorted(hk, reverse=True)
     hk_opt = [hist[x][0] for x in hk]
     hk_q = {hist[x][0]: hist[x][1] for x in hk}
-    prev = st.selectbox("Prompt History (most recent first)", options=hk_opt, index=0, key="history")
+    prev = st.selectbox("Prompt History (showing last GPT answer, most recent first)", options=hk_opt, index=0, key="history")
     if st.button("Load Selected Prompt", key="load_history"):
         if mode == "GPT":
             file = hk_q[prev]

@@ -14,13 +14,12 @@ def markdown_models(gpt_models, images_models):
         meta = gpt_models[model]['meta']
         model_long = f"[`{model}`]({meta['model_url']})" if 'model_url' in meta else f"`{model}`"
         capability = ', '.join(gpt_models[model]['capability'])
-        capability = capability.replace('openai_websearch', 'websearch')
         print(f"| GPT | {model_long} | {meta['provider']} | {gpt_models[model]['status']} | {capability} | {notes} | {gpt_models[model]['label']} |")
     for model in sorted(list(images_models.keys())):
         notes = images_models[model]['status_details'] if 'status_details' in images_models[model] else ''
         meta = images_models[model]['meta']
         model_long = f"[`{model}`]({meta['model_url']})" if 'model_url' in meta else f"`{model}`"
-        print(f"| Dall-E | {model_long} | {meta['provider']} | {images_models[model]['status']} |  | {notes} | {images_models[model]['label']} |")
+        print(f"| Image | {model_long} | {meta['provider']} | {images_models[model]['status']} |  | {notes} | {images_models[model]['label']} |")
 
 if __name__ == "__main__":
     # argparse
