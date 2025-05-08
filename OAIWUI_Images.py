@@ -58,7 +58,7 @@ def images_call(apikey, model, prompt, img_size, img_count, resp_file:str='', **
 ##########
 class OAIWUI_Images:
     def __init__(self, base_save_location, username):
-        print("---------- [INFO] In OAIWUI_Images __init__ ----------")
+        cf.logit("---------- In OAIWUI_Images __init__ ----------", "debug")
 
         self.last_images_query = 'last_images_query'
 
@@ -215,7 +215,7 @@ class OAIWUI_Images:
         for i in range(img_count):
             image_name = f"{dest_dir}/{i + 1}.png"
 
-            print(f"Downloading result {i + 1} as {image_name}")
+            cf.logit(f"Downloading result {i + 1} as {image_name}", "debug")
             image_url = response.data[i].url
             image_b64 = response.data[i].b64_json
             img_bytes = None
@@ -231,7 +231,7 @@ class OAIWUI_Images:
                 all_images.append(image_name)
             else:
                 warn += f"Unable to download image {i + 1}\n"
-                print(f"Unable to download image")
+                cf.logit(f"Unable to download image", "warning")
 
         if len(all_images) == 0:
             return "No images generated", warn, ""

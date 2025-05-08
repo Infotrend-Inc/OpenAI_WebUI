@@ -210,6 +210,10 @@ class OAIWUI_GPT_WebUI:
         preset_selector = False
         prompt_preset_selector = True
 
+        # models used since last clear chat
+        if 'model_used' not in st.session_state:
+            st.session_state.model_used = []
+
         base_model_list = list(self.models.keys())
         model_list = []
         for model_name in base_model_list:
@@ -231,6 +235,7 @@ class OAIWUI_GPT_WebUI:
                     del st.session_state[self.last_gpt_query]
                 if 'gpt_msg_extra' in st.session_state:
                     del st.session_state['gpt_msg_extra'] # only a clear will allow us to set msg_extra again
+                st.session_state.model_used = []
 
             # create a location placeholder for the prompt preset selector
             st_preset_placeholder = st.empty()
@@ -446,12 +451,19 @@ class OAIWUI_GPT_WebUI:
 
                     st.session_state.gpt_messages.append({"role": role, "content": prompt})
 
+                    # only add the model to the list if it is different from the last one
+                    if len(st.session_state.model_used) == 0 or st.session_state.model_used[-1] != model_name:
+                        st.session_state.model_used.append(model_name)
+
                     err, run_file = self.oaiwui_gpt.chatgpt_it(model_name, st.session_state.gpt_messages, max_tokens, temperature, msg_extra, websearch, **self.gpt_presets[presets]["kwargs"])
                     if cf.isNotBlank(err):
                         st.error(err)
                     if cf.isNotBlank(run_file):
                         st.session_state[self.last_gpt_query] = run_file
                         st.toast("Done")
+
+        if len(st.session_state.model_used) > 0:
+            cf.logit(f"ℹ️ Models prompted: {', '.join(st.session_state.model_used)}", "info")
 
         if self.last_gpt_query in st.session_state:
             run_file = st.session_state[self.last_gpt_query]

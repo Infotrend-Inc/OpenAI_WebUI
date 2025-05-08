@@ -65,7 +65,7 @@ def check_password():
 
 @st.cache_data
 def get_ui_params(runid):
-    print(f"---------- [INFO] Main get_ui_params ({runid}) ----------")
+    cf.logit(f"---------- Main get_ui_params ({runid}) ----------", "debug")
     # Load all supported models (need the status field to decide or prompt if we can use that model or not)
     err, av_gpt_models, av_image_models = cf.load_models()    
     if cf.isNotBlank(err):
@@ -202,18 +202,8 @@ def get_ui_params(runid):
         st.session_state.visibility = "visible"
         st.session_state.disabled = False
 
-    # Debug print
-    print("---------- [INFO] get_ui_params ----------")
-    print(f"warnings: {warnings}")
-    print(f"save_location: {save_location}")
-    print(f"gpt_models: {gpt_models}")
-    print(f"av_gpt_models: {av_gpt_models}")
-    print(f"gpt_vision: {gpt_vision}")
-    print(f"image_models: {image_models}")
-    print(f"av_image_models: {av_image_models}")
-    print(f"prompt_presets_dir: {prompt_presets_dir}")
-    print(f"prompt_presets_file: {prompt_presets_file}")
-    print("---------- [INFO] get_ui_params ----------")
+    # Debug
+    cf.logit(f"---------- get_ui_params ({runid}) ----------\nwarnings: {warnings}\nsave_location: {save_location}\ngpt_models: {gpt_models}\nav_gpt_models: {av_gpt_models}\ngpt_vision: {gpt_vision}\nimage_models: {image_models}\nav_image_models: {av_image_models}\nprompt_presets_dir: {prompt_presets_dir}\nprompt_presets_file: {prompt_presets_file}", "debug")
 
     return warnings, save_location, gpt_models, av_gpt_models, gpt_vision, image_models, av_image_models, prompt_presets_dir, prompt_presets_file
 
@@ -246,7 +236,7 @@ def set_ui_core(long_save_location, username, gpt_models, av_gpt_models, gpt_vis
 
 #####
 def main():
-    print("---------- [INFO] Main __main__ ----------")
+    cf.logit("---------- Main __main__ ----------", "debug")
 
     err = cf.check_file_r(".streamlit/secrets.toml", "Secrets file")
     if cf.isBlank(err):
@@ -302,7 +292,7 @@ def main():
 
 def process_error_warning(err, warn):
     if cf.isNotBlank(warn):
-        print(warn)
+        cf.logit(warn, "warning")
     if cf.isNotBlank(err):
         if cf.isNotBlank(warn):
             st.warning(warn)

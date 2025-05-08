@@ -59,7 +59,7 @@ def simpler_gpt_call(apikey, messages, model_engine, base_url:str='', model_prov
     # Add citations if the key is present in the response, irrelevant of the model provider
     citations_text = ""
     if 'citations' in response_dict:
-        print("[INFO] Found citations-----------------------------------------------------------")
+        cf.logit("Found citations", "debug")
         citations_text += "\n\nCitations:\n"
         for i in range(len(response_dict['citations'])):
             citations_text += f"\n[{i+1}] {response_dict['citations'][i]}\n"
@@ -71,7 +71,7 @@ def simpler_gpt_call(apikey, messages, model_engine, base_url:str='', model_prov
 ##########
 class OAIWUI_GPT:
     def __init__(self, base_save_location, username):
-        print("---------- [INFO] In OAIWUI_GPT __init__ ----------")
+        cf.logit("---------- In OAIWUI_GPT __init__ ----------", "debug")
 
         if cf.isBlank(base_save_location):
             base_save_location = "savedir"
@@ -222,8 +222,9 @@ class OAIWUI_GPT:
             per_model_help += "Tokens -- max: " + str(models[key]["max_token"]) + " / "
             per_model_help += "context: " + str(models[key]["context_token"]) + "]"
             if 'capability' in models[key]:
-                per_model_help += " | Capability: " + ", ".join(models[key]["capability"])
-                self.model_capability[key] = models[key]["capability"]
+                capabilities = models[key]["capability"]
+                self.model_capability[key] = capabilities
+                per_model_help += " | Capability: " + ", ".join(capabilities)
 
             if 'beta_model' in models[key]["meta"]:
                 self.beta_models[key] = models[key]['meta']['beta_model']
@@ -321,8 +322,10 @@ class OAIWUI_GPT:
             capability = self.model_capability[model_engine]
             if 'vision' in capability:
                 vision_capable = True
-            if 'openai_websearch' in capability:
-                openai_websearch_enabled = True
+            if 'websearch' in capability:
+                provider = self.per_model_provider[model_engine]
+                if provider == "OpenAI":
+                    openai_websearch_enabled = True
 
         beta_model = False
         if model_engine in self.beta_models:

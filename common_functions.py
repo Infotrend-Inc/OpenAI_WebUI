@@ -10,7 +10,20 @@ import json
 
 from datetime import datetime
 
+import logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
 iti_version="0.9.11"
+
+def logit(msg, mode="info"):
+    if mode == "info":
+        logging.info(msg)
+    elif mode == "warning":
+        logging.warning(msg)
+    elif mode == "error":
+        logging.error(msg)
+    elif mode == "debug":
+        logging.debug(msg)
 
 def isBlank (myString):
     return not (myString and myString.strip())
@@ -159,7 +172,7 @@ def get_run_file(run_file):
 #####
 
 def error_exit(txt):
-    print("[ERROR] " + txt)
+    logit(txt, "error")
     sys.exit(1)
 
 ##########
@@ -206,7 +219,7 @@ def get_history_core(search_dir, mode: str = "GPT"):
     return "", hist
 
 def get_history(search_dir):
-    return get_history_core(search_dir, "DallE")
+    return get_history_core(search_dir, "Image")
 
 def get_gpt_history(search_dir):
     return get_history_core(search_dir, "GPT")
@@ -256,9 +269,9 @@ def load_models():
     else:
         return f"Could not find GPT in models.json", None, None
     images_models = {}
-    if 'DallE' in all_models:
-        images_models = all_models['DallE']
+    if 'Image' in all_models:
+        images_models = all_models['Image']
     else:
-        return f"Could not find DallE in models.json", None, None
+        return f"Could not find Image in models.json", None, None
 
     return "", gpt_models, images_models
