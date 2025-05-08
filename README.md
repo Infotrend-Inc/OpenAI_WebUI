@@ -1,6 +1,6 @@
 <h1>OpenAI API-compatible WebUI (OAIWUI)</h1>
 
-Latest version: 0.9.11 (20241217)
+Latest version: 0.9.11 (FIXME)
 
 - [1. Description](#1-description)
   - [1.1. Supported models](#11-supported-models)
@@ -19,15 +19,15 @@ Latest version: 0.9.11 (20241217)
   - [3.2. Version information/Changelog](#32-version-informationchangelog)
   - [3.3. Acknowledgments](#33-acknowledgments)
 
-A tool to enable a self-hosted WebUI ([streamlit](https://streamlit.io/)-based) to ChatGPT and Dall-E's API (requires an OpenAI API key).
-The tool also supports a few OpenAI API-compatible providers, such as Perplexity AI, Gemini AI and the self-hosted Ollama.
+A tool to enable a self-hosted WebUI ([streamlit](https://streamlit.io/)-based) to various GPT and Image generation APIs (requires valid API keys for each provider).
+The tool supports some OpenAI API-compatible providers, such as Perplexity AI, Gemini AI and the self-hosted Ollama.
 
-The tool's purpose is to enable a company to install a self-hosted version of a WebUI to access the capabilities of OpenAI's API-compatible GPT and Dall-E and share access to the tool's capabilities while consolidating billing through the [OpenAI API](https://pypi.org/project/openai/) key. Access to [models](https://platform.openai.com/docs/models/) is limited to those enabled with your API key.
+The tool's purpose is to enable a company to install a self-hosted version of a WebUI to access the capabilities of various OpenAI API-compatible GPTs and Image generation APIs, then share access to the tool's capabilities while consolidating billing through the various API keys.
 
 Click on the links to see a screenshot of the [GPT WebUI](./assets/Screenshot-OAIWUI_WebUI_GPT.jpg) and the [Image WebUI](./assets/Screenshot-OAIWUI_WebUI_Image.jpg).
 
 Please see https://github.com/Infotrend-Inc/OpenAI_WebUI/blob/main/.env.example for details of possible values for the environment variables. 
-Unless specified, even if a feature is not used, its environment variable should be set.
+Unless otherwise specified, even if a feature is not used, its environment variable should be set.
 
 A pre-built container is available from our Docker account at https://hub.docker.com/r/infotrend/openai_webui
 
@@ -37,55 +37,60 @@ Note: this tool was initially developed in February 2023 and released to help en
 
 #  1. Description
 
-The tool provides a WebUI to ChatGPT and Dall-E (that later one can be disabled).
+The tool provides a WebUI to various GPT and Image generation APIs (requires valid API keys for each provider).
 
-The tool **requires** the use of an OpenAI API key to work.
-Check at https://platform.openai.com/account/api-keys to find yours.
+The tool **requires** the use of API keys to work.
+Variables in the `.env` file have the list of possible values and links to additional information on how to get your API keys.
 
 Depending on your deployment solution (*python virtualenv*, *docker image*, or *unraid*), the deployment might differ slightly.
 
 Once started, the WebUI will prompt the end user with a `username`. 
 This username is here to make finding past conversations/images easier if you seek those; no authentication is associated with it.
 
-GPT (Text Generation) sidebar options (see "?" mark for specific details):
-- model: choose between the different ChatGPT models that are enabled.
+GPTs (Text Generation) sidebar options (see "?" mark for specific details):
+- model: choose between the different GPT models that are enabled.
 - role (user, system, assistant): define the role of the input text for tailored responses.
 - max tokens: controls the length of generated text with a maximum token setting (dependent on the model)
 - temperature: adjust the "surprisingness" of the generated text.
+- additional features depend on the model, see the model information for details and various "?" marks for more details.
 
-DALL-E (Image Generation) sidebar options (see "?" for specific details):
-- mode: "image" for the time being.
-- model: choose between the different DallE models that are enabled.
+Image Generation sidebar options (see "?" for specific details):
+- model: choose between the different Image models that are enabled.
 - image Size: specify the dimensions of the images to be generated.
-- number of images (model dependent): number of images to generate
-- quality (model dependent): fine-tune image quality to meet your requirements.
-- style  (model dependent): style of the generated images.
+- additional features depend on the model, see the model information for details and various "?" marks for more details.
 
 ## 1.1. Supported models
 
-We have added means to inform the end-user when a model is `deprecated`, `legacy` or `current`.
+Models are either `deprecated` or `active`.
 - `deprecated` models are not available for use anymore.
-- `legacy` models will be deprecated at a specified date.
-- `current` models are available.
+- `active` models are known to the tool at the time of release.
 
 The tool will automatically discard known (per the release) `deprecated` models and inform the end user. 
-Similarly, the tool will note when a model is `legacy`.
 Please update your model selection accordingly.
 
-The [models.json](models.json) file contains the list of models supported by each release (as introduced in v0.9.3).
+The [models.json](./models.json) file contains the list of models supported by the current release.
+The file content is computer-parsable yet human-readable, as such if you add a compatible model to the file, you should be able to use it right away.
+
+The [models.md](./models.md) file shows the models supported by the current release.
+This file can be generated using:
+```bash
+python3 ./list_models.py --markdown > models.md
+```
+
+Models are updated frequently by the providers, the list of models supported by the tool is updated at the time of release.
+About model updates:
+- If a model changes its name (for example with `preview` models), we will update the list of models supported by the tool at the next release.
+- If a new model is added and not listed in the `models.json` file, please open an issue on GitHub. 
+In both cases, if able to, please update the `models.json` file before opening an issue.
+
 For additional details, see:
 - OpenAI Models & API price: https://platform.openai.com/docs/models
   - To see the list of authorized models for your account, see https://platform.openai.com/settings/organization/limits
 - Google Models & API price: https://ai.google.dev/gemini-api/docs/models
 - Perplexity AI Models & API price: https://docs.perplexity.ai/guides/models
  
-The [models.md](./models.md) file shows the models supported by the current release.
-
+Self-hosted models:
 `ollama` is a self-hosted solution; the name is here for illustration prupose (`ollama` is not a recognized model value). At initialization, the tool will use the `OLLAMA_HOST` environment variable to attempt tofind the server; then list and add all available hosted models. Capabilties of the hosted models are various: by default we will authorize `vision` and set a defauklt `max_tokens`; it is advised to check the model information for details on its actual capabilities. Find more information about [Ollama](https://github.com/oollama/ollama)
-
-Once a model is `deprecated`, using it in your models list will have it discarded from the available list with a notification. 
-
-Similarly, if a used model is listed as `legacy`, a notification of the upcoming deprecation will be shown in the UI.
 
 ## 1.2. .env
 
@@ -94,9 +99,9 @@ The `.env.example` file contains the parameters needed to pass to the running to
 - `PERPLEXITY_API_KEY` (optional) as obtained from https://docs.perplexity.ai/guides/getting-started
 - `GEMINI_API_KEY` (optional) as obtained from https://ai.google.dev/gemini-api/docs/api-key
 - `OAIWUI_SAVEDIR`, the location to save content (make sure the directory exists)
-- `OAIWUI_GPT_ONLY`, to request only to show the GPT tab otherwise, shows both GPT and DallE (authorized value: `True` or `False`)
+- `OAIWUI_GPT_ONLY`, to request only to show the GPT tab otherwise, shows both GPTs and Images (authorized value: `True` or `False`)
 - `OAIWUI_GPT_MODELS` is a comma-separated list of GPT model(s) your API keys are authorized to use. For OpenAI, ee https://platform.openai.com/docs/api-reference/making-requests . For Perplexity AI, see https://docs.perplexity.ai/guides/pricing
-- `OAIWUI_DALLE_MODELS` is a comma-separated list of DallE model(s) your API key is authorized to use.
+- `OAIWUI_IMAGE_MODELS` is a comma-separated list of Image model(s) your API key is authorized to use.
 - `OAIWUI_USERNAME` (optional) specifies a `username` and avoids being prompted at each re-run. The default mode is to run in multi-user settings so this is not enabled by default.
 - `OAIWUI_GPT_VISION` will, for compatible models, disable their vision capabilities if set to `False`
 - `OAIWUI_IGNORE_EMPTY` (required for Unraid) discard errors in case the following environment variables are used but not set.
@@ -107,6 +112,11 @@ Those values can be passed by making a `.env` file containing the expected value
 
 The `.env` file is not copied into the `docker` or `unraid` setup. Environment variables should be used in this case. 
 
+It is possible to obtain the list of models from the `models.json` file as environment variables using the `list_models.py` script:
+```bash
+python3 ./list_models.py
+```
+
 ## 1.3. savedir
 
 The `OAIWUI_SAVEDIR` variable specifies the location where persistent files will be created from run to run.
@@ -114,9 +124,9 @@ The `OAIWUI_SAVEDIR` variable specifies the location where persistent files will
 Its structure is: `savedir`/`version`/`username`/`mode`/`UTCtime`/`<CONTENT>`, with:
 - `username` being the self-specified user name prompted when starting the WebUI
 - `version` the tool's version, making it easier to debug
-- `mode` on of `gpt` or `dalle`
+- `mode` on of `gpt` or `image`
 - the `UTCtime`, a `YYYYY-MM-DD T HH:MM:SS Z` UTC-time of the request (the directory's content will be time ordered)
-- `<CONTENT>` is often a `json` file containing the details of the run for `gpt`, but also the different `png` images generated for `dalle`
+- `<CONTENT>` is often a `json` file containing the details of the run for `gpt`, but also the different `png` images generated for `image`
 
 We do not check the directories for size. It is left to the end user to clean up space if required.
 
@@ -234,7 +244,7 @@ This setup prefers the use of environment variable, using `docker run ... -e VAR
 1. Run the built container, here specifying your `OAIWUI_SAVEDIR` to be `/iti`, which will be mounted from the current working directory's `savedir` and mounted to `/iti` within the container:
 
     ```bash
-    docker run --rm -it -p 8501:8501 -v `pwd`/savedir:/iti -e OPENAI_API_KEY="Your_OpenAI_API_Key" -e OAIWUI_SAVEDIR=/iti -e OAIWUI_GPT_ONLY=False -e OAIWUI_GPT_MODELS="gpt-4o-mini,gpt-4,o1-mini" -e OAIWUI_DALLE_MODELS="dall-e-3" openai_webui:latest
+    docker run --rm -it -p 8501:8501 -v `pwd`/savedir:/iti -e OPENAI_API_KEY="Your_OpenAI_API_Key" -e OAIWUI_SAVEDIR=/iti -e OAIWUI_GPT_ONLY=False -e OAIWUI_GPT_MODELS="gpt-4o-mini,gpt-4,o1-mini" -e OAIWUI_IMAGE_MODELS="dall-e-3" openai_webui:latest
     ```
 
 If you want to use the "prompt presets" and its "prompt presets settings" environment variables, those can be added to the command line. For example to use the provided examples add the following to the command line (before the name of the container): 
@@ -247,7 +257,7 @@ If you want to use the password protection for the WebUI, create and populate th
 With all the above options enabled, the command line would be:
 
 ```bash
-docker run --rm -it -p 8501:8501 -v `pwd`/savedir:/iti -e OPENAI_API_KEY="Your_OpenAI_API_Key" -e OAIWUI_SAVEDIR=/iti -e OAIWUI_GPT_ONLY=False -e OAIWUI_GPT_MODELS="gpt-4o-mini,gpt-4" -e OAIWUI_DALLE_MODELS="dall-e-3" -v `pwd`/prompt_presets.example:/prompt_presets:ro -e OAIWUI_PROMPT_PRESETS_DIR=/prompt_presets -v `pwd`/prompt_presets_settings-example.json:/prompt_presets.json:ro -e OAIWUI_PROMPT_PRESETS_ONLY=/prompt_presets.json -v `pwd`/secrets.toml:/app/.streamlit/secrets.toml:ro openai_webui:latest
+docker run --rm -it -p 8501:8501 -v `pwd`/savedir:/iti -e OPENAI_API_KEY="Your_OpenAI_API_Key" -e OAIWUI_SAVEDIR=/iti -e OAIWUI_GPT_ONLY=False -e OAIWUI_GPT_MODELS="gpt-4o-mini,gpt-4" -e OAIWUI_IMAGE_MODELS="dall-e-3" -v `pwd`/prompt_presets.example:/prompt_presets:ro -e OAIWUI_PROMPT_PRESETS_DIR=/prompt_presets -v `pwd`/prompt_presets_settings-example.json:/prompt_presets.json:ro -e OAIWUI_PROMPT_PRESETS_ONLY=/prompt_presets.json -v `pwd`/secrets.toml:/app/.streamlit/secrets.toml:ro openai_webui:latest
 ```
 
 It is also possible to populate a `.env` file and mount it within the `/app` directory. Note that `-v` options still need to be applied for.
@@ -294,7 +304,7 @@ services:
       - OAIWUI_GPT_MODELS=gpt-4o
       - OAIWUI_GPT_VISION=True
       # Even if OAIWUI_GPT_ONLY is True, please set a model, it will be ignored
-      - OAIWUI_DALLE_MODELS=dall-e-3
+      - OAIWUI_IMAGE_MODELS=dall-e-3
       # Uncomment and enter a value if you are using a single user deployment
       # - OAIWUI_USERNAME=user
       # Enable the user of "prompt presets" present in the mounted directory (must have a directory matching in the `volumes` section)
@@ -335,6 +345,7 @@ For example, if your `appdata` location for the OpenAI WebUI was `/mnt/user/appd
 
 ##  3.2. Version information/Changelog
 
+- v0.9.11 (FIXME): Using chat interface for GPTs, and support for additional OpenAI API-compatible providers (Perplexity AI, Gemini AI and the self-hosted Ollama) + new image generation model
 - v0.9.10 (20241217): Added `o1` model (untested) following its API access availability
 - v0.9.9 (20241206): API changes to use `o1-mini` and `o1-preview` (tested)
 - v0.9.8 (20241010): Added `o1-preview` and `o1-mini` model (untested) + "prompt presets" functionalities 
