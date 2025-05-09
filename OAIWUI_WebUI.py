@@ -257,16 +257,17 @@ def main():
         username = st.session_state['username']
     
     if cf.isBlank(username):
-        st.image("./assets/Infotrend_Logo.png", width=600)
-        username = st.text_input("Enter a username (unauthorized characters will be replaced by _)")
-        if st.button("Save username"):
-            # replace non alphanumeric by _
-            username = re.sub('[^0-9a-zA-Z]+', '_', username)
-            if cf.isBlank(username):
-                st.error(f"Username cannot be empty")
-            else:
-                st.session_state['username'] = username
-                st.rerun()
+        with st.form("username_form"):
+            st.image("./assets/Infotrend_Logo.png", width=600)
+            username = st.text_input("Enter a username (unauthorized characters will be replaced by _)")
+            if st.form_submit_button("Save username"):
+                # replace non alphanumeric by _
+                username = re.sub('[^0-9a-zA-Z]+', '_', username)
+                if cf.isBlank(username):
+                    st.error(f"Username cannot be empty")
+                else:
+                    st.session_state['username'] = username
+                    st.rerun()
     else:
         cf.make_wdir_error(os.path.join(save_location))
         long_save_location = os.path.join(save_location, iti_version)

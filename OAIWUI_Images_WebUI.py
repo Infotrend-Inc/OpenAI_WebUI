@@ -116,29 +116,30 @@ class OAIWUI_Images_WebUI:
 
         if 'images_last_prompt' not in st.session_state:
             st.session_state['images_last_prompt'] = ""
-        prompt_value=f"Images {model} Input [image size: {img_size} | image count: {img_count} | Extra: {kwargs}]"
-        help_text = '\n\nDALL·E is an AI system that creates realistic images and art from a description in natural language.\n\n- The more detailed the description, the more likely you are to get the result that you or your end user want'
-        prompt = st.empty().text_area(prompt_value, st.session_state["images_last_prompt"], placeholder="Enter your prompt", key="images_input", help=help_text)
-        st.session_state['images_last_prompt'] = prompt
+        with st.form("image_form"):
+            prompt_value=f"Images {model} Input [image size: {img_size} | image count: {img_count} | Extra: {kwargs}]"
+            help_text = '\n\nDALL·E is an AI system that creates realistic images and art from a description in natural language.\n\n- The more detailed the description, the more likely you are to get the result that you or your end user want'
+            prompt = st.empty().text_area(prompt_value, st.session_state["images_last_prompt"], placeholder="Enter your prompt", key="images_input", help=help_text)
+            st.session_state['images_last_prompt'] = prompt
 
-        if st.button("Submit Request", key="images_request_answer"):
-            if cf.isBlank(prompt) or len(prompt) < 10:
-                st.error("Please provide a prompt of at least 10 characters before requesting an answer", icon="✋")
-                return ()
-            if len(prompt) > self.models[model]["max_prompt_length"]:
-                st.error(f"Your prompt is {len(prompt)} characters long, which is more than the maximum of {self.models[model]['max_prompt_length']} for this model")
-                return ()
-            
-            images_dest_dir = self.get_dest_dir()
-            with st.spinner(f"Asking OpenAI for a response..."):
-                err, warn, run_file = self.oaiwui_images.images_it(model, prompt, img_size, img_count, images_dest_dir, **kwargs)
-                if cf.isNotBlank(err):
-                    st.error(err)
-                if cf.isNotBlank(warn):
-                    st.warning(warn)
-                if cf.isNotBlank(run_file):
-                    st.session_state[self.last_images_query] = run_file
-                    st.toast("Done")
+            if st.form_submit_button("Generate Image"):
+                if cf.isBlank(prompt) or len(prompt) < 10:
+                    st.error("Please provide a prompt of at least 10 characters before requesting an answer", icon="✋")
+                    return ()
+                if len(prompt) > self.models[model]["max_prompt_length"]:
+                    st.error(f"Your prompt is {len(prompt)} characters long, which is more than the maximum of {self.models[model]['max_prompt_length']} for this model")
+                    return ()
+                
+                images_dest_dir = self.get_dest_dir()
+                with st.spinner(f"Asking OpenAI for a response..."):
+                    err, warn, run_file = self.oaiwui_images.images_it(model, prompt, img_size, img_count, images_dest_dir, **kwargs)
+                    if cf.isNotBlank(err):
+                        st.error(err)
+                    if cf.isNotBlank(warn):
+                        st.warning(warn)
+                    if cf.isNotBlank(run_file):
+                        st.session_state[self.last_images_query] = run_file
+                        st.toast("Done")
 
         if self.last_images_query in st.session_state:
             run_file = st.session_state[self.last_images_query]
