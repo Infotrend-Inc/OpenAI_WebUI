@@ -4,7 +4,7 @@ venv
 .env
 .env.docker
 savedir
-.env.docker
+savedir.docker
 *.svg
 .streamlit/secrets.toml
 poetry.lock
