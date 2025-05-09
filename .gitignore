@@ -9,3 +9,5 @@ savedir
 .streamlit/secrets.toml
 poetry.lock
 prompt_presets
+uv.lock
+.streamlit/secrets.toml

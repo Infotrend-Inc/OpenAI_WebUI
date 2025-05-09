@@ -10,10 +10,11 @@ Latest version: 0.9.11 (FIXME)
   - [1.5. Using "prompt presets" (GPT only)](#15-using-prompt-presets-gpt-only)
     - [1.5.1. prompt presets settings](#151-prompt-presets-settings)
 - [2. Setup](#2-setup)
-  - [2.1. Python virtualenv (poetry)](#21-python-virtualenv-poetry)
-  - [2.2. Docker/Podman](#22-dockerpodman)
-  - [2.3. Docker compose](#23-docker-compose)
-  - [2.4. Unraid](#24-unraid)
+  - [2.1. Python uv (zero install)](#21-python-uv-zero-install)
+  - [2.2. Python virtualenv (poetry)](#22-python-virtualenv-poetry)
+  - [2.3. Docker/Podman](#23-dockerpodman)
+  - [2.4. Docker compose](#24-docker-compose)
+  - [2.5. Unraid](#25-unraid)
 - [3. Misc](#3-misc)
   - [3.1. Notes](#31-notes)
   - [3.2. Version information/Changelog](#32-version-informationchangelog)
@@ -192,7 +193,13 @@ We have provided an example `prompt_presets_settings-example.json` file. This ex
 
 #  2. Setup
 
-##  2.1. Python virtualenv (poetry)
+## 2.1. Python uv (zero install)
+
+```bash
+uv tool run --with-requirements pyproject.toml streamlit run ./OAIWUI_WebUI.py --server.port=8501 --server.address=0.0.0.0 --server.headless=true
+```
+
+##  2.2. Python virtualenv (poetry)
 
 The virtualenv setup requires [`poetry`](https://python-poetry.org/) and the setup is defined in the `pyproject.toml` file.
 
@@ -229,7 +236,7 @@ Do not distribute that file.
 
 1. You can now open your browser to http://127.0.0.1:8501 to test the WebUI.
 
-## 2.2. Docker/Podman
+## 2.3. Docker/Podman
 
 The container build is an excellent way to test in an isolated, easily redeployed environment.
 
@@ -274,7 +281,7 @@ You can have the `Makefile` delete locally built containers:
 $ make delete_main
 ```
 
-## 2.3. Docker compose
+## 2.4. Docker compose
 
 To run the built or downloaded container using `docker compose`, decide on the directory where you want the `compose.yaml` to be, and place the following as the content of the file:
 
@@ -322,7 +329,7 @@ Run using `docker compose up -d`
 
 The WebUI will be accessible on port 8501 of your host.
 
-## 2.4. Unraid
+## 2.5. Unraid
 
 For [Unraid](https://unraid.net/) users, a special build mode is available to get a container using unraid's preferred `uid`/`gid`, use `make build_unraid` to build it.
 

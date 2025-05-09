@@ -1,17 +1,5 @@
 #!/usr/bin/env python3
 
-# Based on 
-# https://platform.openai.com/docs/quickstart/build-your-application
-# https://github.com/openai/openai-python
-
-# /// script
-# requires-python = ">=3.12"
-# dependencies = ["openai==1.77.0", "streamlit>=1.45.0", "extra-streamlit-components>=0.1.80", "streamlit-extras>=0.7.1", "streamlit_image_select>=0.6.0", "requests>=2.32.0", "python-dotenv>=1.0.1", "pillow>=10.4.0", "watchdog>=5.0.0" ]
-# ///
-
-# uv tool run --with 'openai==1.77.0,streamlit>=1.45.0,extra-streamlit-components>=0.1.80,streamlit-extras>=0.7.1,streamlit_image_select>=0.6.0,requests>=2.32.0,python-dotenv>=1.0.1,pillow>=10.4.0,watchdog>=5.0.0' streamlit run ./OAIWUI_WebUI.py --server.port=8501 --server.address=127.0.0.1 --logger.level=debug --server.headless=true
-
-
 import streamlit as st
 import extra_streamlit_components as stx
 
@@ -313,7 +301,19 @@ def set_ui(oaiwui_gpt, oaiwui_gpt_st, oaiwui_images, oaiwui_images_st):
         else:
             oaiwui_gpt_st.set_ui()
 
+def is_streamlit_running():
+    try:
+        # Check if we're running inside a Streamlit script
+        return st.runtime.exists()
+    except:
+        return False
 
 #####
 if __name__ == "__main__":
-    main()
+    if is_streamlit_running():
+        main()
+    else:
+        # start streamlit with all the command line arguments
+        import subprocess
+        import sys
+        subprocess.call(["streamlit", "run"] + sys.argv[0:])
