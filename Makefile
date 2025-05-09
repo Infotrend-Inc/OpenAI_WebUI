@@ -1,16 +1,6 @@
 SHELL := /bin/bash
 .PHONY: all
 
-# Decide which "no-cache" policy you want for your builds
-#OAIWUI_NOCACHE="--no-cache"
-OAIWUI_NOCACHE=
-
-# docker/podman selection
-# does not matter for unraid builds
-# when using docker_push, docker must be used
-DOCKER_CMD=docker
-#DOCKER_CMD=podman
-
 # Base python image base on Debian
 OAIWUI_BASE="python:3.12-slim-bookworm"
 
@@ -27,6 +17,8 @@ OAIWUI_BUILD_LATEST="${OAIWUI_CONTAINER_NAME}:latest"
 OAIWUI_UNRAID_BUILD="${OAIWUI_CONTAINER_NAME}-unraid:${OAIWUI_VERSION}"
 OAIWUI_UNRAID_BUILD_LATEST="${OAIWUI_CONTAINER_NAME}-unraid:latest"
 
+OAIWUI_BUILDX="oaiwui"
+
 all:
 	@echo "** Available Docker images to be built (make targets):"
 	@echo "build:          will build both latest and unraid images"
@@ -37,12 +29,19 @@ all:
 	@echo "  delete_unraid: will delete the unraid images (has to be done before you can delete the other)"
 	@echo "  delete_main:   will delete the main latest images"
 
+buildx_prep:
+	@docker buildx ls | grep -q ${OAIWUI_BUILDX} && echo \"builder already exists -- to delete it, use: docker buildx rm ${OAIWUI_BUILDX}\" || docker buildx create --name ${OAIWUI_BUILDX} --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=256000000
+	@docker buildx use ${OAIWUI_BUILDX} || exit 1
+
+
 build_main:
-	@${DOCKER_CMD} build --build-arg OAIWUI_BASE=${OAIWUI_BASE} ${OAIWUI_NOCACHE} -t ${OAIWUI_BUILD} -f Dockerfile .
-	@${DOCKER_CMD} tag ${OAIWUI_BUILD} ${OAIWUI_BUILD_LATEST}
+	@make buildx_prep
+	@BUILDX_EXPERIMENTAL=1 docker buildx debug --on=error build --progress plain --build-arg OAIWUI_BASE=${OAIWUI_BASE} -t ${OAIWUI_BUILD} --load -f Dockerfile .
+	@docker tag ${OAIWUI_BUILD} ${OAIWUI_BUILD_LATEST}
 
 build_unraid:
-	@docker build --build-arg OAIWUI_BUILD=${OAIWUI_BUILD} ${OAIWUI_NOCACHE} -t ${OAIWUI_UNRAID_BUILD} -f unraid/Dockerfile .
+	@make buildx_prep
+	@BUILDX_EXPERIMENTAL=1 docker buildx debug --on=error build --progress plain --build-arg OAIWUI_BUILD=${OAIWUI_BUILD} -t ${OAIWUI_UNRAID_BUILD} --load -f unraid/Dockerfile .
 	@docker tag ${OAIWUI_UNRAID_BUILD} ${OAIWUI_UNRAID_BUILD_LATEST}
 
 build:
@@ -54,19 +53,26 @@ delete_unraid:
 	@docker rmi ${OAIWUI_UNRAID_BUILD}
 
 delete_main:
-	@${DOCKER_CMD} rmi ${OAIWUI_BUILD_LATEST}
-	@${DOCKER_CMD} rmi ${OAIWUI_BUILD}
+	@docker rmi ${OAIWUI_BUILD_LATEST}
+	@docker rmi ${OAIWUI_BUILD}
 
 delete_images:
 	@make delete_unraid
 	@make delete_main
 
+buildx_rm:
+	@docker buildx ls | grep -q ${OAIWUI_BUILDX} || echo "builder does not exist"
+	@echo "** About to delete buildx: ${OAIWUI_BUILDX}"
+	@echo "Press Ctl+c within 5 seconds to cancel"
+	@for i in 5 4 3 2 1; do echo -n "$$i "; sleep 1; done; echo ""
+	@docker buildx rm ${OAIWUI_BUILDX}
 ##
 
 build_docker_amd64:
-	@docker buildx build --platform linux/amd64 --build-arg OAIWUI_BASE=${OAIWUI_BASE} ${OAIWUI_NOCACHE} -t ${OAIWUI_BUILD} -f Dockerfile .
+	@make buildx_prep
+	@BUILDX_EXPERIMENTAL=1 docker buildx debug --on=error build --progress plain --platform linux/amd64 --build-arg OAIWUI_BASE=${OAIWUI_BASE} -t ${OAIWUI_BUILD} --load -f Dockerfile .
 	@docker tag ${OAIWUI_BUILD} ${OAIWUI_BUILD_LATEST}
-	@docker buildx build --platform linux/amd64 --build-arg OAIWUI_BUILD=${OAIWUI_BUILD} ${OAIWUI_NOCACHE} -t ${OAIWUI_UNRAID_BUILD} -f unraid/Dockerfile .
+	@BUILDX_EXPERIMENTAL=1 docker buildx debug --on=error build --progress plain --platform linux/amd64 --build-arg OAIWUI_BUILD=${OAIWUI_BUILD} -t ${OAIWUI_UNRAID_BUILD} --load -f unraid/Dockerfile .
 	@docker tag ${OAIWUI_UNRAID_BUILD} ${OAIWUI_UNRAID_BUILD_LATEST}
 
 
