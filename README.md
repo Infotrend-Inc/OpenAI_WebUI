@@ -10,11 +10,10 @@ Latest version: 0.9.11 (FIXME)
   - [1.5. Using "prompt presets" (GPT only)](#15-using-prompt-presets-gpt-only)
     - [1.5.1. prompt presets settings](#151-prompt-presets-settings)
 - [2. Setup](#2-setup)
-  - [2.1. Python uv (zero install)](#21-python-uv-zero-install)
-  - [2.2. Python virtualenv (poetry)](#22-python-virtualenv-poetry)
-  - [2.3. Docker/Podman](#23-dockerpodman)
-  - [2.4. Docker compose](#24-docker-compose)
-  - [2.5. Unraid](#25-unraid)
+  - [2.1. Python uv](#21-python-uv)
+  - [2.2. Docker/Podman](#22-dockerpodman)
+  - [2.3. Docker compose](#23-docker-compose)
+  - [2.4. Unraid](#24-unraid)
 - [3. Misc](#3-misc)
   - [3.1. Notes](#31-notes)
   - [3.2. Version information/Changelog](#32-version-informationchangelog)
@@ -94,6 +93,8 @@ Self-hosted models:
 `ollama` is a self-hosted solution; the name is here for illustration prupose (`ollama` is not a recognized model value). At initialization, the tool will use the `OLLAMA_HOST` environment variable to attempt tofind the server; then list and add all available hosted models. Capabilties of the hosted models are various: by default we will authorize `vision` and set a defauklt `max_tokens`; it is advised to check the model information for details on its actual capabilities. Find more information about [Ollama](https://github.com/oollama/ollama)
 
 ## 1.2. .env
+
+**Do not distribute your `.env` file as it contains your API keys.**
 
 The `.env.example` file contains the parameters needed to pass to the running tool:
 - `OPENAI_API_KEY` (optional) as obtained from https://platform.openai.com/account/api-keys
@@ -193,50 +194,32 @@ We have provided an example `prompt_presets_settings-example.json` file. This ex
 
 #  2. Setup
 
-## 2.1. Python uv (zero install)
+## 2.1. Python uv
 
-```bash
-uv tool run --with-requirements pyproject.toml streamlit run ./OAIWUI_WebUI.py --server.port=8501 --server.address=0.0.0.0 --server.headless=true
-```
+We are now using `uv` to run the WebUI.
 
-##  2.2. Python virtualenv (poetry)
+For more details on the tool and how to install it, see https://docs.astral.sh/uv/ and https://github.com/astral-sh/uv
 
-The virtualenv setup requires [`poetry`](https://python-poetry.org/) and the setup is defined in the `pyproject.toml` file.
+The following sections expect the `uv` command to be available.
 
-This mode is for use if you have `python3` and `poetry` installed and want to test the tool.
+Dependencies are defined in the `pyproject.toml` file. 
+Because we are using `uv`, no "local to the project" virtual environment is used.
 
-0. If changes have been made to the `pyproject.toml` from a previously existing installation, first run 
-
-  ```bash
-  poetry lock
-  ```
-
-1. Create and activate your virtual environment (in the directory where this `README.md` is located):
-
-    ```bash
-    $ poetry install
-    ```
-
-
-
-1. Copy the default `.env.example` file as `.env`, and manually edit the copy to add your [OpenAI API key](https://beta.openai.com/account/api-keys) and the preferred save directory (which must exist before starting the program). 
-You can also configure the GPT `models` you can access with ChatGPT and disable the UI for Dall-E if preferred. 
-Do not distribute that file.
+Copy the default `.env.example` file as `.env`, and manually edit the copy to add your API keys and the preferred save directory (which must exist before starting the program). 
+You can also configure the GPT amd Image generation `models` you can access 
 
    ```bash
    $ cp .env.example .env
    $ code .env
    ```
 
-1. Edit the code if desired, and when you are ready to test, start the WebUI (remove `--server.headless=true` to automatically open a browser window)
+```bash
+uv tool run --with-requirements pyproject.toml streamlit run ./OAIWUI_WebUI.py --server.port=8501 --server.address=0.0.0.0 --server.headless=true
+```
 
-    ```bash
-    $ poetry run streamlit run ./OAIWUI_WebUI.py --server.port=8501 --server.address=127.0.0.1 --logger.level=debug --server.headless=true
-    ```
+You can now open your browser to http://127.0.0.1:8501 to test the WebUI.
 
-1. You can now open your browser to http://127.0.0.1:8501 to test the WebUI.
-
-## 2.3. Docker/Podman
+## 2.2. Docker/Podman
 
 The container build is an excellent way to test in an isolated, easily redeployed environment.
 
@@ -281,7 +264,7 @@ You can have the `Makefile` delete locally built containers:
 $ make delete_main
 ```
 
-## 2.4. Docker compose
+## 2.3. Docker compose
 
 To run the built or downloaded container using `docker compose`, decide on the directory where you want the `compose.yaml` to be, and place the following as the content of the file:
 
@@ -329,7 +312,7 @@ Run using `docker compose up -d`
 
 The WebUI will be accessible on port 8501 of your host.
 
-## 2.5. Unraid
+## 2.4. Unraid
 
 For [Unraid](https://unraid.net/) users, a special build mode is available to get a container using unraid's preferred `uid`/`gid`, use `make build_unraid` to build it.
 
