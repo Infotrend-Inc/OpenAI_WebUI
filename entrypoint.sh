@@ -60,7 +60,7 @@ load_env() {
   ignore_list="${ENV_IGNORELIST}"
   obfuscate_part="${ENV_OBFUSCATE_PART}"
   if [ -f "$tocheck" ]; then
-    echo "-- Loading environment variables from $tocheck (overwrite existing: $overwrite_if_different) (ignorelist: $ignore_list) (obfuscate: $obfuscate_part)"
+    verb_echo "-- Loading environment variables from $tocheck (overwrite existing: $overwrite_if_different) (ignorelist: $ignore_list) (obfuscate: $obfuscate_part)"
     while IFS='=' read -r key value; do
       doit=false
       # checking if the key is in the ignorelist
@@ -77,16 +77,16 @@ load_env() {
       if [[ "A$doobs" == "Aobfuscate" ]]; then rvalue="**OBFUSCATED**"; fi
 
       if [ -z "${!key}" ]; then
-        echo "  ++ Setting environment variable $key [$rvalue]"
+        verb_echo "  ++ Setting environment variable $key [$rvalue]"
         doit=true
       elif [ "$overwrite_if_different" = true ]; then
         cvalue="${!key}"
         if [[ "A${doobs}" == "Aobfuscate" ]]; then cvalue="**OBFUSCATED**"; fi
         if [[ "A${!key}" != "A${value}" ]]; then
-          echo "  @@ Overwriting environment variable $key [$cvalue] -> [$rvalue]"
+          verb_echo "  @@ Overwriting environment variable $key [$cvalue] -> [$rvalue]"
           doit=true
         else
-          echo "  == Environment variable $key [$rvalue] already set and value is unchanged"
+          verb_echo "  == Environment variable $key [$rvalue] already set and value is unchanged"
         fi
       fi
       if [[ "A$doit" == "Atrue" ]]; then
