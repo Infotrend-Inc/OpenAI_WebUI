@@ -6,3 +6,5 @@
 
 # Allow all Python files
 !*.py
+!pyproject.toml
+!*.sh
