@@ -40,8 +40,7 @@ RUN useradd -u 1025 -d /home/oaiwuitoo -g oaiwuitoo -s /bin/bash -m oaiwuitoo \
     && usermod -G users oaiwuitoo \
     && usermod -aG sudo oaiwuitoo
 
-# Setup uv as oaiwui
-# oaiwui is the final user but chown of the user if uv installation takes too long, so we use oaiwuitoo to install, and will run from the oaiwui user
+# Setup uv as oaiwuitoo
 USER oaiwuitoo
 
 # Install uv
@@ -78,10 +77,8 @@ HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
 # Final copies (as root, done at the end to avoid rebuilding previous steps)
 USER root
 
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod 755 /entrypoint.sh
-COPY config.sh /oaiwui_config.sh
-RUN chmod 644 /oaiwui_config.sh
+COPY --chmod=755 entrypoint.sh /entrypoint.sh
+COPY --chmod=644 config.sh /oaiwui_config.sh
 
 # Run as oaiwuitoo
 USER oaiwuitoo
