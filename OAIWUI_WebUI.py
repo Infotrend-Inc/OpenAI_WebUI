@@ -51,6 +51,12 @@ def check_password():
         st.error("😕 Password incorrect")
     return False
 
+def del_empty_env_var(var):
+    if var in os.environ:
+        tmp = os.environ.get(var)
+        if cf.isBlank(tmp):
+            del os.environ[var]
+
 @st.cache_data
 def get_ui_params(runid):
     cf.logit(f"---------- Main get_ui_params ({runid}) ----------", "debug")
@@ -67,7 +73,7 @@ def get_ui_params(runid):
         load_dotenv()
     # If the file is not present, hopefully the variable was set in the Docker environemnt
 
-    # Deffering apikey check to the GPT class
+    # Defering apikey check to the GPT class
 
     save_location = ""
     if 'OAIWUI_SAVEDIR' in os.environ:
@@ -117,6 +123,22 @@ def get_ui_params(runid):
         warnings.append(f"Disabling Images -- Could not find the OAIWUI_IMAGE_MODELS environment variable")
         os.environ['OAIWUI_GPT_ONLY'] = "True"
 
+    # variable to not fail on empy values, and just ignore those type of errors
+    ignore_empty = False
+    if 'OAIWUI_IGNORE_EMPTY' in os.environ: # values does not matter, just need to be present
+        ignore_empty = True
+
+    # Pre-check API keys -- delete empty ones (to avoid errors and support clean Unraid templates)
+    if ignore_empty:
+        del_empty_env_var('OLLAMA_HOST')
+        del_empty_env_var('OPENAI_API_KEY')
+        del_empty_env_var('PERPLEXITY_API_KEY')
+        del_empty_env_var('GEMINI_API_KEY')
+        del_empty_env_var('OAIWUI_USERNAME')
+        del_empty_env_var('OAIWUI_PROMPT_PRESETS_DIR')
+        del_empty_env_var('OAIWUI_PROMPT_PRESETS_ONLY')
+
+    # Actual checks
     if 'OLLAMA_HOST' in os.environ:
         OLLAMA_HOST = os.environ.get('OLLAMA_HOST')
         err, ollama_models = oll.get_all_ollama_models_and_infos(OLLAMA_HOST)
@@ -132,17 +154,11 @@ def get_ui_params(runid):
                 av_gpt_models[oll_model] = modeljson
                 gpt_models += f" {oll_model}"
 
-    # variable to not fail on empy values, and just ignore those type of errors
-    ignore_empty = False
-    if 'OAIWUI_IGNORE_EMPTY' in os.environ: # values does not matter, just need to be present
-        ignore_empty = True
-
     username = ""
     if 'OAIWUI_USERNAME' in os.environ:
         username = os.environ.get('OAIWUI_USERNAME')
         if cf.isBlank(username):
-            if not ignore_empty:
-                warnings.append(f"OAIWUI_USERNAME provided but empty, will ask for username")
+            warnings.append(f"OAIWUI_USERNAME provided but empty, will ask for username")
         else:
             st.session_state['username'] = username
 
@@ -150,9 +166,7 @@ def get_ui_params(runid):
     if 'OAIWUI_PROMPT_PRESETS_DIR' in os.environ:
         tmp = os.environ.get('OAIWUI_PROMPT_PRESETS_DIR')
         if cf.isBlank(tmp):
-            if not ignore_empty:
-                warnings.append(f"OAIWUI_PROMPT_PRESETS_DIR provided but empty, will not use prompt presets")
-
+            warnings.append(f"OAIWUI_PROMPT_PRESETS_DIR provided but empty, will not use prompt presets")
         else:
             err = cf.check_dir(tmp, "OAIWUI_PROMPT_PRESETS_DIR directory")
             if cf.isNotBlank(err):
@@ -172,9 +186,7 @@ def get_ui_params(runid):
     if 'OAIWUI_PROMPT_PRESETS_ONLY' in os.environ:
         tmp = os.environ.get('OAIWUI_PROMPT_PRESETS_ONLY')
         if cf.isBlank(tmp):
-            if not ignore_empty:
-                warnings.append(f"OAIWUI_PROMPT_PRESETS_ONLY provided but empty, will not use prompt presets")
-
+            warnings.append(f"OAIWUI_PROMPT_PRESETS_ONLY provided but empty, will not use prompt presets")
         else:
             err = cf.check_file_r(tmp)
             if cf.isNotBlank(err):
