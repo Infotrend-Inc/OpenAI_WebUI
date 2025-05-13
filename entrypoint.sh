@@ -176,7 +176,7 @@ if [ -f /tmp/oaiwui-run.sh ]; then
   sudo chmod +x /tmp/oaiwui-run.sh || error_exit "Failed to make /tmp/oaiwui-run.sh executable"
   /tmp/oaiwui-run.sh
 else
-  streamlit run OAIWUI_WebUI.py --server.port=8501 --server.address=0.0.0.0 --server.headless=true --browser.gatherUsageStats=False --logger.level=info
+  streamlit run OAIWUI_WebUI.py --server.port=8501 --server.address=0.0.0.0 --server.headless=true --server.fileWatcherType=none --browser.gatherUsageStats=False --logger.level=info
 fi
 
 exit 0
