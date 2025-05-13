@@ -10,7 +10,20 @@ import json
 
 from datetime import datetime
 
-iti_version="0.9.10"
+import logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
+iti_version="0.9.11"
+
+def logit(msg, mode="info"):
+    if mode == "info":
+        logging.info(msg)
+    elif mode == "warning":
+        logging.warning(msg)
+    elif mode == "error":
+        logging.error(msg)
+    elif mode == "debug":
+        logging.debug(msg)
 
 def isBlank (myString):
     return not (myString and myString.strip())
@@ -159,7 +172,7 @@ def get_run_file(run_file):
 #####
 
 def error_exit(txt):
-    print("[ERROR] " + txt)
+    logit(txt, "error")
     sys.exit(1)
 
 ##########
@@ -180,7 +193,7 @@ def get_dirname(path):
 
 #####
 
-def get_history(search_dir):
+def get_history_core(search_dir, mode: str = "GPT"):
     hist = {}
     err, listing = get_dirlist(search_dir, "save location")
     if isNotBlank(err):
@@ -195,11 +208,21 @@ def get_history(search_dir):
                 if fnmatch.fnmatch(file, 'run.json'):
                     run_file = os.path.join(entry_dir, file)
                     run_json = get_run_file(run_file)
-                    if 'prompt' in run_json:
-                        prompt = run_json['prompt']
+                    if mode == "GPT":
+                        prompt = run_json[-1]['content']
                         hist[entry] = [prompt, run_file]
+                    else:
+                        if 'prompt' in run_json:
+                            prompt = run_json['prompt']
+                            hist[entry] = [prompt, run_file]
                     break
     return "", hist
+
+def get_history(search_dir):
+    return get_history_core(search_dir, "Image")
+
+def get_gpt_history(search_dir):
+    return get_history_core(search_dir, "GPT")
 
 #####
 
@@ -212,3 +235,43 @@ def read_json(file, txt=''):
         file_contents = simple_file.read()
         parsed_json = json.loads(file_contents)
         return parsed_json
+
+#####
+
+def check_apikeys(provider, meta):
+    if 'apikey' in meta: # apikey hardcoded (for the likes of ollama who ignore the value)
+        return "", meta["apikey"]
+
+    apikey_env = ''
+    if 'apikey-env' in meta: # apikey in an environment variable
+        apikey_env = meta["apikey-env"]
+    if isBlank(apikey_env):
+        return "Missing information about environment variable to check for apikey", ""
+
+    if apikey_env not in os.environ:
+        return f"Environment variable {apikey_env} not set", ""
+
+    apikey = os.environ[apikey_env]
+    return "", apikey
+
+#####
+
+def load_models():
+    err = check_file_r("models.json", "models.json")
+    if isNotBlank(err):
+        return f"While checking models.json: {err}", None, None
+    all_models = read_json("models.json")
+    if all_models is None:
+        return f"Could not read models.json", None, None
+    gpt_models = {}
+    if 'GPT' in all_models:
+        gpt_models = all_models['GPT']
+    else:
+        return f"Could not find GPT in models.json", None, None
+    images_models = {}
+    if 'Image' in all_models:
+        images_models = all_models['Image']
+    else:
+        return f"Could not find Image in models.json", None, None
+
+    return "", gpt_models, images_models

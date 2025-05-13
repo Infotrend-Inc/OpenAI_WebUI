@@ -1,14 +1,10 @@
-**/__pycache__
-**/__off
-**/.gitignore
-**/venv
-**/savedir
-**/unraid
-**/.env
-**/.env.example
-**/.env.docker
-**/.env.docker.example
-**/.gitlab-ci.xml
-**/Makefile
-**/*.md
-**/poetry.lock
+# Ignore everything by default
+*
+
+# Allow directories (required for Git to process directory structure)
+!*/
+
+# Allow all Python files
+!*.py
+!pyproject.toml
+!*.sh

@@ -1,87 +1,106 @@
 SHELL := /bin/bash
 .PHONY: all
 
-# Decide which "no-cache" policy you want for your builds
-#OAI_NOCACHE="--no-cache"
-OAI_NOCACHE=
-
-# docker/podman selection
-# does not matter for unraid builds
-# when using docker_push, docker must be used
-DOCKER_CMD=docker
-#DOCKER_CMD=podman
-
 # Base python image base on Debian
-OAI_BASE="python:3.12-slim-bookworm"
+OAIWUI_BASE="ubuntu:24.04"
 
 # Version infomation and container name
-OAI_VERSION="0.9.10"
+OAIWUI_VERSION="0.9.11"
 
-OAI_CONTAINER_NAME="openai_webui"
+OAIWUI_CONTAINER_NAME="openai_webui"
 
 # Default build tag
-OAI_BUILD="${OAI_CONTAINER_NAME}:${OAI_VERSION}"
-OAI_BUILD_LATEST="${OAI_CONTAINER_NAME}:latest"
+OAIWUI_BUILD="${OAIWUI_CONTAINER_NAME}:${OAIWUI_VERSION}"
+OAIWUI_BUILD_LATEST="${OAIWUI_CONTAINER_NAME}:latest"
 
-# Unraid build tag
-OAI_UNRAID_BUILD="${OAI_CONTAINER_NAME}-unraid:${OAI_VERSION}"
-OAI_UNRAID_BUILD_LATEST="${OAI_CONTAINER_NAME}-unraid:latest"
+OAIWUI_BUILDX="oaiwui"
 
 all:
 	@echo "** Available Docker images to be built (make targets):"
-	@echo "build:          will build both latest and unraid images"
-	@echo "  build_main:   will build the ${OAI_BUILD} image and tag it as latest as well"
-	@echo "  build_unraid: will build the ${OAI_UNRAID_BUILD} image and tag it as latest as well"
+	@echo "build:          will build the ${OAIWUI_BUILD} image and tag it as latest as well"
+	@echo "delete:         will delete the main latest image"
+	@echo "buildx_rm:      will delete the buildx builder"
 	@echo ""
-	@echo "delete_images:   will delete the main and unraid images"
-	@echo "  delete_unraid: will delete the unraid images (has to be done before you can delete the other)"
-	@echo "  delete_main:   will delete the main latest images"
+	@echo "** Run the WebUI (must have uv installed):"
+	@echo "uv_run:         will run the WebUI using uv"
 
-build_main:
-	@${DOCKER_CMD} build --build-arg OAI_BASE=${OAI_BASE} ${OAI_NOCACHE} -t ${OAI_BUILD} -f Dockerfile .
-	@${DOCKER_CMD} tag ${OAI_BUILD} ${OAI_BUILD_LATEST}
+#####
+uv_run:
+	uv tool run --with-requirements pyproject.toml streamlit run ./OAIWUI_WebUI.py --server.port=8501 --server.address=0.0.0.0 --server.headless=true --server.fileWatcherType=none --browser.gatherUsageStats=False --logger.level=info
 
-build_unraid:
-	@docker build --build-arg OAI_BUILD=${OAI_BUILD} ${OAI_NOCACHE} -t ${OAI_UNRAID_BUILD} -f unraid/Dockerfile .
-	@docker tag ${OAI_UNRAID_BUILD} ${OAI_UNRAID_BUILD_LATEST}
+uv_run_debug:
+	uv tool run --with-requirements pyproject.toml streamlit run ./OAIWUI_WebUI.py --server.port=8501 --server.address=0.0.0.0 --server.headless=true --browser.gatherUsageStats=False --logger.level=debug
+
+#####
+
+buildx_prep:
+	@docker buildx ls | grep -q ${OAIWUI_BUILDX} && echo \"builder already exists -- to delete it, use: docker buildx rm ${OAIWUI_BUILDX}\" || docker buildx create --name ${OAIWUI_BUILDX} --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=256000000
+	@docker buildx use ${OAIWUI_BUILDX} || exit 1
+
 
 build:
-	@make build_main
-	@make build_unraid
+	@make buildx_prep
+	@BUILDX_EXPERIMENTAL=1 docker buildx debug --on=error build --progress plain --build-arg OAIWUI_BASE=${OAIWUI_BASE} -t ${OAIWUI_BUILD} --load -f Dockerfile .
+	@docker tag ${OAIWUI_BUILD} ${OAIWUI_BUILD_LATEST}
 
-delete_unraid:
-	@docker rmi ${OAI_UNRAID_BUILD_LATEST}
-	@docker rmi ${OAI_UNRAID_BUILD}
+delete:
+	@docker rmi ${OAIWUI_BUILD_LATEST}
+	@docker rmi ${OAIWUI_BUILD}
 
-delete_main:
-	@${DOCKER_CMD} rmi ${OAI_BUILD_LATEST}
-	@${DOCKER_CMD} rmi ${OAI_BUILD}
-
-delete_images:
-	@make delete_unraid
-	@make delete_main
-
+buildx_rm:
+	@docker buildx ls | grep -q ${OAIWUI_BUILDX} || echo "builder does not exist"
+	@echo "** About to delete buildx: ${OAIWUI_BUILDX}"
+	@echo "Press Ctl+c within 5 seconds to cancel"
+	@for i in 5 4 3 2 1; do echo -n "$$i "; sleep 1; done; echo ""
+	@docker buildx rm ${OAIWUI_BUILDX}
 ##
 
-build_docker_amd64:
-	@docker buildx build --platform linux/amd64 --build-arg OAI_BASE=${OAI_BASE} ${OAI_NOCACHE} -t ${OAI_BUILD} -f Dockerfile .
-	@docker tag ${OAI_BUILD} ${OAI_BUILD_LATEST}
-	@docker buildx build --platform linux/amd64 --build-arg OAI_BUILD=${OAI_BUILD} ${OAI_NOCACHE} -t ${OAI_UNRAID_BUILD} -f unraid/Dockerfile .
-	@docker tag ${OAI_UNRAID_BUILD} ${OAI_UNRAID_BUILD_LATEST}
-
+list_models:
+	@python3 ./list_models.py > models.txt
+	@python3 ./list_models.py --markdown > models.md
 
 docker_push:
 	@echo "Creating docker hub tags -- Press Ctl+c within 5 seconds to cancel -- will only work for maintainers"
 	@for i in 5 4 3 2 1; do echo -n "$$i "; sleep 1; done; echo ""
-	@make build_main
-	@docker tag ${OAI_BUILD} infotrend/${OAI_BUILD}
-	@docker tag ${OAI_BUILD_LATEST} infotrend/${OAI_BUILD_LATEST}
-	@make build_unraid
-	@docker tag ${OAI_UNRAID_BUILD} infotrend/${OAI_UNRAID_BUILD}
-	@docker tag ${OAI_UNRAID_BUILD_LATEST} infotrend/${OAI_UNRAID_BUILD_LATEST}
+	@make build
+	@docker tag ${OAIWUI_BUILD} infotrend/${OAIWUI_BUILD}
+	@docker tag ${OAIWUI_BUILD_LATEST} infotrend/${OAIWUI_BUILD_LATEST}
 	@echo "hub.docker.com upload -- Press Ctl+c within 5 seconds to cancel -- will only work for maintainers"
 	@for i in 5 4 3 2 1; do echo -n "$$i "; sleep 1; done; echo ""
-	@docker push infotrend/${OAI_BUILD}
-	@docker push infotrend/${OAI_BUILD_LATEST}
-	@docker push infotrend/${OAI_UNRAID_BUILD}
-	@docker push infotrend/${OAI_UNRAID_BUILD_LATEST}
+	@docker push infotrend/${OAIWUI_BUILD}
+	@docker push infotrend/${OAIWUI_BUILD_LATEST}
+
+## Maintainers:
+# - Create a new branch on GitHub that match the expected release tag, pull and checkout that branch
+# - update the version number if the following files (ex: "0.9.11"):
+#  common_functions.py:iti_version="0.9.11"
+#  Makefile:OAIWUI_VERSION="0.9.11"
+#  pyproject.toml:version = "0.9.11"
+#  README.md:Latest version: 0.9.11
+# - Local Test
+#  % make uv_run_debug
+# - Build docker image after local testing
+#  % make build
+# - Test in Docker then unraid
+# - Upload the images to docker hub
+#  % make docker_push
+# - Generate the models md and txt files
+#  % make list_models
+# - Update the README.md file's version + date + changelog
+# - Update the unraid/OpenAI_WebUI.xml file's <Date> and <Changes> sections
+# - Commit and push the changes to GitHub (in the branch created at the beginning)
+# - On Github, "Open a pull request", 
+#   use the version for the release name
+#   add PR modifications as a summary of the content of the commits,
+#   create the PR, add a self-approve message, merge and delete the branch
+# - On the build system, checkout main and pull the changes
+#  % git checkout main
+#  % git pull
+# - Delete the temporary branch
+#  % git branch -d branch_name
+# - Tag the release on GitHub
+#  % git tag version_id
+#  % git push origin version_id
+# - Create a release on GitHub using the version tag, add the release notes, and publish
+# - Delete the created docker builder
+#  % make buildx_rm
