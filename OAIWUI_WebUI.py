@@ -138,6 +138,11 @@ def get_ui_params(runid):
         del_empty_env_var('OAIWUI_PROMPT_PRESETS_DIR')
         del_empty_env_var('OAIWUI_PROMPT_PRESETS_ONLY')
 
+    # If no API key or Ollama host is provided, we can not continue
+    if 'OLLAMA_HOST' not in os.environ and 'OPENAI_API_KEY' not in os.environ and 'PERPLEXITY_API_KEY' not in os.environ and 'GEMINI_API_KEY' not in os.environ:
+        st.error("No API key or Ollama host provided, can not continue")
+        cf.error_exit("No API key or Ollama host provided, can not continue")
+
     # Actual checks
     if 'OLLAMA_HOST' in os.environ:
         OLLAMA_HOST = os.environ.get('OLLAMA_HOST')
