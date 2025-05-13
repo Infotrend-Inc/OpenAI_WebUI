@@ -10,8 +10,9 @@
   <Support>https://forums.unraid.net/topic/147675-support-infotrendopenai_webui/</Support>
   <Project>https://github.com/Infotrend-Inc/OpenAI_WebUI</Project>
   <Overview>&#xD;
-Unraid compatible OpenAI WebUI.&#xD;
-Requires your valid OpenAI API key.&#xD;
+OpenAI API-compatible WebUI.&#xD;
+Requires valid API keys for the providers enabled (see list in the selection).&#xD;
+Supports OLLAMA_HOST for self-hosted models. Model capabilities depend on the model, but a default for each will be used.&#xD;
 &#xD;
 Please review https://github.com/Infotrend-Inc/OpenAI_WebUI/README.md for two sections in particular:&#xD;
 - the .env supported environment variables that are defined in this template&#xD;
@@ -19,6 +20,7 @@ Please review https://github.com/Infotrend-Inc/OpenAI_WebUI/README.md for two se
 &#xD;
 Extra parameters are available under the advanced settings.&#xD;
 - the default savedir is /iti/savedir. /iti is mounted from within the appdata folder.&#xD;
+- the default user id is 99 and group id is 100. This can be changed modiying the WANTED_UID and WANTED_GID parameters.&#xD;
 - When using the "prompt presets" feature, the directory must exist (recommended location: /iti/prompt_presets).&#xD;
 - When using the "prompt presets settings" feature, the JSON file must exist (recommended location: /iti/prompt_presets.json).&#xD;
   </Overview>
@@ -33,17 +35,22 @@ Extra parameters are available under the advanced settings.&#xD;
   <DonateText/>
   <DonateLink/>
   <Requires/>
-  <Config Name="OPENAI_API_KEY" Target="OPENAI_API_KEY" Default="" Mode="" Description="Your OpenAI API key" Type="Variable" Display="always" Required="true" Mask="true"></Config>
+  <Config Name="OPENAI_API_KEY" Target="OPENAI_API_KEY" Default="" Mode="" Description="Your OpenAI API key" Type="Variable" Display="always" Required="false" Mask="true"></Config>
+  <Config Name="PERPLEXITY_API_KEY" Target="PERPLEXITY_API_KEY" Default="" Mode="" Description="Your Perplexity API key" Type="Variable" Display="always" Required="false" Mask="true"></Config>
+  <Config Name="GEMINI_API_KEY" Target="GEMINI_API_KEY" Default="" Mode="" Description="Your Google Gemini API key" Type="Variable" Display="always" Required="false" Mask="true"></Config>
+  <Config Name="OLLAMA_HOST" Target="OLLAMA_HOST" Default="" Mode="" Description="Your Ollama host" Type="Variable" Display="always" Required="false" Mask="false"></Config>
   <Config Name="WebUI" Target="8501" Default="8501" Mode="tcp" Description="" Type="Port" Display="always" Required="true" Mask="false">8501</Config>
   <Config Name="Run directory" Target="/iti" Default="/mnt/user/appdata/openai_webui" Mode="rw" Description="Mount directory for application files.&#13;&#10;/iti/savedir matches value used for OAIWUI_SAVEDIR " Type="Path" Display="always" Required="true" Mask="fals
 e">/mnt/user/appdata/openai_webui/savedir</Config>
   <Config Name="OAIWUI_SAVEDIR" Target="OAIWUI_SAVEDIR" Default="/iti/savedir" Mode="" Description="Required: location where generated files are placed" Type="Variable" Display="advanced" Required="true" Mask="false">/iti/savedir</Config>
-  <Config Name="OAIWUI_GPT_ONLY" Target="OAIWUI_GPT_ONLY" Default="False" Mode="" Description="If True, only show the GPT UI&#13;&#10;If False, show both the GPT and the DallE UI" Type="Variable" Display="always" Required="true" Mask="false">False</Config>
-  <Config Name="OAIWUI_GPT_MODELS" Target="OAIWUI_GPT_MODELS" Default="gpt-4,gpt-3.5-turbo" Mode="" Description="Required: comma-separated list of GPT models authorized for the provided API Key" Type="Variable" Display="always" Required="true" Mask="false">gpt-4o-mini,gpt-4o,gpt-4-turbo,gpt-4,o1-mini</Config>
-  <Config Name="OAIWUI_DALLE_MODELS" Target="OAIWUI_DALLE_MODELS" Default="dall-e-3,dall-e-2" Mode="" Description="Required: comma-separated list of DALL-E models authorized for the provided API Key" Type="Variable" Display="always" Required="true" Mask="false">dall-e-3</Config>
+  <Config Name="WANTED_UID" Target="WANTED_UID" Default="99" Mode="" Description="User id to run the container as" Type="Variable" Display="advanced" Required="false" Mask="false">99</Config>
+  <Config Name="WANTED_GID" Target="WANTED_GID" Default="100" Mode="" Description="Group id to run the container as" Type="Variable" Display="advanced" Required="false" Mask="false">100</Config>
+  <Config Name="OAIWUI_GPT_ONLY" Target="OAIWUI_GPT_ONLY" Default="False" Mode="" Description="If True, only show the GPT UI&#13;&#10;If False, show both the GPT and the Image generation UI" Type="Variable" Display="always" Required="true" Mask="false">False</Config>
+  <Config Name="OAIWUI_GPT_MODELS" Target="OAIWUI_GPT_MODELS" Default="chatgpt-4o-latest gemini-2.0-flash sonar" Mode="" Description="Required: space separated list of GPT models authorized for the provided API Keys" Type="Variable" Display="always" Required="true" Mask="false">chatgpt-4o-latest gemini-2.0-flash sonar</Config>
+  <Config Name="OAIWUI_IMAGE_MODELS" Target="OAIWUI_IMAGE_MODELS" Default="dall-e-3 gpt-image-1" Mode="" Description="Required: space separated list of Image models authorized for the provided API Keys" Type="Variable" Display="always" Required="true" Mask="false">dall-e-3 gpt-image-1</Config>
   <Config Name="OAIWUI_GPT_VISION" Target="OAIWUI_GPT_VISION" Default="True" Mode="" Description="For compatible models, disable their vision capabilities" Type="Variable" Display="always" Required="false" Mask="false">True</Config>
   <Config Name="OAIWUI_IGNORE_EMPTY" Target="OAIWUI_IGNORE_EMPTY" Default="" Mode="" Description="Required for Unraid: avoid errors in case some (not all) environment variables are not set" Type="Variable" Display="advanced-hide" Required="true" Mask="false">True</Config>
-  <Config Name="OAIWUI_USERNAME" Target="OAIWUI_USERNAME" Default="" Mode="" Description="Default username (leave blank to be prompted)" Type="Variable" Display="advanced" Required="false" Mask="false">unraid_user</Config>
-  <Config Name="OAIWUI_PROMPT_PRESETS_DIR" Target="OAIWUI_PROMPT_PRESETS_DIR" Default="" Mode="" Description="Directory that contains prompt presets (see GitHub for examples). If a directory is provided, it must contains at least one valid json file" Type="Variable" Display="advanced" Required="false" Mask="false"/>
-  <Config Name="OAIWUI_PROMPT_PRESETS_ONLY" Target="OAIWUI_PROMPT_PRESETS_ONLY" Default="" Mode="" Description="Json file that contains valid settings to use for the OAIWUI_PROMPT_PRESETS_DIR presets" Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="OAIWUI_USERNAME" Target="OAIWUI_USERNAME" Default="" Mode="" Description="Default username (leave blank to be prompted)" Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+  <Config Name="OAIWUI_PROMPT_PRESETS_DIR" Target="OAIWUI_PROMPT_PRESETS_DIR" Default="" Mode="" Description="Directory that contains prompt presets (see GitHub for examples). If a directory is provided, it must contains at least one valid json file" Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+  <Config Name="OAIWUI_PROMPT_PRESETS_ONLY" Target="OAIWUI_PROMPT_PRESETS_ONLY" Default="" Mode="" Description="Json file that contains valid settings to use for the OAIWUI_PROMPT_PRESETS_DIR presets" Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
 </Container>
