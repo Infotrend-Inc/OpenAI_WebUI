@@ -31,13 +31,11 @@ RUN groupadd -g 1024 oaiwui \
   && groupadd -g 1025 oaiwuitoo
 
 # The oaiwui user will have UID 1024, 
-# be part of the oaiwui and users groups and be sudo capable (passwordless) 
+# be part of the oaiwui group and be sudo capable (passwordless) 
 RUN useradd -u 1024 -d /home/oaiwui -g oaiwui -s /bin/bash -m oaiwui \
-    && usermod -G users oaiwui \
     && usermod -aG sudo oaiwui
 # The oaiwuitoo user will have UID 1025 ...
 RUN useradd -u 1025 -d /home/oaiwuitoo -g oaiwuitoo -s /bin/bash -m oaiwuitoo \
-    && usermod -G users oaiwuitoo \
     && usermod -aG sudo oaiwuitoo
 
 # Setup uv as oaiwuitoo
@@ -56,15 +54,14 @@ RUN which uv && uv --version
 
 # Get the source code (making sure the directories are owned by oaiwuitoo and the users group shared by oaiwui and oaiwuitoo)
 RUN sudo mkdir /app /app/.streamlit /app/assets /iti \
-    && sudo chown -R oaiwuitoo:users /app /iti
+    && sudo chown -R oaiwuitoo:oaiwuitoo /app /iti
 
-COPY pyproject.toml OAIWUI_WebUI.py common_functions.py common_functions_WebUI.py OAIWUI_Images.py OAIWUI_Images_WebUI.py OAIWUI_GPT.py OAIWUI_GPT_WebUI.py ollama_helper.py models.json /app/
-COPY assets/Infotrend_Logo.png /app/assets/
+COPY --chown=oaiwuitoo:oaiwuitoo pyproject.toml OAIWUI_WebUI.py common_functions.py common_functions_WebUI.py OAIWUI_Images.py OAIWUI_Images_WebUI.py OAIWUI_GPT.py OAIWUI_GPT_WebUI.py ollama_helper.py models.json /app/
+COPY --chown=oaiwuitoo:oaiwuitoo assets/Infotrend_Logo.png /app/assets/
 
 # Sync the project into a new environment
 WORKDIR /app
-RUN uv sync \
-  && uv clean cache
+RUN uv sync
 # Check that the venv is created with the expected tools
 RUN test -d /app/.venv \
   && test -x /app/.venv/bin/python3 \
@@ -77,9 +74,8 @@ HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
 # Final copies (as root, done at the end to avoid rebuilding previous steps)
 USER root
 
-RUN chown -R oaiwui:users /app /iti
-COPY --chmod=755 entrypoint.sh /entrypoint.sh
 COPY --chmod=644 config.sh /oaiwui_config.sh
+COPY --chmod=755 entrypoint.sh /entrypoint.sh
 
 # Run as oaiwuitoo
 USER oaiwuitoo
