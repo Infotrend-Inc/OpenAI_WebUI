@@ -12,6 +12,9 @@ Latest version: 0.9.11 (FIXME)
 - [2. Setup](#2-setup)
   - [2.1. Python uv](#21-python-uv)
   - [2.2. Docker/Podman](#22-dockerpodman)
+    - [2.2.1. Building the container](#221-building-the-container)
+    - [2.2.2. Running the container](#222-running-the-container)
+    - [2.2.3. local build cleanup](#223-local-build-cleanup)
   - [2.3. Docker compose](#23-docker-compose)
   - [2.4. Unraid](#24-unraid)
 - [3. Misc](#3-misc)
@@ -19,14 +22,15 @@ Latest version: 0.9.11 (FIXME)
   - [3.2. Version information/Changelog](#32-version-informationchangelog)
   - [3.3. Acknowledgments](#33-acknowledgments)
 
-A tool to enable a self-hosted WebUI ([streamlit](https://streamlit.io/)-based) to various GPT and Image generation APIs (requires valid API keys for each provider).
-The tool supports some OpenAI API-compatible providers, such as Perplexity AI, Gemini AI and the self-hosted Ollama.
+Self-hosted WebUI ([streamlit](https://streamlit.io/)-based) to various GPT and Image generation APIs (requires valid API keys for each provider).
+Supports some OpenAI API-compatible providers, such as Perplexity AI, Gemini AI and the self-hosted Ollama, enabling a company to install a self-hosted version of the WebUI to access the capabilities of various OpenAI API-compatible GPTs and Image generation APIs, then share access to the tool's capabilities while consolidating billing through API keys.
 
-The tool's purpose is to enable a company to install a self-hosted version of a WebUI to access the capabilities of various OpenAI API-compatible GPTs and Image generation APIs, then share access to the tool's capabilities while consolidating billing through the various API keys.
+| GPT WebUI | Image WebUI |
+| --- | --- |
+| [![./assets/Screenshot-OAIWUI_WebUI_GPT_small.jpg](./assets/Screenshot-OAIWUI_WebUI_GPT_small.jpg)](./assets/Screenshot-OAIWUI_WebUI_GPT.jpg) | [![./assets/Screenshot-OAIWUI_WebUI_Image_small.jpg](./assets/Screenshot-OAIWUI_WebUI_Image_small.jpg)](./assets/Screenshot-OAIWUI_WebUI_Image.jpg) |
 
-Click on the links to see a screenshot of the [GPT WebUI](./assets/Screenshot-OAIWUI_WebUI_GPT.jpg) and the [Image WebUI](./assets/Screenshot-OAIWUI_WebUI_Image.jpg).
 
-Please see https://github.com/Infotrend-Inc/OpenAI_WebUI/blob/main/.env.example for details of possible values for the environment variables. 
+Check our [.env.example](./.env.example) for details of possible values for the environment variables. 
 Unless otherwise specified, even if a feature is not used, its environment variable should be set.
 
 A pre-built container is available from our Docker account at https://hub.docker.com/r/infotrend/openai_webui
@@ -39,7 +43,7 @@ Note: this tool was initially developed in February 2023 and released to help en
 
 The tool provides a WebUI to various GPT and Image generation APIs (requires valid API keys for each provider).
 
-The tool **requires** the use of API keys to work.
+The tool **requires** the use of API keys to use commercial services.
 Variables in the `.env` file have the list of possible values and links to additional information on how to get your API keys.
 
 Depending on your deployment solution (*python virtualenv*, *docker image*, or *unraid*), the deployment might differ slightly.
@@ -174,6 +178,8 @@ Integrate that content within a new prompt presets JSON file.
 
 Note that the `oaiwui_skip` is not passed to the GPT, but is used to remove the content from the chat history.
 
+**Note:** not all models will work with the prompt presets.
+
 ### 1.5.1. prompt presets settings
 
 When using "prompt presets", it is possible to make the tool behave such that the end user can only use a single `model` with a set `temperature` and maximum requested `tokens`. This JSON settings file is used by pointing the `OAIWUI_PROMPT_PRESETS_ONLY` environment variable to the location of the file.
@@ -191,6 +197,8 @@ We have provided an example `prompt_presets_settings-example.json` file. This ex
 - use the `gpt-4o-mini` model (which must be in the `OAIWUI_GPT_MODELS` list of authorized models)
 - requests a maximum of 3K tokens for the GPT answer. The maximum value per model differs so the tool will error if the requested value is too high (note this is not the context tokens, which covers the entire chat)
 - set the temperature to 0.5. The temperature controls the randomness of responses, with lower values yielding more deterministic answers and higher values producing more creative and varied outputs (the range is 0 to 1)
+
+**Note:** not all parameters will work with the different models.
 
 #  2. Setup
 
@@ -210,7 +218,7 @@ You can also configure the GPT amd Image generation `models` you can access
 
    ```bash
    $ cp .env.example .env
-   $ code .env
+   $ vi .env
    ```
 
 ```bash
@@ -219,113 +227,158 @@ uv tool run --with-requirements pyproject.toml streamlit run ./OAIWUI_WebUI.py -
 
 You can now open your browser to http://127.0.0.1:8501 to test the WebUI.
 
+The above command is also available as:
+
+```bash
+make uv_run
+```
+
 ## 2.2. Docker/Podman
 
-The container build is an excellent way to test in an isolated, easily redeployed environment.
+Using containers is an excellent way to test the tool in an isolated, easily redeployed environment.
 
-This setup prefers the use of environment variable, using `docker run ... -e VAR=val`
+The container provides two extra environment variables: `WANTED_UID` and `WANTED_GID`. Through their use, it is possible to set the user ID and group ID of the internal `oaiwui` user. The container is not running as `root`. This user will write files to the mounted volumes; which allows to set the ownership of the files to the user and group ID of the host. If none are specified on the command line, the default values of `0` and `0` are used (ie the `root` user).
 
-1. Build the container
+This setup prefers the use of environment variable, using `docker run ... -e VAR=val`, but it is also possible to use a `.env` file or  `/oaiwui_config.sh` file mounted within the container, as described below.
 
-    ```bash
-    make build_main
-    ```
+Different options are available using the `Makefile`; type `make` to see the up-to-date list of options.
 
-1. Run the built container, here specifying your `OAIWUI_SAVEDIR` to be `/iti`, which will be mounted from the current working directory's `savedir` and mounted to `/iti` within the container:
+### 2.2.1. Building the container
 
-    ```bash
-    docker run --rm -it -p 8501:8501 -v `pwd`/savedir:/iti -e OPENAI_API_KEY="Your_OpenAI_API_Key" -e OAIWUI_SAVEDIR=/iti -e OAIWUI_GPT_ONLY=False -e OAIWUI_GPT_MODELS="gpt-4o-mini,gpt-4,o1-mini" -e OAIWUI_IMAGE_MODELS="dall-e-3" openai_webui:latest
-    ```
+The `Makefile` provide an easy means to build the container:
 
-If you want to use the "prompt presets" and its "prompt presets settings" environment variables, those can be added to the command line. For example to use the provided examples add the following to the command line (before the name of the container): 
+```bash
+make build
+```
+
+This will create a local container named `openai_webui` with two `tags`: the current version number (as defined in the `Makefile`) and the `latest` tag.
+
+An already built container is provided by on DockerHub: `infotrend/openai_webui`.
+
+### 2.2.2. Running the container
+
+The following uses the `infotrend/openai_webui` container, adapt if you have built your own container.
+
+Paths that are specified as environment variables are expected to be mounted from the host to the container: when setting `OAIWUI_SAVEDIR=/iti`, the container's `savedir` should be mounted from the host to `/iti` using `-v /host/savedir:/iti` `docker run` argument.
+
+There are multiple options to run the container. The following are examples commands, adapt as needed.
+
+Use environment variables on the command line to setup the most common options found in the `.env` file:
+  ```bash
+  docker run --rm -it -p 8501:8501 -v `pwd`/savedir`:/iti -e OAIWUI_SAVEDIR=/iti -e WANTED_UID=`id -u` -e WANTED_GID=`id -g` -e OPENAI_API_KEY="Your_OpenAI_API_Key" -e OAIWUI_GPT_ONLY=False -e OAIWUI_GPT_MODELS="gpt-4o-mini,gpt-4.1" -e OAIWUI_IMAGE_MODELS="dall-e-3" infotrend/openai_webui:latest
+  ```
+
+To use the "prompt presets" and its "prompt presets settings" environment variables, those can be added to the command line. For example to use the provided examples add the following to the command line (before the name of the container): 
 ```-v `pwd`/prompt_presets.example:/prompt_presets -e OAIWUI_PROMPT_PRESETS_DIR=/prompt_presets```
 and  ```-v `pwd`/prompt_presets_settings-example.json:/prompt_presets.json -e OAIWUI_PROMPT_PRESETS_ONLY=/prompt_presets.json```
 
+To use the password protection for the WebUI, create and populate the `.streamlit/secrets.toml` file before you start the container (see [password protecting the webui](#14-password-protecting-the-webui)) then add `-v PATH_TO/secrets.toml:/app/.streamlit/secrets.toml:ro` to your command line (adapting `PATH_TO` with the full path location of the secrets file)
 
-If you want to use the password protection for the WebUI, create and populate the `.streamlit/secrets.toml` file before you start the container (see [password protecting the webui](#14-password-protecting-the-webui)) then add `-v PATH_TO/secrets.toml:/app/.streamlit/secrets.toml:ro` to your command line (adapting `PATH_TO` with the full path location of the secrets file)
+With the above options enabled, the earlier command line would become:
+  ```bash
+  docker run --rm -it -p 8501:8501 -v `pwd`/savedir:/iti -e OAIWUI_SAVEDIR=/iti -e WANTED_UID=`id -u` -e WANTED_GID=`id -g` -e OPENAI_API_KEY="Your_OpenAI_API_Key" -e OAIWUI_GPT_ONLY=False -e OAIWUI_GPT_MODELS="gpt-4o-mini,gpt-4.1" -e OAIWUI_IMAGE_MODELS="dall-e-3" -v `pwd`/prompt_presets.example:/prompt_presets:ro -e OAIWUI_PROMPT_PRESETS_DIR=/prompt_presets -v `pwd`/prompt_presets_settings-example.json:/prompt_presets.json:ro -e OAIWUI_PROMPT_PRESETS_ONLY=/prompt_presets.json -v `pwd`/secrets.toml:/app/.streamlit/secrets.toml:ro infotrend/openai_webui:latest
+  ```
 
-With all the above options enabled, the command line would be:
+It is possible to specify some of the command line options from a file mounted within the container.
 
-```bash
-docker run --rm -it -p 8501:8501 -v `pwd`/savedir:/iti -e OPENAI_API_KEY="Your_OpenAI_API_Key" -e OAIWUI_SAVEDIR=/iti -e OAIWUI_GPT_ONLY=False -e OAIWUI_GPT_MODELS="gpt-4o-mini,gpt-4" -e OAIWUI_IMAGE_MODELS="dall-e-3" -v `pwd`/prompt_presets.example:/prompt_presets:ro -e OAIWUI_PROMPT_PRESETS_DIR=/prompt_presets -v `pwd`/prompt_presets_settings-example.json:/prompt_presets.json:ro -e OAIWUI_PROMPT_PRESETS_ONLY=/prompt_presets.json -v `pwd`/secrets.toml:/app/.streamlit/secrets.toml:ro openai_webui:latest
-```
+One such method is to use a `.env` file mounted within the `/app` directory. 
+Mounts still need to be performed: adapt the provided `.env.example` file and uses `/iti` for its `OAIWUI_SAVEDIR` environment variable. Extend/adapt the remaining environment variables as needed. Without the prompt presets and password protection options, the command line can be simplified as:
+  ```bash
+  docker run --rm -it -p 8501:8501 -v `pwd`/savedir:/iti -e OAIWUI_SAVEDIR=/iti -e WANTED_UID=`id -u` -e WANTED_GID=`id -g` -v `pwd`/.env.docker.example:/app/.env:ro infotrend/openai_webui:latest
+  ```
 
-It is also possible to populate a `.env` file and mount it within the `/app` directory. Note that `-v` options still need to be applied for.
-For example, adapt the provided `.env.docker.example` file that uses `/iti` for its `savedir` and similar mount as the above command line for the "prompt presets" (but does not use the `secrets.toml`). The command line can be command line can be simplified as:
+Another alternative is to use a `config.sh` file mounted within the container as `/oaiwui_config.sh`. The `WANTED_UID` and `WANTED_GID` environment variables can be set within the file. To have a more complete conguration in a file, the example `config.sh` file, can be mounted within the container as `/oaiwui_config.sh`.
+  ```bash
+  docker run --rm -it -p 8501:8501 -v `pwd`/savedir:/iti -v `pwd`/config.sh:/oaiwui_config.sh:ro infotrend/openai_webui:latest
+  ```
 
-```bash
-docker run --rm -it -p 8501:8501 -v `pwd`/.env.docker.example:/app/.env:ro -v `pwd`/savedir:/iti -v `pwd`/prompt_presets.example:/prompt_presets:ro -v `pwd`/prompt_presets_settings-example.json:/prompt_presets.json:ro openai_webui:latest
-```
+### 2.2.3. local build cleanup
 
+Use the `Makefile` to delete locally built containers:
+  ```bash
+  $ make delete
+  ```
 
-You can have the `Makefile` delete locally built containers:
-
-```
-$ make delete_main
-```
+Container are built using `buildx`. To delete the build context, use:
+  ```bash
+  $ make buildx_rm
+  ```
 
 ## 2.3. Docker compose
 
-To run the built or downloaded container using `docker compose`, decide on the directory where you want the `compose.yaml` to be, and place the following as the content of the file:
+To run the built or downloaded container using `docker compose`, decide on the directory where you want the `compose.yaml` to be. In this example, files are relative to the path where the `compose.yaml` file is located. Create the `savedir` directory and if using `WANTED_UID` and `WANTED_GID`, make sure that folder is owned by the user and group ID specified.
 
-```yaml
-services:
-  openai_webui:
-    image: infotrend/openai_webui:latest
-    container_name: openai_webui
-    restart: unless-stopped
-    volumes:
-      - ./savedir:/iti
-      # Warning: do not mount other content within /iti 
-      # Uncomment the following and create a secrets.toml in the directory where this compose.yaml file is to password protect access to the application
-      # - ./secrets.toml:/app/.streamlit/secrets.toml:ro
-      # Mount your "prompt presets" directory to enable those are options
-      # - ./prompt_presets.example:/prompt_presets:ro
-      # Mount the "prompt presets" settings file to limit users to the model, tokens and temperature set in the file
-      # - ./prompt_presets_settings-example.json:prompt_presets.json:ro
-    ports:
-      # host port:container port
-      - 8501:8501
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - OAIWUI_SAVEDIR=/iti
-      # Adapt the following as best suits your deployment
-      - OAIWUI_GPT_ONLY=False
-      - OAIWUI_GPT_MODELS=gpt-4o
-      - OAIWUI_GPT_VISION=True
-      # Even if OAIWUI_GPT_ONLY is True, please set a model, it will be ignored
-      - OAIWUI_IMAGE_MODELS=dall-e-3
-      # Uncomment and enter a value if you are using a single user deployment
-      # - OAIWUI_USERNAME=user
-      # Enable the user of "prompt presets" present in the mounted directory (must have a directory matching in the `volumes` section)
-      # - OAIWUI_PROMPT_PRESETS_DIR=/prompt_presets
-      # Enable the "prompt presets" setting (must have a file matching in the `volumes` section)
-      # - OAIWUI_PROMPT_PRESETS_ONLY=/prompt_presets.json
-```
+Adapt the following example to your needs and save it as `compose.yaml`:
+  ```yaml
+  services:
+    openai_webui:
+      image: infotrend/openai_webui:latest
+      container_name: openai_webui
+      restart: unless-stopped
+      volumes:
+        - ./savedir:/iti
+        # Warning: do not mount other content within /iti 
+        # Uncomment the following and create a secrets.toml in the directory where this compose.yaml file is to password protect access to the application
+        # - ./secrets.toml:/app/.streamlit/secrets.toml:ro
+        # Mount your "prompt presets" directory to enable those are options
+        # - ./prompt_presets.example:/prompt_presets:ro
+        # Mount the "prompt presets" settings file to limit users to the model, tokens and temperature set in the file
+        # - ./prompt_presets_settings-example.json:prompt_presets.json:ro
+        # Mount your config file to preset environment variables if preferred; delete corresponding entries from the environment section
+        # - ./config.sh:/oaiwui_config.sh:ro
+      ports:
+        # host port:container port
+        - 8501:8501
+      environment:
+        - OPENAI_API_KEY=${OPENAI_API_KEY}
+        # Add as many API keys as needed, see the .env example for more details
+        - OAIWUI_SAVEDIR=/iti
+        # Uncomment and Set the user ID and group ID of the `oaiwui` user and group. If none are specified, 0/0 will be used
+        # - WANTED_UID=1001
+        # - WANTED_GID=1001
+        # Adapt the following as best suits your deployment
+        - OAIWUI_GPT_ONLY=False
+        - OAIWUI_GPT_MODELS=gpt-4o
+        - OAIWUI_GPT_VISION=True
+        # Even if OAIWUI_GPT_ONLY is True, please set a model, it will be ignored
+        - OAIWUI_IMAGE_MODELS=dall-e-3
+        # Uncomment and enter a value if you are using a single user deployment
+        # - OAIWUI_USERNAME=user
+        # Enable the user of "prompt presets" present in the mounted directory (must have a directory matching in the `volumes` section)
+        # - OAIWUI_PROMPT_PRESETS_DIR=/prompt_presets
+        # Enable the "prompt presets" setting (must have a file matching in the `volumes` section)
+        # - OAIWUI_PROMPT_PRESETS_ONLY=/prompt_presets.json
+  ```
 
-In the directory where the `compose.yaml` is located, create a `savedir` directory (it will be mounted as `/iti` within the running container), and create a `.env` file that needs only contain the `OPENAI_API_KEY=value` entry.
-If using a `secrets.toml` file with a `password=WEBUIPASSWORD` content, uncomment the entry in the `compose.yaml` file.
+Such that:
+- Add other variables as needed from your [.env](.env.example) or [config.sh](config.sh) files.
+- Create a  `docker compose` specific`.env` file in the same directory as the `compose.yaml` file: it needs only contain the `OPENAI_API_KEY=value` entry or other API keys as needed, such that those private values are not exposed in the `compose.yaml` file. 
+- If using `WANTED_UID` and `WANTED_GID`, make sure that folder is owned by the user and group ID specified.
+- If using a `secrets.toml` file with a `password=WEBUIPASSWORD` content, or other environment variables, uncomment/add the corresponding entry in the `compose.yaml` file.
 
 As configured, the container will `restart` `unless-stopped` which also means that unless the container is stopped it will automatically restart after a host reboot.
 
-Run using `docker compose up -d`
+Run using:
+  ```bash
+  docker compose up -d
+  ```
 
 The WebUI will be accessible on port 8501 of your host.
 
 ## 2.4. Unraid
 
-For [Unraid](https://unraid.net/) users, a special build mode is available to get a container using unraid's preferred `uid`/`gid`, use `make build_unraid` to build it.
+For [Unraid](https://unraid.net/) users, to get a container using unraid's preferred `uid`/`gid`, specify the `WANTED_UID` and `WANTED_GID` environment variables in the container's template.
 
 The pre-built container has been added to Unraid's Community Applications.
 
 The configuration file contains many of the possible environment variables, as detailed in the [.env](#12-env) section.
-Omitted from the configuration file:
-- a `Path` mapping a `secrets.toml` file to the `/app/.streamlit/secrets.toml` location within the running docker container (read-only recommended). 
+
+Omitted from the configuration file are mounted volumes. If needed, a `Path` mapping a `secrets.toml` file to the `/app/.streamlit/secrets.toml` location within the running docker container (read-only recommended). 
 Before setting this, create and populate a file with the expected value (as described in [password protecting the WebUI](#14-password-protecting-the-webui)).
 For example, if your `appdata` location for the OpenAI WebUI was `/mnt/user/appdata/openai_webui` in which you placed the needed `secrets.toml` file, the expected XML addition would look similar to: 
-    ```
-    <Config Name="/app/.streamlit/secrets.toml" Target="/app/.streamlit/secrets.toml" Default="/mnt/user/appdata/openai_webui/secrets.toml" Mode="ro" Description="WebUI password protection -- secrets.toml file must exist with a password variable" Type="Path" Display="always" Required="false" Mask="false">/mnt/user/appdata/openai_webui/secrets.toml</Config>
-    ```
+  ```xml
+  <Config Name="/app/.streamlit/secrets.toml" Target="/app/.streamlit/secrets.toml" Default="/mnt/user/appdata/openai_webui/secrets.toml" Mode="ro" Description="WebUI password protection -- secrets.toml file must exist with a password variable" Type="Path" Display="always" Required="false" Mask="false">/mnt/user/appdata/openai_webui/secrets.toml</Config>
+  ```
 
 # 3. Misc
 
