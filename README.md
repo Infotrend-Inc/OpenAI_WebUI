@@ -118,7 +118,9 @@ Those values can be passed by making a `.env` file containing the expected value
 
 The `.env` file is not copied into the `docker` or `unraid` setup. Environment variables should be used in this case. 
 
-It is possible to obtain the list of models from the `models.json` file as environment variables using the `list_models.py` script:
+The `models.txt` file is a environment variable ready version of the models list. It can be used for the `OAIWUI_GPT_MODELS` and `OAIWUI_IMAGE_MODELS` parameters.
+
+It is possible to obtain that list from the `models.json` file as environment variables using the `list_models.py` script:
 ```bash
 python3 ./list_models.py
 ```
