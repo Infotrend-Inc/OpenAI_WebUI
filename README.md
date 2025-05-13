@@ -224,7 +224,7 @@ You can also configure the GPT amd Image generation `models` you can access
    ```
 
 ```bash
-uv tool run --with-requirements pyproject.toml streamlit run ./OAIWUI_WebUI.py --server.port=8501 --server.address=0.0.0.0 --server.headless=true
+uv tool run --with-requirements pyproject.toml streamlit run ./OAIWUI_WebUI.py --server.port=8501 --server.address=0.0.0.0 --server.headless=true --server.fileWatcherType=none --browser.gatherUsageStats=False --logger.level=info
 ```
 
 You can now open your browser to http://127.0.0.1:8501 to test the WebUI.
@@ -369,7 +369,7 @@ The WebUI will be accessible on port 8501 of your host.
 
 ## 2.4. Unraid
 
-For [Unraid](https://unraid.net/) users, to get a container using unraid's preferred `uid`/`gid`, specify the `WANTED_UID` and `WANTED_GID` environment variables in the container's template.
+For [Unraid](https://unraid.net/) users, the same container can be used with unraid's preferred `uid`/`gid`. To do so, specify the `WANTED_UID` and `WANTED_GID` environment variables in the container's template.
 
 The pre-built container has been added to Unraid's Community Applications.
 
