@@ -58,6 +58,6 @@ Extra parameters are available under the advanced settings.&#xD;
   <Date>2025-05-13</Date>
   <Changes>
 ### 0.9.11 (2025-05-13)
-- Using chat interface for GPTs, and support for additional OpenAI API-compatible providers (Perplexity AI, Gemini AI and the self-hosted Ollama) + new image generation model + moved to uv for deployment + Added WANTED_UID and WANTED_GID environment variables for Docker and Unraid
+- Using chat interface for GPTs, and support for additional OpenAI API-compatible providers (Perplexity AI, Gemini AI and the self-hosted Ollama) + new image generation model + moved to uv for deployment + Changed base container to ubuntu:24.04 and added WANTED_UID and WANTED_GID environment variables for Docker and Unraid
   </Changes>
 </Container>
