@@ -77,6 +77,7 @@ HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
 # Final copies (as root, done at the end to avoid rebuilding previous steps)
 USER root
 
+RUN chown -R oaiwui:users /app /iti
 COPY --chmod=755 entrypoint.sh /entrypoint.sh
 COPY --chmod=644 config.sh /oaiwui_config.sh
 
