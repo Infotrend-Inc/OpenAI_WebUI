@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <Container version="2">
   <Name>OpenAIWebUI</Name>
-  <Repository>infotrend/openai_webui-unraid:latest</Repository>
-  <Registry>https://hub.docker.com/r/infotrend/openai_webui-unraid/</Registry>
+  <Repository>infotrend/openai_webui:latest</Repository>
+  <Registry>https://hub.docker.com/r/infotrend/openai_webui/</Registry>
   <Network>bridge</Network>
   <MyIP/>
   <Shell>bash</Shell>
