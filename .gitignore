@@ -10,4 +10,3 @@ savedir.docker
 poetry.lock
 prompt_presets
 uv.lock
-.streamlit/secrets.toml
