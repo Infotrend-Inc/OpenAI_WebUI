@@ -55,6 +55,9 @@ buildx_rm:
 	@docker buildx rm ${OAIWUI_BUILDX}
 ##
 
+list_models:
+	@python3 ./list_models.py > models.txt
+	@python3 ./list_models.py --markdown > models.md
 
 docker_push:
 	@echo "Creating docker hub tags -- Press Ctl+c within 5 seconds to cancel -- will only work for maintainers"
@@ -66,3 +69,38 @@ docker_push:
 	@for i in 5 4 3 2 1; do echo -n "$$i "; sleep 1; done; echo ""
 	@docker push infotrend/${OAIWUI_BUILD}
 	@docker push infotrend/${OAIWUI_BUILD_LATEST}
+
+## Maintainers:
+# - Create a new branch on GitHub that match the expected release tag, pull and checkout that branch
+# - update the version number if the following files (ex: "0.9.11"):
+#  common_functions.py:iti_version="0.9.11"
+#  Makefile:OAIWUI_VERSION="0.9.11"
+#  pyproject.toml:version = "0.9.11"
+#  README.md:Latest version: 0.9.11
+# - Local Test
+#  % make uv_run_debug
+# - Build docker image after local testing
+#  % make build
+# - Test in Docker then unraid
+# - Upload the images to docker hub
+#  % make docker_push
+# - Generate the models md and txt files
+#  % make list_models
+# - Update the README.md file's version + date + changelog
+# - Update the unraid/OpenAI_WebUI.xml file's <Date> and <Changes> sections
+# - Commit and push the changes to GitHub (in the branch created at the beginning)
+# - On Github, "Open a pull request", 
+#   use the version for the release name
+#   add PR modifications as a summary of the content of the commits,
+#   create the PR, add a self-approve message, merge and delete the branch
+# - On the build system, checkout main and pull the changes
+#  % git checkout main
+#  % git pull
+# - Delete the temporary branch
+#  % git branch -d branch_name
+# - Tag the release on GitHub
+#  % git tag version_id
+#  % git push origin version_id
+# - Create a release on GitHub using the version tag, add the release notes, and publish
+# - Delete the created docker builder
+#  % make buildx_rm

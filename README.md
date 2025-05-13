@@ -1,6 +1,6 @@
 <h1>OpenAI API-compatible WebUI (OAIWUI)</h1>
 
-Latest version: 0.9.11 (FIXME)
+Latest version: 0.9.11 (20250513)
 
 - [1. Description](#1-description)
   - [1.1. Supported models](#11-supported-models)
@@ -390,7 +390,7 @@ For example, if your `appdata` location for the OpenAI WebUI was `/mnt/user/appd
 
 ##  3.2. Version information/Changelog
 
-- v0.9.11 (FIXME): Using chat interface for GPTs, and support for additional OpenAI API-compatible providers (Perplexity AI, Gemini AI and the self-hosted Ollama) + new image generation model
+- v0.9.11 (20250513): Using chat interface for GPTs, and support for additional OpenAI API-compatible providers (Perplexity AI, Gemini AI and the self-hosted Ollama) + new image generation model + moved to uv for deployment + Added WANTED_UID and WANTED_GID environment variables for Docker and Unraid
 - v0.9.10 (20241217): Added `o1` model (untested) following its API access availability
 - v0.9.9 (20241206): API changes to use `o1-mini` and `o1-preview` (tested)
 - v0.9.8 (20241010): Added `o1-preview` and `o1-mini` model (untested) + "prompt presets" functionalities 

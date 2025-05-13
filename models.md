@@ -25,6 +25,6 @@
 | GPT | [`sonar-pro`](https://docs.perplexity.ai/models/models/sonar-pro) | PerplexityAI | active |  |  | Perplexity's premier search offering with search grounding, supporting advanced queries and follow-ups. |
 | GPT | [`sonar-reasoning`](https://docs.perplexity.ai/models/models/sonar-reasoning) | PerplexityAI | active |  |  | Perplexity's premier search offering outputs Chain-of-Thought (CoT) in its response as well. |
 | GPT | [`sonar-reasoning-pro`](https://docs.perplexity.ai/models/models/sonar-reasoning-pro) | PerplexityAI | active |  |  | Perplexity's premier search offering leveraging advanced multi-step Chain-of-Thought (CoT) in its response as well with search grounding, supporting advanced queries and follow-ups. |
-| Dall-E | [`dall-e-2`](https://platform.openai.com/docs/models#dall-e) | OpenAI | active |  |  | The previous DALL·E model released in Nov 2022. The maximum prompt length is 1000 characters. |
-| Dall-E | [`dall-e-3`](https://platform.openai.com/docs/models#dall-e) | OpenAI | active |  |  | The latest DALL·E model released in Nov 2023. The maximum prompt length is 4000 characters. |
-| Dall-E | [`gpt-image-1`](https://platform.openai.com/docs/models#dall-e) | OpenAI | active |  |  | OpenAI's GPT Image 1 is their new state-of-the-art image generation model. |
+| Image | [`dall-e-2`](https://platform.openai.com/docs/models#dall-e) | OpenAI | active |  |  | The previous DALL·E model released in Nov 2022. The maximum prompt length is 1000 characters. |
+| Image | [`dall-e-3`](https://platform.openai.com/docs/models#dall-e) | OpenAI | active |  |  | The latest DALL·E model released in Nov 2023. The maximum prompt length is 4000 characters. |
+| Image | [`gpt-image-1`](https://platform.openai.com/docs/models#dall-e) | OpenAI | active |  |  | OpenAI's GPT Image 1 is their new state-of-the-art image generation model. |
