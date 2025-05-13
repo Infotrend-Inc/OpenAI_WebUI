@@ -20,6 +20,15 @@ all:
 	@echo "build:          will build the ${OAIWUI_BUILD} image and tag it as latest as well"
 	@echo "delete:         will delete the main latest image"
 	@echo "buildx_rm:      will delete the buildx builder"
+	@echo ""
+	@echo "** Run the WebUI (must have uv installed):"
+	@echo "uv_run:         will run the WebUI using uv"
+
+#####
+uv_run:
+	uv tool run --with-requirements pyproject.toml streamlit run ./OAIWUI_WebUI.py --server.port=8501 --server.address=0.0.0.0 --server.headless=true
+
+#####
 
 buildx_prep:
 	@docker buildx ls | grep -q ${OAIWUI_BUILDX} && echo \"builder already exists -- to delete it, use: docker buildx rm ${OAIWUI_BUILDX}\" || docker buildx create --name ${OAIWUI_BUILDX} --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=256000000
