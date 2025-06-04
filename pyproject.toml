@@ -1,6 +1,6 @@
 [project]
 name = "Infotrend-OpenAI_WebUI"
-version = "0.9.11"
+version = "0.9.12"
 description = "Streamlit-based WebUI to OpenAI API-compatible GPTs and Image generation APIs (requires API keys)"
 authors = [
     {name = "Martial Michel", email = "mmichel@infotrend.com"}

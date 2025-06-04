@@ -13,7 +13,7 @@ from datetime import datetime
 import logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
-iti_version="0.9.11"
+iti_version="0.9.12"
 
 def logit(msg, mode="info"):
     if mode == "info":
@@ -275,3 +275,13 @@ def load_models():
         return f"Could not find Image in models.json", None, None
 
     return "", gpt_models, images_models
+
+#####
+
+def clean_url(url):
+    url = str(url)
+    if not url.startswith("http"):
+        return "URL must start with http:// or https://", ""
+    if url.endswith("/"):
+        url = url[:-1]
+    return "", url

@@ -5,8 +5,7 @@ SHELL := /bin/bash
 OAIWUI_BASE="ubuntu:24.04"
 
 # Version infomation and container name
-OAIWUI_VERSION="0.9.11"
-
+OAIWUI_VERSION="0.9.12"
 OAIWUI_CONTAINER_NAME="openai_webui"
 
 # Default build tag
