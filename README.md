@@ -1,6 +1,6 @@
 <h1>OpenAI API-compatible WebUI (OAIWUI)</h1>
 
-Latest version: 0.9.11 (20250513)
+Latest version: 0.9.12 (20250715)
 
 - [1. Description](#1-description)
   - [1.1. Supported models](#11-supported-models)
@@ -23,7 +23,8 @@ Latest version: 0.9.11 (20250513)
   - [3.3. Acknowledgments](#33-acknowledgments)
 
 Self-hosted WebUI ([streamlit](https://streamlit.io/)-based) to various GPT and Image generation APIs (requires valid API keys for each provider).
-Supports some OpenAI API-compatible providers, such as Perplexity AI, Gemini AI and the self-hosted Ollama, enabling a company to install a self-hosted version of the WebUI to access the capabilities of various OpenAI API-compatible GPTs and Image generation APIs, then share access to the tool's capabilities while consolidating billing through API keys.
+
+Supports some [OpenAI](https://platform.openai.com/docs/models_) API-compatible providers, such as [Perplexity AI](https://docs.perplexity.ai/models/model-cards_), [Gemini AI](https://ai.google.dev/gemini-api/docs/models), the self-hosted [Ollama](https://github.com/ollama/ollama) and [LiteLLM's Proxy Server](https://docs.litellm.ai/docs/#litellm-proxy-server-llm-gateway), enabling a company to install a self-hosted version of the WebUI to access the capabilities of various OpenAI API-compatible GPTs and Image generation APIs, then share access to the tool's capabilities while consolidating billing through API keys.
 
 | GPT WebUI | Image WebUI |
 | --- | --- |
@@ -94,16 +95,29 @@ For additional details, see:
 - Perplexity AI Models & API price: https://docs.perplexity.ai/guides/models
  
 Self-hosted models:
-`ollama` is a self-hosted solution; the name is here for illustration prupose (`ollama` is not a recognized model value). At initialization, the tool will use the `OLLAMA_HOST` environment variable to attempt tofind the server; then list and add all available hosted models. Capabilties of the hosted models are various: by default we will authorize `vision` and set a defauklt `max_tokens`; it is advised to check the model information for details on its actual capabilities. Find more information about [Ollama](https://github.com/oollama/ollama)
+- `ollama` is a self-hosted solution; the name is here for illustration prupose (`ollama` is not a recognized model value). At initialization, the tool will use the `OLLAMA_HOST` environment variable to attempt to find the server; then list and add all available hosted models. Capabilties of the hosted models are various: by default we will authorize `vision` and set a defauklt `max_tokens`; it is advised to check the model information for details on its actual capabilities. Find more information about [Ollama](https://github.com/oollama/ollama)
+- `LiteLLM` is a Proxy Server to LLM APIs in OpenAI format. [`LiteLLM Proxy Server`](https://docs.litellm.ai/docs/#litellm-proxy-server-llm-gateway); will search for `LITELLM_URL` and `LITELLM_API_KEY` environment variable.
+
+To obtain the list of Ollama or LiteLLM models enabled in your setup, you can run the following commands (requires `uv` to be installed and the `.env` file to be populated):
+```bash
+uv run ./list_models.py --ollama > ollama.md
+uv run ./list_models.py --litellm > litellm.md
+```
 
 ## 1.2. .env
 
 **Do not distribute your `.env` file as it contains your API keys.**
 
-The `.env.example` file contains the parameters needed to pass to the running tool:
+The `.env.example` file contains the parameters needed to pass to the running tool.
+
+Models:
 - `OPENAI_API_KEY` (optional) as obtained from https://platform.openai.com/account/api-keys
 - `PERPLEXITY_API_KEY` (optional) as obtained from https://docs.perplexity.ai/guides/getting-started
 - `GEMINI_API_KEY` (optional) as obtained from https://ai.google.dev/gemini-api/docs/api-key
+- `OLLAMA_HOST` (optional) for the URL to your Ollama server. All models found will be added to the list of available models.
+- `LITELLM_URL` (optional) for the URL to your LiteLLM server. All models found will be added to the list of available models. If set the `LITELLM_API_KEY` is required for the API key to your LiteLLM server.
+
+Configuration:
 - `OAIWUI_SAVEDIR`, the location to save content (make sure the directory exists)
 - `OAIWUI_GPT_ONLY`, to request only to show the GPT tab otherwise, shows both GPTs and Images (authorized value: `True` or `False`)
 - `OAIWUI_GPT_MODELS` is a comma-separated list of GPT model(s) your API keys are authorized to use. For OpenAI, ee https://platform.openai.com/docs/api-reference/making-requests . For Perplexity AI, see https://docs.perplexity.ai/guides/pricing
@@ -390,6 +404,7 @@ For example, if your `appdata` location for the OpenAI WebUI was `/mnt/user/appd
 
 ##  3.2. Version information/Changelog
 
+- v0.9.12 (20250715): Added LiteLLM support (including compatible providers such as OpenRouter.ai) + updated openai python package to 1.96.0
 - v0.9.11 (20250513): Using chat interface for GPTs, and support for additional OpenAI API-compatible providers (Perplexity AI, Gemini AI and the self-hosted Ollama) + new image generation model + moved to uv for deployment + Changed base container to ubuntu:24.04 and added WANTED_UID and WANTED_GID environment variables for Docker and Unraid
 - v0.9.10 (20241217): Added `o1` model (untested) following its API access availability
 - v0.9.9 (20241206): API changes to use `o1-mini` and `o1-preview` (tested)
