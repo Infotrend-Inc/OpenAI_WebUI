@@ -110,7 +110,7 @@ class LiteLLMHelper:
         if len(xtra) > 0:
             label += " The following fields are missing in the response and were set to default values: "
             label += f"{', '.join(xtra)}"
-            label += " (Ask your LiteLLM admin to set theose values)"
+            label += " (Ask your LiteLLM admin to set those values)"
 
         model_dict = {
             "label": label,
