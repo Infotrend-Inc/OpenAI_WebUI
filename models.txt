@@ -1,2 +1,2 @@
-OAIWUI_GPT_MODELS=chatgpt-4o-latest gemini-1.5-flash gemini-1.5-flash-8b gemini-1.5-pro gemini-2.0-flash gemini-2.0-flash-lite gemini-2.5-flash-preview-04-17 gemini-2.5-pro-preview-03-25 gpt-4.1 gpt-4.1-mini gpt-4.1-nano gpt-4o gpt-4o-mini gpt-4o-mini-search-preview gpt-4o-search-preview o3 o3-mini o4-mini r1-1776 sonar sonar-deep-research sonar-pro sonar-reasoning sonar-reasoning-pro
-OAIWUI_IMAGES_MODELS=dall-e-2 dall-e-3 gpt-image-1
+OAIWUI_GPT_MODELS=chatgpt-4o-latest gemini-1.5-flash gemini-1.5-flash-8b gemini-1.5-pro gemini-2.0-flash gemini-2.0-flash-lite gemini-2.5-flash gemini-2.5-flash-lite-preview-06-17 gemini-2.5-pro gpt-4.1 gpt-4.1-mini gpt-4.1-nano gpt-4o gpt-4o-mini gpt-4o-mini-search-preview gpt-4o-search-preview o3 o3-mini o3-pro o4-mini r1-1776 sonar sonar-deep-research sonar-pro sonar-reasoning sonar-reasoning-pro
+OAIWUI_IMAGE_MODELS=dall-e-2 dall-e-3 gpt-image-1

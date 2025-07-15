@@ -56,7 +56,7 @@ RUN which uv && uv --version
 RUN sudo mkdir /app /app/.streamlit /app/assets /iti \
     && sudo chown -R oaiwuitoo:oaiwuitoo /app /iti
 
-COPY --chown=oaiwuitoo:oaiwuitoo pyproject.toml OAIWUI_WebUI.py common_functions.py common_functions_WebUI.py OAIWUI_Images.py OAIWUI_Images_WebUI.py OAIWUI_GPT.py OAIWUI_GPT_WebUI.py ollama_helper.py models.json /app/
+COPY --chown=oaiwuitoo:oaiwuitoo pyproject.toml OAIWUI_WebUI.py common_functions.py common_functions_WebUI.py OAIWUI_Images.py OAIWUI_Images_WebUI.py OAIWUI_GPT.py OAIWUI_GPT_WebUI.py ollama_helper.py litellm_helper.py models.json /app/
 COPY --chown=oaiwuitoo:oaiwuitoo assets/Infotrend_Logo.png /app/assets/
 
 # Sync the project into a new environment

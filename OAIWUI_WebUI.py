@@ -13,7 +13,8 @@ import re
 import os.path
 
 import common_functions as cf
-import ollama_helper as oll
+from ollama_helper import OllamaHelper
+from litellm_helper import LiteLLMHelper
 
 from dotenv import load_dotenv
 from datetime import datetime
@@ -137,27 +138,51 @@ def get_ui_params(runid):
         del_empty_env_var('OAIWUI_USERNAME')
         del_empty_env_var('OAIWUI_PROMPT_PRESETS_DIR')
         del_empty_env_var('OAIWUI_PROMPT_PRESETS_ONLY')
+        del_empty_env_var('LITELLM_URL')
+        del_empty_env_var('LITELLM_API_KEY')
 
-    # If no API key or Ollama host is provided, we can not continue
-    if 'OLLAMA_HOST' not in os.environ and 'OPENAI_API_KEY' not in os.environ and 'PERPLEXITY_API_KEY' not in os.environ and 'GEMINI_API_KEY' not in os.environ:
-        st.error("No API key or Ollama host provided, can not continue")
-        cf.error_exit("No API key or Ollama host provided, can not continue")
+    # If no API key, Ollama host or Litellm URL is provided, we can not continue
+    if 'OLLAMA_HOST' not in os.environ and 'OPENAI_API_KEY' not in os.environ and 'PERPLEXITY_API_KEY' not in os.environ and 'GEMINI_API_KEY' not in os.environ and 'LITELLM_URL' not in os.environ:
+        st.error("No API key, Ollama host or Litellm URL provided, can not continue")
+        cf.error_exit("No API key, Ollama host or Litellm URL provided, can not continue")
 
     # Actual checks
     if 'OLLAMA_HOST' in os.environ:
         OLLAMA_HOST = os.environ.get('OLLAMA_HOST')
-        err, ollama_models = oll.get_all_ollama_models_and_infos(OLLAMA_HOST)
+        oll = OllamaHelper(OLLAMA_HOST)
+        err, ollama_models = oll.get_all_ollama_models_and_infos()
         if cf.isNotBlank(err):
             warnings.append(f"Disabling OLLAMA -- While testing OLLAMA_HOST {OLLAMA_HOST}: {err}")
         else:
             for oll_model in ollama_models:
                 # We are going to extend the GPT models with the Ollama models
-                err, modeljson = oll.ollama_to_modelsjson(OLLAMA_HOST, oll_model, ollama_models[oll_model])
+                err, modeljson = oll.ollama_to_modelsjson(oll_model, ollama_models[oll_model])
                 if cf.isNotBlank(err):
                     warnings.append(f"Disalbing OLLAMA model -- while obtaining OLLAMA model {oll_model} details: {err}")
                     continue
                 av_gpt_models[oll_model] = modeljson
                 gpt_models += f" {oll_model}"
+
+    if 'LITELLM_URL' in os.environ and 'LITELLM_API_KEY' not in os.environ:
+        warnings.append(f"Disabling LiteLLM -- LITELLM_URL provided but LITELLM_API_KEY not provided")
+    if 'LITELLM_API_KEY' in os.environ and 'LITELLM_URL' not in os.environ:
+        warnings.append(f"Disabling LiteLLM -- LITELLM_API_KEY provided but LITELLM_URL not provided")
+    if 'LITELLM_URL' in os.environ and 'LITELLM_API_KEY' in os.environ:            
+        LITELLM_URL = os.environ.get('LITELLM_URL')
+        LITELLM_API_KEY = os.environ.get('LITELLM_API_KEY')
+        lit = LiteLLMHelper(LITELLM_URL, LITELLM_API_KEY)
+        err, litellm_models = lit.get_all_litellm_models_and_infos()
+        if cf.isNotBlank(err):
+            warnings.append(f"Disabling LiteLLM -- While testing LITELLM_URL {LITELLM_URL}: {err}")
+        else:
+            for lit_model in litellm_models:
+                # We are going to extend the GPT models with the LiteLLM models
+                err, modeljson = lit.litellm_to_modelsjson(lit_model, litellm_models[lit_model])
+                if cf.isNotBlank(err):
+                    warnings.append(f"Disabling LiteLLM model -- while obtaining LiteLLM model {lit_model} details: {err}")
+                    continue
+                av_gpt_models[lit_model] = modeljson
+                gpt_models += f" {lit_model}"
 
     username = ""
     if 'OAIWUI_USERNAME' in os.environ:
