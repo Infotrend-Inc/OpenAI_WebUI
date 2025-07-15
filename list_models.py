@@ -104,6 +104,6 @@ if __name__ == "__main__":
     gpt_models = {k: v for k, v in gpt_models.items() if v['status'] != 'deprecated'}
     images_models = {k: v for k, v in images_models.items() if v['status'] != 'deprecated'}
     print("OAIWUI_GPT_MODELS=" + " ".join(sorted(list(gpt_models.keys()))))
-    print("OAIWUI_IMAGES_MODELS=" + " ".join(sorted(list(images_models.keys()))))
+    print("OAIWUI_IMAGE_MODELS=" + " ".join(sorted(list(images_models.keys()))))
 
     sys.exit(0)
