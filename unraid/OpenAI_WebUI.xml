@@ -57,8 +57,11 @@ Extra parameters are available under the advanced settings.&#xD;
   <Config Name="OAIWUI_USERNAME" Target="OAIWUI_USERNAME" Default="" Mode="" Description="Default username (leave blank to be prompted)" Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
   <Config Name="OAIWUI_PROMPT_PRESETS_DIR" Target="OAIWUI_PROMPT_PRESETS_DIR" Default="" Mode="" Description="Directory that contains prompt presets (see GitHub for examples). If a directory is provided, it must contains at least one valid json file" Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
   <Config Name="OAIWUI_PROMPT_PRESETS_ONLY" Target="OAIWUI_PROMPT_PRESETS_ONLY" Default="" Mode="" Description="Json file that contains valid settings to use for the OAIWUI_PROMPT_PRESETS_DIR presets" Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
-  <Date>2025-07-15</Date>
+  <Date>2025-08-07</Date>
   <Changes>
+### 0.9.13 (2025-08-07)
+- Added support for GPT-5
+
 ### 0.9.12 (2025-07-15)
 - Support for LiteLLM
 
