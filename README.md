@@ -1,6 +1,6 @@
 <h1>OpenAI API-compatible WebUI (OAIWUI)</h1>
 
-Latest version: 0.9.12 (20250715)
+Latest version: 0.9.13 (20250807)
 
 - [1. Description](#1-description)
   - [1.1. Supported models](#11-supported-models)
@@ -404,6 +404,7 @@ For example, if your `appdata` location for the OpenAI WebUI was `/mnt/user/appd
 
 ##  3.2. Version information/Changelog
 
+- v0.9.13 (20250807): Added support for GPT-5
 - v0.9.12 (20250715): Added LiteLLM support (including compatible providers such as OpenRouter.ai) + updated openai python package to 1.96.0
 - v0.9.11 (20250513): Using chat interface for GPTs, and support for additional OpenAI API-compatible providers (Perplexity AI, Gemini AI and the self-hosted Ollama) + new image generation model + moved to uv for deployment + Changed base container to ubuntu:24.04 and added WANTED_UID and WANTED_GID environment variables for Docker and Unraid
 - v0.9.10 (20241217): Added `o1` model (untested) following its API access availability

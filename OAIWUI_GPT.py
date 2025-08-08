@@ -95,7 +95,7 @@ class OAIWUI_GPT:
         self.gpt_roles_help = ""
         self.model_capability = {}
 
-        self.beta_models = {}
+        self.use_max_completion_tokenss = {}
 
         self.per_model_provider = {}
         self.per_model_url = {}
@@ -140,8 +140,8 @@ class OAIWUI_GPT:
     def get_save_location(self):
         return self.save_location
 
-    def get_beta_models(self):
-        return self.beta_models
+    def get_use_max_completion_tokenss(self):
+        return self.use_max_completion_tokenss
     
     def get_per_model_meta(self):
         return self.per_model_meta
@@ -226,10 +226,10 @@ class OAIWUI_GPT:
                 self.model_capability[key] = capabilities
                 per_model_help += " | Capability: " + ", ".join(capabilities)
 
-            if 'beta_model' in models[key]["meta"]:
-                self.beta_models[key] = models[key]['meta']['beta_model']
+            if 'use_max_completion_tokens' in models[key]["meta"]:
+                self.use_max_completion_tokenss[key] = models[key]['meta']['use_max_completion_tokens']
             else:
-                self.beta_models[key] = False
+                self.use_max_completion_tokenss[key] = False
 
             if 'apiurl' in models[key]["meta"]:
                 self.per_model_url[key] = models[key]['meta']['apiurl']
@@ -327,9 +327,9 @@ class OAIWUI_GPT:
                 if provider == "OpenAI":
                     openai_websearch_enabled = True
 
-        beta_model = False
-        if model_engine in self.beta_models:
-            beta_model = self.beta_models[model_engine]
+        use_max_completion_tokens = False
+        if model_engine in self.use_max_completion_tokenss:
+            use_max_completion_tokens = self.use_max_completion_tokenss[model_engine]
 
         last_runfile = self.last_runfile
         if cf.isNotBlank(last_runfile):
@@ -401,7 +401,7 @@ class OAIWUI_GPT:
                 continue
 
             # skip messages with roles that are removed in beta models
-            if beta_model is True:
+            if use_max_completion_tokens is True:
                 if msg['role'] in self.per_model_meta[model_engine]['removed_roles']:
                     continue
 
@@ -415,7 +415,7 @@ class OAIWUI_GPT:
             json.dump(clean_messages, f, indent=4)
 
         # Use kwargs to hold max_tokens and temperature
-        if self.beta_models[model_engine] is True:
+        if self.use_max_completion_tokenss[model_engine] is True:
             kwargs['max_completion_tokens'] = max_tokens
         elif openai_websearch_enabled is True:
             kwargs['response_format'] = { 'type': 'text'}
