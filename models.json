@@ -24,8 +24,8 @@
             "max_token": 8000,
             "context_token": 1000000,
             "data": "Latest update: Sep 2024",
-            "status": "active",
-            "status_details": "",
+            "status": "deprecated",
+            "status_details": "as of Aug 2025",
             "capability": ["vision"],
             "meta": {
                 "provider": "GoogleAI",
@@ -41,8 +41,8 @@
             "max_token": 8000,
             "context_token": 1000000,
             "data": "Latest update: Oct 2024",
-            "status": "active",
-            "status_details": "",
+            "status": "deprecated",
+            "status_details": "as of Aug 2025",
             "capability": ["vision"],
             "meta": {
                 "provider": "GoogleAI",
@@ -58,8 +58,8 @@
             "max_token": 8000,
             "context_token": 2000000,
             "data": "Latest update: Sep 2024",
-            "status": "active",
-            "status_details": "",
+            "status": "deprecated",
+            "status_details": "as of Aug 2025",
             "capability": ["vision"],
             "meta": {
                 "provider": "GoogleAI",
@@ -126,6 +126,23 @@
             "max_token": 65000,
             "context_token": 1000000,
             "data": "Latest update: Jun 2025, Knowledge cutoff: Jan 2025",
+            "status": "deprecated",
+            "status_details": "as of Aug 2025",
+            "capability": ["vision"],
+            "meta": {
+                "provider": "GoogleAI",
+                "apikey-env": "GEMINI_API_KEY",
+                "apiurl": "https://generativelanguage.googleapis.com/v1beta/openai/",
+                "model_url": "https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash-lite"
+            }
+        },
+
+        "gemini-2.5-flash-lite":
+        {
+            "label": "Google's Gemini 2.5 Flash model optimized for cost efficiency and high throughput.",
+            "max_token": 65000,
+            "context_token": 1000000,
+            "data": "Latest update: Jul 2025, Knowledge cutoff: Jan 2025",
             "status": "active",
             "status_details": "",
             "capability": ["vision"],
@@ -142,7 +159,7 @@
             "label": "Google's state-of-the-art thinking model, capable of reasoning over complex problems in code, math, and STEM, as well as analyzing large datasets, codebases, and documents using long context.",
             "max_token": 65000,
             "context_token": 1000000,
-            "data": "Latest update: Mar 2025, Knowledge cutoff: Jan 2025",
+            "data": "Latest update: Jun 2025, Knowledge cutoff: Jan 2025",
             "status": "active",
             "status_details": "",
             "capability": ["vision"],
@@ -237,7 +254,7 @@
 
         "gpt-4o-mini-search-preview":
         {
-            "label": "OpenAI's GPT-4o mini Search Preview is a specialized model trained to understand and execute web search queries with the Chat Completions API. In addition to token fees, web search queries have a fee per tool call..",
+            "label": "OpenAI's GPT-4o mini Search Preview is a specialized model trained to understand and execute web search queries with the Chat Completions API. In addition to token fees, web search queries have a fee per tool call.",
             "max_token": 16384,
             "context_token": 128000,
             "data": "Up to Oct 2023",
@@ -253,7 +270,7 @@
 
         "gpt-4o-search-preview":
         {
-            "label": "OpenAI's GPT-4o Search Preview is a specialized model trained to understand and execute web search queries with the Chat Completions API. In addition to token fees, web search queries have a fee per tool call..",
+            "label": "OpenAI's GPT-4o Search Preview is a specialized model trained to understand and execute web search queries with the Chat Completions API. In addition to token fees, web search queries have a fee per tool call.",
             "max_token": 16384,
             "context_token": 128000,
             "data": "Up to Oct 2023",
@@ -267,6 +284,82 @@
             }
         },
 
+        "gpt-5":
+        {
+            "label": "OpenAI's GPT-5 is their flagship model for coding, reasoning, and agentic tasks across domains.",
+            "max_token": 128000,
+            "context_token": 400000,
+            "data": "Up to Sep 2024",
+            "status": "active",
+            "status_details": "",
+            "capability": ["vision"],
+            "meta": {
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
+                "use_max_completion_tokens": true,
+                "removed_roles": ["system"],
+                "disabled_features": ["temperature", "preset"],
+                "model_url": "https://platform.openai.com/docs/models/gpt-5"
+            }
+        },
+
+        "gpt-5-chat-latest":
+        {
+            "label": "OpenAI's GPT-5 Chat points to the GPT-5 snapshot currently used in ChatGPT. GPT-5 is their next-generation, high-intelligence flagship model. It accepts both text and image inputs, and produces text outputs.",
+            "max_token": 128000,
+            "context_token": 400000,
+            "data": "Up to Sep 2024",
+            "status": "active",
+            "status_details": "",
+            "capability": ["vision"],
+            "meta": {
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
+                "use_max_completion_tokens": true,
+                "removed_roles": ["system"],
+                "disabled_features": ["temperature", "preset"],
+                "model_url": "https://platform.openai.com/docs/models/gpt-5-chat-latest"
+            }
+        },
+
+
+        "gpt-5-mini":
+        {
+            "label": "OpenAI's GPT-5-mini is is a faster, more cost-efficient version of GPT-5. It's great for well-defined tasks and precise prompts.",
+            "max_token": 128000,
+            "context_token": 400000,
+            "data": "Up to May 2024",
+            "status": "active",
+            "status_details": "",
+            "capability": ["vision"],
+            "meta": {
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
+                "use_max_completion_tokens": true,
+                "removed_roles": ["system"],
+                "disabled_features": ["temperature", "preset"],
+                "model_url": "https://platform.openai.com/docs/models/gpt-5-mini"
+            }
+        },
+
+        "gpt-5-nano":
+        {
+            "label": "OpenAI's GPT-5-nano is their fastest, cheapest version of GPT-5. It's great for summarization and classification tasks.",
+            "max_token": 128000,
+            "context_token": 400000,
+            "data": "Up to May 2024",
+            "status": "active",
+            "status_details": "",
+            "capability": ["vision"],
+            "meta": {
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
+                "use_max_completion_tokens": true,
+                "removed_roles": ["system"],
+                "disabled_features": ["temperature", "preset"],
+                "model_url": "https://platform.openai.com/docs/models/gpt-5-nano"
+            }
+        },
 
         "o3":
         {
@@ -275,15 +368,34 @@
             "context_token": 208000,
             "data": "Up to May 2024",
             "status": "active",
-            "status_details": "beta",
+            "status_details": "",
             "capability": [],
             "meta": {
                 "provider": "OpenAI",
                 "apikey-env": "OPENAI_API_KEY",
-                "beta_model": true,
+                "use_max_completion_tokens": true,
                 "removed_roles": ["system"],
                 "disabled_features": ["temperature", "preset"],
                 "model_url": "https://platform.openai.com/docs/models/o3"
+            }
+        },
+
+        "o3-deep-research":
+        {
+            "label": "OpenAI's o3-deep-research is the most advanced model for deep research, designed to tackle complex, multi-step research tasks. It can search and synthesize information from across the internet",
+            "max_token": 100000,
+            "context_token": 208000,
+            "data": "Up to May 2024",
+            "status": "active",
+            "status_details": "",
+            "capability": [],
+            "meta": {
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
+                "use_max_completion_tokens": true,
+                "removed_roles": ["system"],
+                "disabled_features": ["temperature", "preset"],
+                "model_url": "https://platform.openai.com/docs/models/o3-deep-research"
             }
         },
 
@@ -294,12 +406,12 @@
             "context_token": 208000,
             "data": "Up to Sep 2023",
             "status": "active",
-            "status_details": "beta",
+            "status_details": "",
             "capability": [],
             "meta": {
                 "provider": "OpenAI",
                 "apikey-env": "OPENAI_API_KEY",
-                "beta_model": true,
+                "use_max_completion_tokens": true,
                 "removed_roles": ["system"],
                 "disabled_features": ["temperature", "preset"],
                 "model_url": "https://platform.openai.com/docs/models/o3-mini"
@@ -313,12 +425,12 @@
             "context_token": 208000,
             "data": "Up to May 2024",
             "status": "active",
-            "status_details": "beta",
+            "status_details": "",
             "capability": [],
             "meta": {
                 "provider": "OpenAI",
                 "apikey-env": "OPENAI_API_KEY",
-                "beta_model": true,
+                "use_max_completion_tokens": true,
                 "removed_roles": ["system"],
                 "disabled_features": ["temperature", "preset"],
                 "model_url": "https://platform.openai.com/docs/models/o3-mini"
@@ -332,18 +444,36 @@
             "context_token": 208000,
             "data": "Up to May 2024",
             "status": "active",
-            "status_details": "beta",
+            "status_details": "",
             "capability": [],
             "meta": {
                 "provider": "OpenAI",
                 "apikey-env": "OPENAI_API_KEY",
-                "beta_model": true,
+                "use_max_completion_tokens": true,
                 "removed_roles": ["system"],
                 "disabled_features": ["temperature", "preset"],
                 "model_url": "https://platform.openai.com/docs/models/o4-mini"
             }
         },
 
+        "o4-mini-deep-research":
+        {
+            "label": "OpenAI's o4-mini-deep-research is the faster, more affordable deep research model—ideal for tackling complex, multi-step research tasks. It can search and synthesize information from across the internet.",
+            "max_token": 100000,
+            "context_token": 208000,
+            "data": "Up to May 2024",
+            "status": "active",
+            "status_details": "",
+            "capability": [],
+            "meta": {
+                "provider": "OpenAI",
+                "apikey-env": "OPENAI_API_KEY",
+                "use_max_completion_tokens": true,
+                "removed_roles": ["system"],
+                "disabled_features": ["temperature", "preset"],
+                "model_url": "https://platform.openai.com/docs/models/o4-mini-deep-research"
+            }
+        },
 
         "r1-1776":
         {
@@ -351,8 +481,8 @@
             "max_token": 4096,
             "context_token": 127000,
             "data": "Perplexity model",
-            "status": "active",
-            "status_details": "",
+            "status": "deprecated",
+            "status_details": "as of Aug 2025",
             "capability": [],
             "meta": {
                 "provider": "PerplexityAI",
@@ -364,7 +494,6 @@
                 "model_url": "https://docs.perplexity.ai/models/models/r1-1776"
             }
         },
-
 
         "sonar":
         {

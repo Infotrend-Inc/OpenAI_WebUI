@@ -13,7 +13,7 @@ from datetime import datetime
 import logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
-iti_version="0.9.12"
+iti_version="0.9.13"
 
 def logit(msg, mode="info"):
     if mode == "info":
